@@ -203,7 +203,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer components {
   .plaincard {
     @apply bg-card text-card-foreground rounded-md p-2 m-2 border border-border shadow-sm;
+  }
+  button {
+    @apply !rounded-sm;
   }
 }
