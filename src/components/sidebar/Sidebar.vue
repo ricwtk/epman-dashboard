@@ -2,7 +2,17 @@
 import { useSidebarStatusStore } from '@/stores/sidebarstatus';
 const { sidebarstatus, toggleSidebarCollapse, toggleSidebarText } = useSidebarStatusStore();
 import SidebarItem from './SidebarItem.vue';
-import { HomeIcon, InfoIcon, ChevronFirst, ChevronLast } from 'lucide-vue-next';
+import {
+  HomeIcon,
+  InfoIcon,
+  ChevronFirst,
+  ChevronLast,
+  UserIcon,
+  ChartColumnStackedIcon,
+  LayoutDashboardIcon,
+  LayersIcon,
+  UserCogIcon
+} from 'lucide-vue-next';
 import { Separator } from '@/components/ui/separator';
 
 import { useRouter } from 'vue-router';
@@ -15,16 +25,38 @@ function navigateTo(path: string) {
 </script>
 
 <template>
-  <aside class="plaincard flex flex-col gap-2"
+  <div class="plaincard flex flex-col gap-2"
     :class="[sidebarstatus.showText ? 'w-[250px]' : 'w-auto', sidebarstatus.collapsed ? 'hidden' : 'visible']"
   >
-      <SidebarItem @click="navigateTo('/')">
-        <template #icon><HomeIcon /></template>
-        <template #text>Home</template>
-      </SidebarItem>
+    <SidebarItem>
+      <template #icon><UserIcon /></template>
+      <template #text>Email</template>
+    </SidebarItem>
+    <Separator />
+    <SidebarItem @click="navigateTo('/')">
+      <template #icon><HomeIcon /></template>
+      <template #text>Home</template>
+    </SidebarItem>
+    <SidebarItem>
+      <template #icon><LayoutDashboardIcon /></template>
+      <template #text>Programmes</template>
+    </SidebarItem>
+    <SidebarItem>
+      <template #icon><LayersIcon /></template>
+      <template #text>Courses</template>
+    </SidebarItem>
+    <SidebarItem>
+      <template #icon><ChartColumnStackedIcon /></template>
+      <template #text>Students</template>
+    </SidebarItem>
+    <SidebarItem>
+      <template #icon><UserCogIcon /></template>
+      <template #text>Admin</template>
+    </SidebarItem>
+    <Separator />
     <SidebarItem @click="navigateTo('/about')">
       <template #icon><InfoIcon /></template>
-      <template #text>About</template>
+      <template #text>Guide</template>
     </SidebarItem>
     <Separator />
     <SidebarItem @click="toggleSidebarText">
@@ -34,5 +66,5 @@ function navigateTo(path: string) {
       </template>
       <template #text>Minimise Sidebar</template>
     </SidebarItem>
-  </aside>
+  </div>
 </template>
