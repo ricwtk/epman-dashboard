@@ -13,7 +13,7 @@ const { toggleSidebarCollapse } = useSidebarStatusStore();
 <template>
   <div class="flex flex-col h-screen">
     <header class="">
-      <div class="plaincard flex flex-row items-center gap-2">
+      <div class="plaincard flex flex-row items-center gap-2 mb-0">
         <Button size="icon" variant="ghost" @click="toggleSidebarCollapse">
           <MenuIcon />
         </Button>
@@ -25,7 +25,7 @@ const { toggleSidebarCollapse } = useSidebarStatusStore();
 
     <div class="flex flex-row grow overflow-hidden">
       <aside class="overflow-auto shrink-0">
-        <Sidebar />
+        <Sidebar class="mr-0"/>
       </aside>
 
       <main class="overflow-auto grow">
