@@ -1,0 +1,38 @@
+<script setup lang="ts">
+import { useSidebarStatusStore } from '@/stores/sidebarstatus';
+const { sidebarstatus, toggleSidebarCollapse, toggleSidebarText } = useSidebarStatusStore();
+import SidebarItem from './SidebarItem.vue';
+import { HomeIcon, InfoIcon, ChevronFirst, ChevronLast } from 'lucide-vue-next';
+import { Separator } from '@/components/ui/separator';
+
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function navigateTo(path: string) {
+  router.push(path);
+}
+</script>
+
+<template>
+  <aside class="plaincard flex flex-col gap-2"
+    :class="[sidebarstatus.showText ? 'w-[250px]' : 'w-auto', sidebarstatus.collapsed ? 'hidden' : 'visible']"
+  >
+      <SidebarItem @click="navigateTo('/')">
+        <template #icon><HomeIcon /></template>
+        <template #text>Home</template>
+      </SidebarItem>
+    <SidebarItem @click="navigateTo('/about')">
+      <template #icon><InfoIcon /></template>
+      <template #text>About</template>
+    </SidebarItem>
+    <Separator />
+    <SidebarItem @click="toggleSidebarText">
+      <template #icon>
+        <ChevronFirst v-if="sidebarstatus.showText" />
+        <ChevronLast v-else />
+      </template>
+      <template #text>Minimise Sidebar</template>
+    </SidebarItem>
+  </aside>
+</template>

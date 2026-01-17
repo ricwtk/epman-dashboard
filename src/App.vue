@@ -3,21 +3,48 @@ import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 import { Button } from '@/components/ui/button'
 import { MenuIcon } from 'lucide-vue-next';
+import Sidebar from '@/components/sidebar/Sidebar.vue';
+import { useSidebarStatusStore } from '@/stores/sidebarstatus';
+
+const { toggleSidebarCollapse } = useSidebarStatusStore();
+
 </script>
 
 <template>
-  <header>
-    <div class="rounded-md m-2 px-2 py-2 border border-border flex flex-row items-center gap-2">
-      <Button size="icon" variant="ghost">
-        <MenuIcon />
-      </Button>
-      <div class="font-bold">
-        Engineering Programme Management
+  <div class="flex flex-col h-screen">
+    <header class="">
+      <div class="plaincard flex flex-row items-center gap-2">
+        <Button size="icon" variant="ghost" @click="toggleSidebarCollapse">
+          <MenuIcon />
+        </Button>
+        <div class="font-bold">
+          Engineering Programme Management
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <RouterView />
+    <div class="flex flex-row grow overflow-hidden">
+      <!-- <div class="w-[250px] shrink-0"> -->
+      <div>
+        <!-- <aside class="m-2 border border-border rounded-md p-2"> -->
+        <Sidebar />
+        <!-- <aside class="plaincard">
+          <div class="font-bold">Menu</div>
+          <ul>
+            <li><RouterLink to="/">Home</RouterLink></li>
+            <li><RouterLink to="/about">About</RouterLink></li>
+          </ul>
+        </aside> -->
+      </div>
+
+      <main class="overflow-auto grow">
+        <!-- <main class="m-2 border border-border rounded-md p-2"> -->
+        <RouterView />
+        <RouterView />
+        <!-- </main> -->
+      </main>
+    </div>
+  </div>
 </template>
 
 <style scoped>
