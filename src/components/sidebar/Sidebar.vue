@@ -41,7 +41,7 @@ function navigateTo(path: string) {
       <template #icon><LayoutDashboardIcon /></template>
       <template #text>Programmes</template>
     </SidebarItem>
-    <SidebarItem>
+    <SidebarItem @click="navigateTo('/course')">
       <template #icon><LayersIcon /></template>
       <template #text>Courses</template>
     </SidebarItem>
@@ -54,7 +54,7 @@ function navigateTo(path: string) {
       <template #text>Admin</template>
     </SidebarItem>
     <Separator />
-    <SidebarItem @click="navigateTo('/about')">
+    <SidebarItem>
       <template #icon><InfoIcon /></template>
       <template #text>Guide</template>
     </SidebarItem>

@@ -31,7 +31,6 @@ const { toggleSidebarCollapse } = useSidebarStatusStore();
       <main class="overflow-auto grow">
         <!-- <main class="m-2 border border-border rounded-md p-2"> -->
         <RouterView />
-        <RouterView />
         <!-- </main> -->
       </main>
     </div>
