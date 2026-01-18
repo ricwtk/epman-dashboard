@@ -43,6 +43,7 @@ export const courses: Course[] = [
     assessments: [
       {
         description: "Continuous Assessment",
+        component: "Written Assessment",
         weightage: 40,
         cos: [1, 2],
         breakdown: [
@@ -52,6 +53,7 @@ export const courses: Course[] = [
       },
       {
         description: "Final Examination",
+        component: "Written Assessment",
         weightage: 60,
         cos: [1, 2],
         breakdown: [],
@@ -120,6 +122,7 @@ export const courses: Course[] = [
     assessments: [
       {
         description: "Assignments",
+        component: "Assignment",
         weightage: 50,
         cos: [2],
         breakdown: [],
@@ -128,6 +131,7 @@ export const courses: Course[] = [
       },
       {
         description: "Final Exam",
+        component: "Written Assessment",
         weightage: 50,
         cos: [1, 2],
         breakdown: [
@@ -201,6 +205,7 @@ export const courses: Course[] = [
     assessments: [
       {
         description: "Group Project",
+        component: "Project",
         weightage: 60,
         cos: [1, 2],
         breakdown: [
@@ -210,6 +215,7 @@ export const courses: Course[] = [
       },
       {
         description: "Final Exam",
+        component: "Written Assessment",
         weightage: 40,
         cos: [1],
         breakdown: []
@@ -277,6 +283,7 @@ export const courses: Course[] = [
     assessments: [
       {
         description: "AI Project",
+        component: "Project",
         weightage: 50,
         cos: [1,2],
         breakdown: [
@@ -286,6 +293,7 @@ export const courses: Course[] = [
       },
       {
         description: "Final Exam",
+        component: "Written Assessment",
         weightage: 50,
         cos: [1],
         breakdown: [],
@@ -363,6 +371,7 @@ export const courses: Course[] = [
     assessments: [
       {
         description: "Project Evaluation",
+        component: "Project",
         weightage: 100,
         cos: [1, 2],
         breakdown: [
