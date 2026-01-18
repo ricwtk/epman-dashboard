@@ -28,19 +28,19 @@ defineProps<{
           <TableHeader>
             <TableRow>
               <TableHead class="font-bold">Method</TableHead>
-              <TableHead class="font-bold cell-center">Weightage</TableHead>
-              <TableHead class="font-bold cell-center" v-for="index in coCount" :key="index">CO{{ index }}</TableHead>
+              <TableHead class="font-bold text-center">Weightage</TableHead>
+              <TableHead class="font-bold text-center" v-for="index in coCount" :key="index">CO{{ index }}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow v-for="assessment in assessments" :key="assessment.id">
               <TableCell>{{ assessment.description }}</TableCell>
-              <TableCell class="cell-center">{{ assessment.weightage }}</TableCell>
-              <TableCell class="cell-center"
+              <TableCell class="text-center">{{ assessment.weightage }}</TableCell>
+              <TableCell class="text-center"
                 v-for="index in coCount"
                 :key="index"
               >
-                <CheckIcon :size="16" v-if="assessment.cos.includes(index)"></CheckIcon>
+                <CheckIcon class="inline-block" :size="16" v-if="assessment.cos.includes(index)"></CheckIcon>
               </TableCell>
             </TableRow>
           </TableBody>
@@ -49,9 +49,3 @@ defineProps<{
     </template>
   </ContentCard>
 </template>
-
-<style scoped>
-.cell-center {
-  text-align: center;
-}
-</style>
