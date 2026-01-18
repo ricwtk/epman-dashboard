@@ -14,7 +14,7 @@ export interface Co {
 export interface Breakdown {
   description: string;
   weightage: number;
-  cos: number[];
+  co: number;
   rubrics?: any; // Define rubric structure as needed
 }
 
