@@ -67,8 +67,6 @@ defineProps<{
 </template>
 
 <style scoped>
-@reference '@/assets/base.css';
-
 .cell-center {
   text-align: center;
 }

@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import CourseSummary from '@/components/course/CourseSummary.vue';
 import CourseOutcomes from '@/components/course/CourseOutcomes.vue';
+import CourseAssessments from '@/components/course/CourseAssessments.vue';
 
 import { getCourseById, type Course } from '@/lib/course';
 import { onMounted, ref, type Ref } from 'vue';
@@ -44,5 +45,6 @@ onMounted(() => {
     </Breadcrumb>
   </div>
   <CourseSummary :course="course" />
-  <CourseOutcomes :cos="course?.cos" />
+  <CourseOutcomes :cos="course?.cos || []" />
+  <CourseAssessments :assessments="course?.assessments" :coCount="course?.cos?.length || 0" />
 </template>
