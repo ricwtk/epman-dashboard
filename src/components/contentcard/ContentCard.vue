@@ -10,20 +10,20 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <div class="plaincard flex flex-col px-3">
-    <div class="flex flex-row items-center">
-      <div class="grow font-bold">
+  <div class="card-structure flex flex-col px-3">
+    <div class="card-structure-header">
+      <div class="card-structure-title">
         <slot name="title"></slot>
       </div>
-      <Button variant="ghost" size="icon" v-if="editable">
-        <PenIcon />
-      </Button>
+      <div class="grow"></div>
+      <div class="card-structure-button">
+        <Button variant="ghost" size="icon" v-if="editable">
+          <PenIcon />
+        </Button>
+      </div>
     </div>
-    <div class="">
+    <div class="card-structure-body">
       <slot name="body"></slot>
-    </div>
-    <div class="">
-      <slot name="footer"></slot>
     </div>
   </div>
 </template>

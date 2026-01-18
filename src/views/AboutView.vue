@@ -10,9 +10,7 @@ import { Button } from '@/components/ui/button';
     </template>
     <template #body>
       <p>This is a content card.</p>
-    </template>
-    <template #footer>
-      <div class="justify-end flex flex-row gap-1">
+      <div class="justify-end flex flex-row grow gap-1">
         <Button variant="default">Save</Button>
         <Button variant="ghost">Cancel</Button>
       </div>

@@ -13,7 +13,7 @@ const { toggleSidebarCollapse } = useSidebarStatusStore();
 <template>
   <div class="flex flex-col h-screen">
     <header class="">
-      <div class="plaincard flex flex-row items-center gap-2 mb-0">
+      <div class="card-plain flex flex-row items-center gap-2 mb-0">
         <Button size="icon" variant="ghost" @click="toggleSidebarCollapse">
           <MenuIcon />
         </Button>

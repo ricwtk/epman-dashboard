@@ -25,7 +25,7 @@ function navigateTo(path: string) {
 </script>
 
 <template>
-  <div class="plaincard flex flex-col gap-2 w-auto"
+  <div class="card-plain flex flex-col gap-2 w-auto"
     :class="[sidebarstatus.collapsed ? 'hidden' : 'visible']"
   >
     <SidebarItem>
