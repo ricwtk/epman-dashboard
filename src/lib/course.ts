@@ -15,6 +15,8 @@ export interface Breakdown {
   description: string;
   weightage: number;
   co: number;
+  wps?: number[];
+  eas?: number[];
   rubrics?: any; // Define rubric structure as needed
 }
 
@@ -23,6 +25,8 @@ export interface Assessment {
   weightage: number;
   cos: number[];
   breakdown: Breakdown[];
+  wps?: number[];
+  eas?: number[];
 }
 
 export interface Allocation {

@@ -46,15 +46,16 @@ export const courses: Course[] = [
         weightage: 40,
         cos: [1, 2],
         breakdown: [
-          { description: "Lab Exercises", weightage: 20, co: 2 },
-          { description: "Quiz", weightage: 20, co: 1 }
+          { description: "Lab Exercises", weightage: 20, co: 2, wps: [2] },
+          { description: "Quiz", weightage: 20, co: 1, eas: [1,2,3] }
         ]
       },
       {
         description: "Final Examination",
         weightage: 60,
         cos: [1, 2],
-        breakdown: []
+        breakdown: [],
+        wps: [4]
       }
     ],
 
@@ -121,15 +122,17 @@ export const courses: Course[] = [
         description: "Assignments",
         weightage: 50,
         cos: [2],
-        breakdown: []
+        breakdown: [],
+        wps: [1,2],
+        eas: [2],
       },
       {
         description: "Final Exam",
         weightage: 50,
         cos: [1, 2],
         breakdown: [
-          { description: "Linked List Assignment", weightage: 25, co: 1 },
-          { description: "Tree Assignment", weightage: 25, co: 2 }
+          { description: "Linked List Assignment", weightage: 25, co: 1, eas: [1], wps: [1] },
+          { description: "Tree Assignment", weightage: 25, co: 2, wps: [2], eas: [2] }
         ]
       }
     ],
@@ -277,15 +280,17 @@ export const courses: Course[] = [
         weightage: 50,
         cos: [1,2],
         breakdown: [
-          { description: "Model Design", weightage: 25, co: 2 },
-          { description: "Evaluation Report", weightage: 25, co: 1 }
+          { description: "Model Design", weightage: 25, co: 2, wps: [2] },
+          { description: "Evaluation Report", weightage: 25, co: 1, eas: [1,2,3] }
         ]
       },
       {
         description: "Final Exam",
         weightage: 50,
         cos: [1],
-        breakdown: []
+        breakdown: [],
+        wps: [4],
+        eas: []
       }
     ],
 
@@ -361,9 +366,9 @@ export const courses: Course[] = [
         weightage: 100,
         cos: [1, 2],
         breakdown: [
-          { description: "Proposal", weightage: 20, cos: [1] },
-          { description: "Poster & Presentation", weightage: 30, co: 2 },
-          { description: "Final Thesis", weightage: 50, co: 1 }
+          { description: "Proposal", weightage: 20, co: 1, wps: [1], eas: [1] },
+          { description: "Poster & Presentation", weightage: 30, co: 2, wps: [2], eas: [2] },
+          { description: "Final Thesis", weightage: 50, co: 1, wps: [3], eas: [3] }
         ]
       }
     ],
