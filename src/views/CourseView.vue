@@ -16,12 +16,12 @@ import { onMounted, ref, type Ref } from 'vue';
 const course: Ref<Course | null> = ref(null);
 
 onMounted(() => {
-  course.value = getCourseById('CS202') || null;
+  course.value = getCourseById('CS101') || null;
 })
 </script>
 
 <template>
-  <div class="card-plain">
+  <div class="card-plain px-4">
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>

@@ -7,7 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col gap-0.5">
+  <div class="flex flex-col items-center gap-0.5">
     <Badge v-for="item in items" :key="item" variant="secondary">
       {{ item }}
     </Badge>
