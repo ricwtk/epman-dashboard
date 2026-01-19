@@ -39,7 +39,8 @@ const editing = ref(false);
   .card-structure-header {
     @apply font-bold flex flex-row items-stretch mb-1;
     .card-structure-title {
-      @apply bg-card font-bold py-2 px-4 rounded-md border-border border truncate mr-1 shadow-md;
+      @apply font-bold p-2 rounded-md truncate mr-1;
+      /*@apply bg-card font-bold py-2 px-4 rounded-md border-border border truncate mr-1 shadow-md;*/
     }
     .card-structure-button {
       @apply flex flex-row items-center justify-center;
