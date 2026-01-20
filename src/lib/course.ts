@@ -31,18 +31,17 @@ export interface Assessment {
 }
 
 export interface Allocation {
-  lecture?: { online: number; f2f: number };
-  practical?: { online: number; f2f: number };
-  tutorial?: { online: number; f2f: number };
-  self?: { online: number; f2f: number };
-  others?: { online: number; f2f: number };
+  lecture: { online: number; f2f: number };
+  practical: { online: number; f2f: number };
+  tutorial: { online: number; f2f: number };
+  assessment: { online: number; f2f: number };
+  self: { online: number; f2f: number };
+  others: { online: number; f2f: number };
 }
 
 export interface Plan {
-  week: string;
   description: string;
-  type: 'content' | 'assessment';
-  hours: Allocation[];
+  hours: Allocation;
 }
 
 export interface Reference {

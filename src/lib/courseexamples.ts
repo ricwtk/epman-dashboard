@@ -48,7 +48,7 @@ export const courses: Course[] = [
         cos: [1, 2],
         breakdown: [
           { description: "Lab Exercises", weightage: 20, co: 2, wps: [2] },
-          { description: "Quiz", weightage: 20, co: 1, wps: [2], eas: [1,2,3] }
+          { description: "Quiz", weightage: 20, co: 1, wps: [2], eas: [1, 2, 3] }
         ]
       },
       {
@@ -63,10 +63,8 @@ export const courses: Course[] = [
 
     weeklyPlan: [
       {
-        week: "Week 1",
         description: "Programming fundamentals and variables",
-        type: "content",
-        hours: [{ lecture: { online: 1, f2f: 2 } }]
+        hours: { lecture: { online: 1, f2f: 2 }, practical: { online: 0, f2f: 0 }, tutorial: { online: 0, f2f: 0 }, self: { online: 0, f2f: 0 }, others: { online: 0, f2f: 0 }, assessment: { online: 0, f2f: 0 } }
       }
     ],
 
@@ -129,7 +127,7 @@ export const courses: Course[] = [
         weightage: 50,
         cos: [2],
         breakdown: [],
-        wps: [1,2],
+        wps: [1, 2],
         eas: [2],
       },
       {
@@ -146,13 +144,15 @@ export const courses: Course[] = [
 
     weeklyPlan: [
       {
-        week: "Week 4",
         description: "Stacks and Queues",
-        type: "content",
-        hours: [
-          { lecture: { online: 1, f2f: 2 } },
-          { practical: { online: 0, f2f: 1 } }
-        ]
+        hours: {
+          lecture: { online: 1, f2f: 2 },
+          practical: { online: 0, f2f: 1 },
+          tutorial: { online: 0, f2f: 1 },
+          assessment: { online: 0, f2f: 0 },
+          self: { online: 0, f2f: 1 },
+          others: { online: 0, f2f: 1 }
+        }
       }
     ],
 
@@ -227,10 +227,8 @@ export const courses: Course[] = [
 
     weeklyPlan: [
       {
-        week: "Week 8",
         description: "Agile and Scrum",
-        type: "content",
-        hours: [{ lecture: { online: 1, f2f: 2 } }]
+        hours: { lecture: { online: 1, f2f: 2 }, practical: { online: 0, f2f: 0 }, tutorial: { online: 0, f2f: 0 }, self: { online: 0, f2f: 0 }, others: { online: 0, f2f: 0 }, assessment: { online: 0, f2f: 0 } }
       }
     ],
 
@@ -288,10 +286,10 @@ export const courses: Course[] = [
         description: "AI Project",
         component: "Project",
         weightage: 50,
-        cos: [1,2],
+        cos: [1, 2],
         breakdown: [
           { description: "Model Design", weightage: 25, co: 2, wps: [2] },
-          { description: "Evaluation Report", weightage: 25, co: 1, eas: [1,2,3] }
+          { description: "Evaluation Report", weightage: 25, co: 1, eas: [1, 2, 3] }
         ]
       },
       {
@@ -307,13 +305,15 @@ export const courses: Course[] = [
 
     weeklyPlan: [
       {
-        week: "Week 10",
         description: "Neural Networks",
-        type: "content",
-        hours: [
-          { lecture: { online: 2, f2f: 1 } },
-          { practical: { online: 1, f2f: 0 } }
-        ]
+        hours: {
+          lecture: { online: 2, f2f: 1 },
+          practical: { online: 1, f2f: 0 },
+          tutorial: { online: 0, f2f: 0 },
+          assessment: { online: 0, f2f: 0 },
+          self: { online: 0, f2f: 0 },
+          others: { online: 0, f2f: 0 }
+        }
       }
     ],
 
@@ -387,10 +387,8 @@ export const courses: Course[] = [
 
     weeklyPlan: [
       {
-        week: "Week 14",
         description: "Final Presentation",
-        type: "assessment",
-        hours: [{ others: { online: 0, f2f: 3 } }]
+        hours: { lecture: { online: 0, f2f: 1 }, practical: { online: 0, f2f: 1 }, tutorial: { online: 0, f2f: 1 }, self: { online: 0, f2f: 1 }, others: { online: 0, f2f: 3 }, assessment: { online: 0, f2f: 0 } }
       }
     ],
 
