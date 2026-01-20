@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { type Course } from '@/lib/course';
 
 defineProps<{
-  course: Course | null;
+  course: Course;
 }>();
 </script>
 
@@ -19,48 +19,48 @@ defineProps<{
       <div class="flex flex-col gap-3">
         <div class="flex flex-wrap gap-3">
           <ContentItem title="Code">
-            <div>{{course?.code}}</div>
+            <div>{{course.code}}</div>
           </ContentItem>
           <ContentItem title="Name">
-            <div>{{course?.name}}</div>
+            <div>{{course.name}}</div>
           </ContentItem>
           <ContentItem title="Credit Hours">
-            <div>{{course?.credits}}</div>
+            <div>{{course.credits}}</div>
           </ContentItem>
           <ContentItem title="Offering">
-            <div>{{ "Year " + course?.year + " Semester " + course?.semester }}</div>
+            <div>{{ "Year " + course.year + " Semester " + course.semester }}</div>
           </ContentItem>
         </div>
         <ContentItemBadges
           title="Lecturers"
-          :badges="course?.lecturers || []"
+          :badges="course.lecturers"
           elsemessage="No lecturers"
         />
         <ContentItem title="Synopsis">
-          <div>{{course?.synopsis}}</div>
+          <div>{{course.synopsis}}</div>
         </ContentItem>
         <div class="flex flex-wrap gap-3">
           <ContentItemBadges
             title="Prerequisites"
-            :badges="course?.prerequisites || []"
+            :badges="course.prerequisites || []"
             elsemessage="No prerequisites"
           />
           <ContentItemBadges
             title="Transferable Skills"
-            :badges="course?.transferableSkills || []"
+            :badges="course.transferableSkills || []"
             elsemessage="No transferable skills"
           />
           <ContentItemBadges
             title="Delivery Methods"
-            :badges="course?.deliveryMethods || []"
+            :badges="course.deliveryMethods || []"
             elsemessage="No delivery methods"
           />
         </div>
       </div>
-      <div class="justify-end flex flex-row grow gap-1" v-if="editing">
+      <!-- <div class="justify-end flex flex-row grow gap-1" v-if="editing">
         <Button variant="default">Save</Button>
         <Button variant="ghost">Cancel</Button>
-      </div>
+      </div> -->
     </template>
   </ContentCard>
 </template>

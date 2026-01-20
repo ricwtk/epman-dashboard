@@ -6,6 +6,7 @@ import {
   BreadcrumbSeparator,
   BreadcrumbLink
 } from '@/components/ui/breadcrumb';
+import { Badge } from '@/components/ui/badge';
 import CourseSummary from '@/components/course/CourseSummary.vue';
 import CourseOutcomes from '@/components/course/CourseOutcomes.vue';
 import CourseAssessments from '@/components/course/CourseAssessments.vue';
@@ -46,6 +47,10 @@ onMounted(() => {
     </Breadcrumb>
   </div>
   <template v-if="course">
+    <div class="card-plain px-4 text-muted-foreground text-sm">
+      {{ course.code }} {{ course.name }}
+      <Badge>{{ course.revision }}</Badge>
+    </div>
     <CourseSummary :course="course" />
     <CourseOutcomes :cos="course?.cos || []" />
     <CourseAssessments :assessments="course?.assessments" :coCount="course?.cos?.length || 0" />
