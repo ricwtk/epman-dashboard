@@ -71,7 +71,10 @@ export const courses: Course[] = [
     ],
 
     references: [
-      { desc: "Introduction to Programming Using Python", label: "Textbook" }
+      { description: "Introduction to Programming Using Python", label: "main" },
+      { description: "Programming Using Python", label: "additional" },
+      { description: "Programming Using Python 2", label: "additional" },
+      { description: "Programming Using Python 3", label: "additional" },
     ],
 
     gradingScheme: "standardGrade",
@@ -154,7 +157,7 @@ export const courses: Course[] = [
     ],
 
     references: [
-      { desc: "Data Structures and Algorithms in Java", label: "Textbook" }
+      { description: "Data Structures and Algorithms in Java", label: "main" }
     ],
 
     gradingScheme: "standardGrade",
@@ -232,7 +235,7 @@ export const courses: Course[] = [
     ],
 
     references: [
-      { desc: "Software Engineering by Sommerville", label: "Textbook" }
+      { description: "Software Engineering by Sommerville", label: "main" }
     ],
 
     gradingScheme: "projectHeavyGrade",
@@ -315,7 +318,7 @@ export const courses: Course[] = [
     ],
 
     references: [
-      { desc: "Artificial Intelligence: A Modern Approach", label: "Textbook" }
+      { description: "Artificial Intelligence: A Modern Approach", label: "main" }
     ],
 
     gradingScheme: "standardGrade",
@@ -392,7 +395,7 @@ export const courses: Course[] = [
     ],
 
     references: [
-      { desc: "IEEE Research Writing Guidelines", label: "Reference" }
+      { description: "IEEE Research Writing Guidelines", label: "main" }
     ],
 
     gradingScheme: "passFailWithGrade",

@@ -46,8 +46,8 @@ export interface Plan {
 }
 
 export interface Reference {
-  desc: string;
-  label: string;
+  description: string;
+  label: "main" | "additional";
 }
 
 export interface Course {
