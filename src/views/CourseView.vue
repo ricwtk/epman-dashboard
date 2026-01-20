@@ -13,7 +13,7 @@ import CourseAssessments from '@/components/course/CourseAssessments.vue';
 import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
 import CoursePlan from '@/components/course/CoursePlan.vue';
 import CourseReferences from '@/components/course/CourseReferences.vue';
-import ChangeDialog from '@/components/ChangeDialog.vue';
+import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
 
 import { getCourseById, type Course } from '@/lib/course';
 import { onMounted, ref, type Ref } from 'vue';
@@ -65,6 +65,6 @@ const updateEditing = (ev: boolean, ) => {
     <CEPCEAImplementation :course="course" :editing="editing" @update:editing="updateEditing" />
     <CoursePlan :course="course" :editing="editing" @update:editing="updateEditing" />
     <CourseReferences :references="course.references || []" :editing="editing" @update:editing="updateEditing" />
-    <ChangeDialog v-model:isOpen="editing" />
+    <CourseUpdateDialog v-model:isOpen="editing" />
   </template>
 </template>
