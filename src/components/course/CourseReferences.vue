@@ -32,7 +32,7 @@ const additionalReferences = computed(() => props.references.filter(reference =>
     </template>
   </ContentCard>
 
-  <ContentCard editable>
+  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       Additional References
     </template>
