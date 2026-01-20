@@ -9,6 +9,7 @@ import {
 import CourseSummary from '@/components/course/CourseSummary.vue';
 import CourseOutcomes from '@/components/course/CourseOutcomes.vue';
 import CourseAssessments from '@/components/course/CourseAssessments.vue';
+import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
 
 import { getCourseById, type Course } from '@/lib/course';
 import { onMounted, ref, type Ref } from 'vue';
@@ -44,7 +45,10 @@ onMounted(() => {
       </BreadcrumbList>
     </Breadcrumb>
   </div>
-  <CourseSummary :course="course" />
-  <CourseOutcomes :cos="course?.cos || []" />
-  <CourseAssessments :assessments="course?.assessments" :coCount="course?.cos?.length || 0" />
+  <template v-if="course">
+    <CourseSummary :course="course" />
+    <CourseOutcomes :cos="course?.cos || []" />
+    <CourseAssessments :assessments="course?.assessments" :coCount="course?.cos?.length || 0" />
+    <CEPCEAImplementation :course="course" />
+  </template>
 </template>

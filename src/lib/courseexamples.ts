@@ -48,7 +48,7 @@ export const courses: Course[] = [
         cos: [1, 2],
         breakdown: [
           { description: "Lab Exercises", weightage: 20, co: 2, wps: [2] },
-          { description: "Quiz", weightage: 20, co: 1, eas: [1,2,3] }
+          { description: "Quiz", weightage: 20, co: 1, wps: [2], eas: [1,2,3] }
         ]
       },
       {

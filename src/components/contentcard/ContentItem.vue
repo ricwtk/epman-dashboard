@@ -4,7 +4,7 @@ defineProps<{ title: string }>();
 
 <template>
   <div>
-    <div class="text-xs font-light text-gray-500">{{ title }}</div>
+    <div class="content-item-title">{{ title }}</div>
     <slot></slot>
   </div>
 </template>

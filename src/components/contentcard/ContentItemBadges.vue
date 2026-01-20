@@ -10,10 +10,10 @@ defineProps<{
 
 <template>
   <div v-if="badges && badges.length > 0 || elsemessage">
-    <div class="text-xs font-light text-gray-500">{{ title }}</div>
-    <div v-if="badges && badges.length > 0" class="flex flex-wrap gap-1">
+    <div class="content-item-title">{{ title }}</div>
+    <div class="flex flex-wrap gap-1">
       <Badge v-for="badge in badges" variant="secondary">{{badge}}</Badge>
+      <Badge v-if="badges.length == 0"variant="outline">{{ elsemessage }}</Badge>
     </div>
-    <div v-else>{{ elsemessage }}</div>
   </div>
 </template>

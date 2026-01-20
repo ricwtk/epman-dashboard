@@ -212,4 +212,7 @@
   button {
     @apply !rounded-sm;
   }
+  .content-item-title {
+    @apply text-xs font-light text-gray-500 mb-0.5;
+  }
 }
