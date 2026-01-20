@@ -13,6 +13,7 @@ import CourseAssessments from '@/components/course/CourseAssessments.vue';
 import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
 import CoursePlan from '@/components/course/CoursePlan.vue';
 import CourseReferences from '@/components/course/CourseReferences.vue';
+import ChangeDialog from '@/components/ChangeDialog.vue';
 
 import { getCourseById, type Course } from '@/lib/course';
 import { onMounted, ref, type Ref } from 'vue';
@@ -22,6 +23,11 @@ const course: Ref<Course | null> = ref(null);
 onMounted(() => {
   course.value = getCourseById('CS101') || null;
 })
+
+const editing = ref(true);
+const updateEditing = (ev: boolean, ) => {
+  editing.value = ev;
+};
 </script>
 
 <template>
@@ -53,11 +59,12 @@ onMounted(() => {
       {{ course.code }} {{ course.name }}
       <Badge>{{ course.revision }}</Badge>
     </div>
-    <CourseSummary :course="course" />
-    <CourseOutcomes :cos="course?.cos || []" />
-    <CourseAssessments :assessments="course?.assessments" :coCount="course?.cos?.length || 0" />
-    <CEPCEAImplementation :course="course" />
-    <CoursePlan :course="course" />
-    <CourseReferences :references="course.references || []" />
+    <CourseSummary :course="course" :editing="editing" @update:editing="updateEditing" />
+    <CourseOutcomes :cos="course?.cos || []" :editing="editing" @update:editing="updateEditing" />
+    <CourseAssessments :assessments="course?.assessments" :coCount="course?.cos?.length || 0" :editing="editing" @update:editing="updateEditing" />
+    <CEPCEAImplementation :course="course" :editing="editing" @update:editing="updateEditing" />
+    <CoursePlan :course="course" :editing="editing" @update:editing="updateEditing" />
+    <CourseReferences :references="course.references || []" :editing="editing" @update:editing="updateEditing" />
+    <ChangeDialog v-model:isOpen="editing" />
   </template>
 </template>

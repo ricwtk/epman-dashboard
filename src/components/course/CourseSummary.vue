@@ -7,11 +7,14 @@ import { type Course } from '@/lib/course';
 
 defineProps<{
   course: Course;
+  editing: boolean;
 }>();
+
+defineEmits(['update:editing']);
 </script>
 
 <template>
-  <ContentCard :editable="true">
+  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       Course Summary
     </template>

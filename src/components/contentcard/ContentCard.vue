@@ -4,11 +4,16 @@ import { Button } from '@/components/ui/button';
 import { ref } from 'vue';
 interface Props {
   editable: boolean;
+  editing: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   editable: true,
+  editing: false
 });
-const editing = ref(false);
+const emit = defineEmits(['update:editing']);
+const toggleEditing = () => {
+  emit('update:editing', !props.editing);
+};
 </script>
 
 <template>
@@ -19,7 +24,7 @@ const editing = ref(false);
       </div>
       <div class="grow"></div>
       <div class="card-structure-button">
-        <Button variant="ghost" size="icon" v-if="editable" @click="editing = !editing">
+        <Button variant="ghost" size="icon" v-if="editable" @click="toggleEditing">
           <PenIcon v-if="!editing" />
           <CheckIcon v-else />
         </Button>

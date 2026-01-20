@@ -11,7 +11,8 @@ import {
   TableCell,
 } from '@/components/ui/table';
 
-const props = defineProps<{ course: Course }>();
+const props = defineProps<{ course: Course; editing: boolean }>();
+defineEmits(['update:editing']);
 
 const getTotalHours = (hours: { online: number, f2f: number }) => (hours.online + hours.f2f);
 const getTopicHours = (hours: Allocation) =>
@@ -39,7 +40,7 @@ const creditHours = computed(() => {
 </script>
 
 <template>
-  <ContentCard editable>
+  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       Teaching Plan
     </template>

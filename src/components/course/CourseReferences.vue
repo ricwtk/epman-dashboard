@@ -9,14 +9,15 @@ import {
   TableCell
 } from '@/components/ui/table';
 
-const props = defineProps<{ references: Reference[] }>();
+const props = defineProps<{ references: Reference[]; editing: boolean }>();
+const emit = defineEmits(['update:editing']);
 
 const mainReferences = computed(() => props.references.filter(reference => reference.label === 'main'));
 const additionalReferences = computed(() => props.references.filter(reference => reference.label === 'additional'));
 </script>
 
 <template>
-  <ContentCard editable>
+  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       Main Reference
     </template>

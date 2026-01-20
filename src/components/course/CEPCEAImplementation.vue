@@ -13,7 +13,9 @@ import BadgeList from '@/components/BadgeList.vue';
 import { CheckIcon, MinusIcon } from 'lucide-vue-next';
 import { type Assessment } from '@/lib/course';
 
-defineProps<{ course: Course }>();
+defineProps<{ course: Course; editing: boolean }>();
+
+defineEmits(['update:editing']);
 
 const getCEPCEA = (assessment: Assessment, coIndex: number) => {
   const descriptors: string[] = [];
@@ -60,7 +62,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
 </script>
 
 <template>
-  <ContentCard editable>
+  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       CEP and CEA Implementation
     </template>

@@ -14,15 +14,18 @@ import { CheckIcon, MinusIcon } from "lucide-vue-next";
 
 defineProps<{
   cos: Co[] | [];
+  editing: boolean;
 }>();
+
+defineEmits(['update:editing']);
 </script>
 
 <template>
-  <ContentCard editable>
+  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       Course Outcomes
     </template>
-    <template #body="{ editing }">
+    <template #body>
       <Table>
         <TableHeader>
           <TableRow>

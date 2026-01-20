@@ -12,7 +12,10 @@ import { ref } from 'vue';
 const props = defineProps<{
   assessments: Assessment[] | undefined;
   coCount: number;
+  editing: boolean;
 }>();
+
+defineEmits(['update:editing']);
 
 const anybreakdown = computed(() => {
   return props.assessments?.some(assessment => assessment.breakdown.length > 0);
@@ -26,7 +29,7 @@ const toggleBreakdown = () => {
 </script>
 
 <template>
-  <ContentCard editable>
+  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       Assessments
     </template>
