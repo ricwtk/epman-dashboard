@@ -106,7 +106,7 @@ const eaOptions = [
       <TableBody>
         <TableRow v-for="(co, coIndex) in colist" :key="coIndex">
           <TableCell class="w-14 align-top text-center">
-            <Button variant="destructive" @click="console.log(`Deleting reference ${refIndex}`)"><MinusIcon /></Button>
+            <Button variant="destructive" @click="console.log(`Deleting reference ${coIndex}`)"><MinusIcon /></Button>
           </TableCell>
           <TableCell class="align-top">{{ coIndex + 1 }}</TableCell>
           <TableCell class="align-top">
