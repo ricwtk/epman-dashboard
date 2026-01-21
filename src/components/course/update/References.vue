@@ -28,9 +28,9 @@ const references = ref<Reference[]>([
 <template>
   <div class="flex flex-col gap-2">
     <div class="flex flex-col gap-1" v-for="(reference, refIndex) in references">
-      <Select>
+      <Select v-model="reference.label">
         <SelectTrigger class="w-full">
-          <SelectValue placeholder="Select a label" v-model="reference.label" />
+          <SelectValue placeholder="Select a label" />
         </SelectTrigger>
         <SelectContent>
             <SelectItem v-for="(referenceType, index) in referenceTypes"

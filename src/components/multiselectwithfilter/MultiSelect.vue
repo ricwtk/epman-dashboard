@@ -27,14 +27,22 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-wrap">
+  <!-- <div class="flex flex-wrap">
     <ContentItemBadges
       :badges="selected || []"
       :elsemessage="emptymessage"
     />
-  </div>
-  <Command class="max-h-[16ex] border border-border">
-    <CommandInput :id="inputId" placeholder="Search..." />
+  </div> -->
+  <Command class="max-h-[20ex] border border-border">
+    <div class="flex flex-col p-2">
+      <div class="flex flex-wrap">
+        <ContentItemBadges
+          :badges="selected || []"
+          :elsemessage="emptymessage"
+        />
+      </div>
+      <CommandInput :id="inputId" placeholder="Search..." />
+    </div>
     <CommandList>
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandGroup>

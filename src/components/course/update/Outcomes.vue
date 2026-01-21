@@ -7,6 +7,7 @@ import MultiSelect from '@/components/multiselectwithfilter/MultiSelect.vue'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 
 const colist = ref<Co[]>([{
   description: 'Outcome 1',
@@ -89,14 +90,16 @@ const colist = ref<Co[]>([{
       </div>
 
       <div class="flex flex-wrap gap-1">
-        <Button variant="outline" :disabled="coIndex === 0">Move Up</Button>
-        <Button variant="outline" :disabled="coIndex === colist.length - 1">Move Down</Button>
+        <Button variant="outline" :disabled="coIndex === 0"><ChevronUpIcon /></Button>
+        <Button variant="outline" :disabled="coIndex === colist.length - 1"><ChevronDownIcon /></Button>
         <div class="grow"></div>
-        <Button variant="destructive">Delete</Button>
+        <Button variant="destructive"><MinusIcon /></Button>
       </div>
 
 
       <Separator class="my-5" v-if="coIndex < colist.length - 1"/>
     </div>
+
+    <Button variant="default"><PlusIcon /></Button>
   </div>
 </template>
