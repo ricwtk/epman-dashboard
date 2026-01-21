@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { ref } from 'vue'
 import { type Reference } from '@/lib/course'
 import { Textarea } from '@/components/ui/textarea'
@@ -48,6 +49,7 @@ const references = ref<Reference[]>([
         <div class="grow"></div>
         <Button variant="destructive"><MinusIcon /></Button>
       </div>
+      <Separator class="my-5" v-if="refIndex < references.length - 1"/>
     </div>
     <Button variant="default"><PlusIcon /></Button>
   </div>
