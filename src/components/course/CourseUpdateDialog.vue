@@ -15,9 +15,9 @@ import {
 import { Button } from '@/components/ui/button'
 import Summary from './update/Summary.vue'
 import Outcomes from './update/Outcomes.vue'
-// import Assessments from './update/Assessments.vue'
-// import TeachingPlan from './update/TeachingPlan.vue'
-// import References from './update/References.vue'
+import Assessments from './update/Assessments.vue'
+import TeachingPlan from './update/TeachingPlan.vue'
+import References from './update/References.vue'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -54,9 +54,15 @@ const toggleDialog = () => {
         <TabsContent value="outcomes">
           <Outcomes />
         </TabsContent>
-        <TabsContent value="assessments">Assessments</TabsContent>
-        <TabsContent value="teachingplan">Teaching Plan</TabsContent>
-        <TabsContent value="references">References</TabsContent>
+        <TabsContent value="assessments">
+          <Assessments />
+        </TabsContent>
+        <TabsContent value="teachingplan">
+          <TeachingPlan />
+        </TabsContent>
+        <TabsContent value="references">
+          <References />
+        </TabsContent>
       </div>
     </Tabs>
      <div class="justify-end flex flex-row grow gap-1">
