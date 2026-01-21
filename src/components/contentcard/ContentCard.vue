@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ref } from 'vue';
 interface Props {
   editable: boolean;
-  editing: boolean;
+  editing?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   editable: true,

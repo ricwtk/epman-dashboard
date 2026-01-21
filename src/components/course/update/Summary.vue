@@ -2,20 +2,12 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  TagsInput,
-  TagsInputItem,
-  TagsInputItemText,
-  TagsInputItemDelete,
-  TagsInputInput
-} from '@/components/ui/tags-input'
 import MultiSelect from '@/components/multiselectwithfilter/MultiSelect.vue'
 import { ref } from 'vue'
 
 const prereqlist = ref<string[]>(['Option 1', 'Option 2'])
 const transferablelist = ref<string[]>(['abcdef', 'ghijkl'])
 const deliverylist = ref<string[]>(['abcdef', 'ghijkl'])
-
 </script>
 
 <template>
@@ -47,7 +39,7 @@ const deliverylist = ref<string[]>(['abcdef', 'ghijkl'])
       <Textarea id="description" placeholder="Course Description"/>
     </div>
     <div class="flex flex-wrap gap-2">
-      <div class="flex flex-col gap-1 grow min-w-[300px]">
+      <div class="flex flex-col gap-1 grow min-w-75">
         <Label for="prerequisites">Prerequisites</Label>
         <MultiSelect
           input-id="prerequisites"
@@ -57,7 +49,7 @@ const deliverylist = ref<string[]>(['abcdef', 'ghijkl'])
           emptymessage="No Prerequisites"
         />
       </div>
-      <div class="flex flex-col gap-1 grow min-w-[300px]">
+      <div class="flex flex-col gap-1 grow min-w-75">
         <Label for="transferable">Transferable Skills</Label>
         <MultiSelect
           input-id="transferable"
@@ -67,7 +59,7 @@ const deliverylist = ref<string[]>(['abcdef', 'ghijkl'])
           emptymessage="No Transferable Skills"
         />
       </div>
-      <div class="flex flex-col gap-1 grow min-w-[300px]">
+      <div class="flex flex-col gap-1 grow min-w-75">
         <Label for="delivery">Delivery Methods</Label>
         <MultiSelect
           input-id="delivery"

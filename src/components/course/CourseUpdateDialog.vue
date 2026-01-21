@@ -12,8 +12,9 @@ import {
   TabsTrigger,
   TabsContent
 } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
 import Summary from './update/Summary.vue'
-// import Outcomes from './update/Outcomes.vue'
+import Outcomes from './update/Outcomes.vue'
 // import Assessments from './update/Assessments.vue'
 // import TeachingPlan from './update/TeachingPlan.vue'
 // import References from './update/References.vue'
@@ -46,16 +47,22 @@ const toggleDialog = () => {
           <TabsTrigger value="references">References</TabsTrigger>
         </TabsList>
       </div>
-      <div class="overflow-auto h-[calc(100vh-250px)]">
+      <div class="overflow-auto h-[calc(100vh-300px)]">
         <TabsContent value="summary" class="w-full">
           <Summary />
         </TabsContent>
-        <TabsContent value="outcomes">Outcomes</TabsContent>
+        <TabsContent value="outcomes">
+          <Outcomes />
+        </TabsContent>
         <TabsContent value="assessments">Assessments</TabsContent>
         <TabsContent value="teachingplan">Teaching Plan</TabsContent>
         <TabsContent value="references">References</TabsContent>
       </div>
     </Tabs>
+     <div class="justify-end flex flex-row grow gap-1">
+      <Button variant="default">Save</Button>
+      <Button variant="ghost">Cancel</Button>
+    </div>
   </DialogContent>
 </Dialog>
 </template>
