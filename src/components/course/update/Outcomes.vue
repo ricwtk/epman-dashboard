@@ -41,8 +41,14 @@ const colist = ref<Co[]>([{
         <Label :for="'desc' + coIndex">{{ `CO${coIndex + 1}` }}</Label>
         <Textarea :id="'desc' + coIndex" :value="co.description" />
       </div>
+
+      <div class="flex flex-row gap-3 items-center">
+        <Checkbox :default-value="false" :id="`sdg${coIndex}`"/>
+        <Label :for="`sdg${coIndex}`">SDG</Label>
+      </div>
+
       <div class="flex flex-wrap gap-3">
-        <div class="flex flex-col gap-1 grow min-w-75">
+        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
           <Label :for="`po${coIndex}`">PO</Label>
           <MultiSelect
             :input-id="`po${coIndex}`"
@@ -52,7 +58,7 @@ const colist = ref<Co[]>([{
             emptymessage="No POs"
           />
         </div>
-        <div class="flex flex-col gap-1 grow min-w-75">
+        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
           <Label :for="`wa${coIndex}`">WA</Label>
           <MultiSelect
             :input-id="`wa${coIndex}`"
@@ -62,7 +68,7 @@ const colist = ref<Co[]>([{
             emptymessage="No WAs"
           />
         </div>
-        <div class="flex flex-col gap-1 grow min-w-75">
+        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
           <Label :for="`wk${coIndex}`">WK</Label>
           <MultiSelect
             :input-id="`wk${coIndex}`"
@@ -72,7 +78,7 @@ const colist = ref<Co[]>([{
             emptymessage="No WKs"
           />
         </div>
-        <div class="flex flex-col gap-1 grow min-w-75">
+        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
           <Label :for="`ea${coIndex}`">EA</Label>
           <MultiSelect
             :input-id="`ea${coIndex}`"
@@ -82,11 +88,6 @@ const colist = ref<Co[]>([{
             emptymessage="No EAs"
           />
         </div>
-      </div>
-
-      <div class="flex flex-row gap-3 items-center">
-        <Checkbox :default-value="false" :id="`sdg${coIndex}`"/>
-        <Label :for="`sdg${coIndex}`">SDG</Label>
       </div>
 
       <div class="flex flex-wrap gap-1">

@@ -15,7 +15,8 @@ import {
 } from '@/components/ui/command'
 import ContentItemBadges from '../contentcard/ContentItemBadges.vue'
 import { Button } from '@/components/ui/button'
-import { CheckIcon } from 'lucide-vue-next'
+import { CheckIcon, PlusIcon } from 'lucide-vue-next'
+import { Badge } from '@/components/ui/badge'
 
 defineProps<{
   inputId?: string;
@@ -27,13 +28,46 @@ defineProps<{
 </script>
 
 <template>
-  <!-- <div class="flex flex-wrap">
+   <!-- <div class="flex flex-wrap">
     <ContentItemBadges
       :badges="selected || []"
       :elsemessage="emptymessage"
     />
   </div> -->
-  <Command class="max-h-[20ex] border border-border">
+
+  <div class="flex flex-wrap gap-1 items-center">
+    <ContentItemBadges
+      :badges="selected || []"
+      :elsemessage="emptymessage"
+    />
+    <Popover>
+      <PopoverTrigger>
+        <!-- <Button variant="outline" size="icon"><PlusIcon /></Button> -->
+          <Badge variant="default">+</Badge>
+      </PopoverTrigger>
+      <PopoverContent>
+        <Command class="max-h-[20ex] border border-border">
+          <CommandInput :id="inputId" placeholder="Search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                v-for="option in options"
+                :key="option"
+                :value="option"
+                class="flex justify-between"
+              >
+                {{ option }}
+                <CheckIcon v-if="selected.includes(option)" />
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  </div>
+
+  <!-- <Command class="max-h-[20ex] border border-border">
     <div class="flex flex-col p-2">
       <div class="flex flex-wrap">
         <ContentItemBadges
@@ -57,5 +91,5 @@ defineProps<{
         </CommandItem>
       </CommandGroup>
     </CommandList>
-  </Command>
+  </Command> -->
 </template>
