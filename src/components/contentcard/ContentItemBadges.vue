@@ -14,6 +14,7 @@ defineProps<{
     <div class="flex flex-wrap gap-1">
       <Badge v-for="badge in badges" variant="secondary">{{badge}}</Badge>
       <Badge v-if="badges.length == 0"variant="outline">{{ elsemessage }}</Badge>
+      <slot></slot>
     </div>
   </div>
 </template>

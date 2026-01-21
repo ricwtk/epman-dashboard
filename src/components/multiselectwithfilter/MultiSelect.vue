@@ -39,32 +39,33 @@ defineProps<{
     <ContentItemBadges
       :badges="selected || []"
       :elsemessage="emptymessage"
-    />
-    <Popover>
-      <PopoverTrigger>
-        <!-- <Button variant="outline" size="icon"><PlusIcon /></Button> -->
-          <Badge variant="default">+</Badge>
-      </PopoverTrigger>
-      <PopoverContent>
-        <Command class="max-h-[20ex] border border-border">
-          <CommandInput :id="inputId" placeholder="Search..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                v-for="option in options"
-                :key="option"
-                :value="option"
-                class="flex justify-between"
-              >
-                {{ option }}
-                <CheckIcon v-if="selected.includes(option)" />
-              </CommandItem>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    >
+      <Popover>
+        <PopoverTrigger>
+          <!-- <Button variant="outline" size="icon"><PlusIcon /></Button> -->
+            <Badge variant="default">+</Badge>
+        </PopoverTrigger>
+        <PopoverContent>
+          <Command class="max-h-[20ex] border border-border">
+            <CommandInput :id="inputId" placeholder="Search..." />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                <CommandItem
+                  v-for="option in options"
+                  :key="option"
+                  :value="option"
+                  class="flex justify-between"
+                >
+                  {{ option }}
+                  <CheckIcon v-if="selected.includes(option)" />
+                </CommandItem>
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </ContentItemBadges>
   </div>
 
   <!-- <Command class="max-h-[20ex] border border-border">
