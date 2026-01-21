@@ -31,7 +31,7 @@ const toggleDialog = () => {
 
 <template>
 <Dialog :open="isOpen" @update:open="toggleDialog">
-  <DialogContent>
+  <DialogContent class="overflow-clip">
     <DialogHeader>
       <DialogTitle>Course Details Update</DialogTitle>
       <DialogDescription>Update course details</DialogDescription>
@@ -46,13 +46,15 @@ const toggleDialog = () => {
           <TabsTrigger value="references">References</TabsTrigger>
         </TabsList>
       </div>
-      <TabsContent value="summary" class="w-full">
-        <Summary />
-      </TabsContent>
-      <TabsContent value="outcomes">Outcomes</TabsContent>
-      <TabsContent value="assessments">Assessments</TabsContent>
-      <TabsContent value="teachingplan">Teaching Plan</TabsContent>
-      <TabsContent value="references">References</TabsContent>
+      <div class="overflow-auto h-[calc(100vh-250px)]">
+        <TabsContent value="summary" class="w-full">
+          <Summary />
+        </TabsContent>
+        <TabsContent value="outcomes">Outcomes</TabsContent>
+        <TabsContent value="assessments">Assessments</TabsContent>
+        <TabsContent value="teachingplan">Teaching Plan</TabsContent>
+        <TabsContent value="references">References</TabsContent>
+      </div>
     </Tabs>
   </DialogContent>
 </Dialog>
