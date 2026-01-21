@@ -11,6 +11,7 @@ import { ref } from 'vue'
 import { type Reference } from '@/lib/course'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 
 const referenceTypes = [
@@ -27,30 +28,49 @@ const references = ref<Reference[]>([
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <div class="flex flex-col gap-1" v-for="(reference, refIndex) in references">
-      <Select v-model="reference.label">
-        <SelectTrigger class="w-full">
-          <SelectValue placeholder="Select a label" />
-        </SelectTrigger>
-        <SelectContent>
-            <SelectItem v-for="(referenceType, index) in referenceTypes"
-              :value="referenceType.value"
-              :key="index"
-            >
-              {{ referenceType.label }}
-            </SelectItem>
-        </SelectContent>
-      </Select>
-      <Textarea v-model="reference.description" />
-      <div class="flex flex-row gap-1">
-        <Button variant="secondary" :disabled="refIndex === 0"><ChevronUpIcon /></Button>
-        <Button variant="secondary" :disabled="refIndex === references.length - 1"><ChevronDownIcon /></Button>
-        <div class="grow"></div>
-        <Button variant="destructive"><MinusIcon /></Button>
-      </div>
-      <Separator class="my-5" v-if="refIndex < references.length - 1"/>
-    </div>
+  <div class="flex flex-col gap-1">
+    <Table>
+      <TableBody>
+        <TableRow v-for="(reference, refIndex) in references" :key="refIndex">
+          <TableCell class="w-14 align-top text-center">
+            <Button variant="destructive" @click="console.log(`Deleting reference ${refIndex}`)"><MinusIcon /></Button>
+          </TableCell>
+          <TableCell class="w-30 align-top">
+            <Select v-model="reference.label">
+              <SelectTrigger class="w-full">
+                <SelectValue placeholder="Select a label" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem v-for="(referenceType, index) in referenceTypes"
+                    :value="referenceType.value"
+                    :key="index"
+                  >
+                    {{ referenceType.label }}
+                  </SelectItem>
+              </SelectContent>
+            </Select>
+          </TableCell>
+          <TableCell class="align-top">
+            <Textarea v-model="reference.description" />
+          </TableCell>
+          <TableCell class="w-14 align-top text-center">
+            <div class="flex flex-col gap-1">
+              <Button
+                variant="secondary"
+                :disabled="refIndex === 0"
+                @click="console.log(`Move up ${refIndex}`)"
+              ><ChevronUpIcon /></Button>
+              <Button
+                variant="secondary"
+                :disabled="refIndex === references.length - 1"
+                @click="console.log(`Move down ${refIndex}`)"
+              ><ChevronDownIcon /></Button>
+            </div>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+
     <Button variant="default"><PlusIcon /></Button>
   </div>
 </template>
