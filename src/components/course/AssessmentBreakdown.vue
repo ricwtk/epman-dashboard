@@ -20,9 +20,9 @@ const props = defineProps<{
   <Table>
     <TableHeader>
       <TableRow>
-        <TableHead class="font-bold">Method</TableHead>
-        <TableHead class="font-bold text-center">Weightage</TableHead>
-        <TableHead class="font-bold text-center" v-for="index in coCount" :key="index">CO{{ index }}</TableHead>
+        <TableHead class="">Method</TableHead>
+        <TableHead class="text-center">Weightage</TableHead>
+        <TableHead class="text-center" v-for="index in coCount" :key="index">CO{{ index }}</TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>

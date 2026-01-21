@@ -29,14 +29,14 @@ defineEmits(['update:editing']);
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead class="font-bold text-center">#</TableHead>
-            <TableHead class="font-bold">CO</TableHead>
-            <TableHead class="font-bold text-center">PO</TableHead>
-            <TableHead class="font-bold text-center">WA</TableHead>
-            <TableHead class="font-bold text-center">WK</TableHead>
-            <TableHead class="font-bold text-center">WP</TableHead>
-            <TableHead class="font-bold text-center">EA</TableHead>
-            <TableHead class="font-bold text-center">SDG</TableHead>
+            <TableHead class="text-center">#</TableHead>
+            <TableHead class="">CO</TableHead>
+            <TableHead class="text-center">PO</TableHead>
+            <TableHead class="text-center">WA</TableHead>
+            <TableHead class="text-center">WK</TableHead>
+            <TableHead class="text-center">WP</TableHead>
+            <TableHead class="text-center">EA</TableHead>
+            <TableHead class="text-center">SDG</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -70,21 +70,21 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead class="font-bold text-center" rowspan="2">CO</TableHead>
-            <TableHead class="font-bold text-center" rowspan="2">PO</TableHead>
-            <TableHead class="font-bold text-center" rowspan="2">WA</TableHead>
-            <TableHead class="font-bold text-center" rowspan="2">WK</TableHead>
-            <TableHead class="font-bold text-center" rowspan="2">WP</TableHead>
-            <TableHead class="font-bold text-center" rowspan="2">EA</TableHead>
-            <TableHead class="font-bold text-center" rowspan="2">SDG</TableHead>
-            <TableHead :colspan="course.assessments.length * 2" class="font-bold text-center">
+            <TableHead class="text-center" rowspan="2">CO</TableHead>
+            <TableHead class="text-center" rowspan="2">PO</TableHead>
+            <TableHead class="text-center" rowspan="2">WA</TableHead>
+            <TableHead class="text-center" rowspan="2">WK</TableHead>
+            <TableHead class="text-center" rowspan="2">WP</TableHead>
+            <TableHead class="text-center" rowspan="2">EA</TableHead>
+            <TableHead class="text-center" rowspan="2">SDG</TableHead>
+            <TableHead :colspan="course.assessments.length * 2" class="text-center">
               Assessment (Weightage %)
             </TableHead>
           </TableRow>
           <TableRow>
             <template v-for="assessment in course.assessments">
-              <TableHead class="font-bold text-center">{{ assessment.description }}<br />({{ assessment.weightage }}%)</TableHead>
-              <TableHead class="font-bold text-center">CEP/CEA Descriptors</TableHead>
+              <TableHead class="text-center">{{ assessment.description }}<br />({{ assessment.weightage }}%)</TableHead>
+              <TableHead class="text-center">CEP/CEA Descriptors</TableHead>
             </template>
           </TableRow>
         </TableHeader>
@@ -111,7 +111,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
               <MinusIcon class="inline-block" :size="16" v-else />
             </TableCell>
             <template v-for="assessment in course.assessments">
-              <TableCell class="font-bold text-center">
+              <TableCell class="text-center">
                 <template v-if="assessment.cos.includes(index + 1)">
                   <CheckIcon class="inline-block" :size="16" />
                   <br/>
@@ -121,7 +121,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   <MinusIcon class="inline-block" :size="16" />
                 </template>
               </TableCell>
-              <TableCell class="font-bold text-center">
+              <TableCell class="text-center">
                 <BadgeList :items="getCEPCEA(assessment, index+1)" />
               </TableCell>
             </template>

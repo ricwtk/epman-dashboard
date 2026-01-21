@@ -48,17 +48,17 @@ const creditHours = computed(() => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead rowspan="2" class="font-bold">Topics</TableHead>
-            <TableHead colspan="6" class="font-bold text-center">Student Learning Time (SLT)</TableHead>
-            <TableHead rowspan="2" class="font-bold text-center">Topic SLT</TableHead>
+            <TableHead rowspan="2" class="">Topics</TableHead>
+            <TableHead colspan="6" class="text-center">Student Learning Time (SLT)</TableHead>
+            <TableHead rowspan="2" class="text-center">Topic SLT</TableHead>
           </TableRow>
           <TableRow>
-            <TableHead class="font-bold text-center">L</TableHead>
-            <TableHead class="font-bold text-center">T</TableHead>
-            <TableHead class="font-bold text-center">P</TableHead>
-            <TableHead class="font-bold text-center">A</TableHead>
-            <TableHead class="font-bold text-center">O</TableHead>
-            <TableHead class="font-bold text-center">IL</TableHead>
+            <TableHead class="text-center">L</TableHead>
+            <TableHead class="text-center">T</TableHead>
+            <TableHead class="text-center">P</TableHead>
+            <TableHead class="text-center">A</TableHead>
+            <TableHead class="text-center">O</TableHead>
+            <TableHead class="text-center">IL</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -73,22 +73,22 @@ const creditHours = computed(() => {
             <TableCell class="text-center">{{ getTopicHours(plan.hours) }}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell class="font-bold">Sub-total for each SLT components</TableCell>
-            <TableCell class="text-center">{{ getTotalComponentHours("lecture") }}</TableCell>
-            <TableCell class="text-center">{{ getTotalComponentHours("tutorial") }}</TableCell>
-            <TableCell class="text-center">{{ getTotalComponentHours("practical") }}</TableCell>
-            <TableCell class="text-center">{{ getTotalComponentHours("assessment") }}</TableCell>
-            <TableCell class="text-center">{{ getTotalComponentHours("others") }}</TableCell>
-            <TableCell class="text-center">{{ getTotalComponentHours("self") }}</TableCell>
-            <TableCell class="text-center">{{ totalSLT }}</TableCell>
+            <TableCell class="font-medium">Sub-total for each SLT components</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours("lecture") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours("tutorial") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours("practical") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours("assessment") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours("others") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours("self") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ totalSLT }}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell class="font-bold">Total SLT Hours</TableCell>
-            <TableCell colspan="7" class="text-center">{{ totalSLT }}</TableCell>
+            <TableCell class="font-semibold">Total SLT Hours</TableCell>
+            <TableCell colspan="7" class="font-semibold text-center">{{ totalSLT }}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell class="font-bold">SLT Credit Hours</TableCell>
-            <TableCell colspan="7" class="text-center">{{ creditHours }}</TableCell>
+            <TableCell class="font-semibold">SLT Credit Hours</TableCell>
+            <TableCell colspan="7" class="font-semibold text-center">{{ creditHours }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
