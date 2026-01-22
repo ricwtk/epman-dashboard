@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import VerticalText from '@/components/VerticalText.vue'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 
 const colist = ref<Co[]>([{
@@ -166,9 +167,7 @@ const truncateWithEllipsis = (text: string) => {
             v-for="(po, poIndex) in poOptions"
             :key="poIndex"
           >
-            <span class="vertical-text" :title="`PO${poIndex + 1} ${po}`">
-              {{ truncateWithEllipsis(`PO${poIndex + 1} ${po}`) }}
-            </span>
+            <VerticalText :label="`PO${poIndex + 1}`" :content="po" />
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -193,9 +192,7 @@ const truncateWithEllipsis = (text: string) => {
             v-for="(wk, wkIndex) in wkOptions"
             :key="wkIndex"
           >
-            <span class="vertical-text" :title="`WK${wkIndex + 1} ${wk}`">
-              {{ truncateWithEllipsis(`WK${wkIndex + 1} ${wk}`) }}
-            </span>
+            <VerticalText :label="`WK${wkIndex + 1}`" :content="wk" />
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -221,9 +218,7 @@ const truncateWithEllipsis = (text: string) => {
             v-for="(wp, wpIndex) in wpOptions"
             :key="wpIndex"
           >
-            <span class="vertical-text" :title="`WP${wpIndex + 1} ${wp}`">
-              {{ truncateWithEllipsis(`WP${wpIndex + 1} ${wp}`) }}
-            </span>
+            <VerticalText :label="`WP${wpIndex + 1}`" :content="wp" />
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -249,9 +244,7 @@ const truncateWithEllipsis = (text: string) => {
             v-for="(ea, eaIndex) in eaOptions"
             :key="eaIndex"
           >
-            <span class="vertical-text" :title="`EA${eaIndex + 1} ${ea}`">
-              {{ truncateWithEllipsis(`EA${eaIndex + 1} ${ea}`) }}
-            </span>
+            <VerticalText :label="`EA${eaIndex + 1}`" :content="ea" />
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -338,13 +331,3 @@ const truncateWithEllipsis = (text: string) => {
     <Button variant="default"><PlusIcon /></Button> -->
   </div>
 </template>
-
-<style scoped>
-.vertical-text {
-  writing-mode: sideways-lr;
-  text-orientation: mixed;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>
