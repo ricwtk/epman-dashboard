@@ -37,7 +37,7 @@ function navigateTo(path: string) {
       <template #icon><HomeIcon /></template>
       <template #text>Home</template>
     </SidebarItem>
-    <SidebarItem>
+    <SidebarItem @click="navigateTo('/programme')">
       <template #icon><LayoutDashboardIcon /></template>
       <template #text>Programmes</template>
     </SidebarItem>

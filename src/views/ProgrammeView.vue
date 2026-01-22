@@ -1,33 +1,11 @@
 <script setup lang="ts">
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
-  BreadcrumbSeparator,
-  BreadcrumbLink
+  BreadcrumbList,
+  BreadcrumbLink,
+  BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
-import { Badge } from '@/components/ui/badge';
-import CourseSummary from '@/components/course/CourseSummary.vue';
-import CourseOutcomes from '@/components/course/CourseOutcomes.vue';
-import CourseAssessments from '@/components/course/CourseAssessments.vue';
-import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
-import CoursePlan from '@/components/course/CoursePlan.vue';
-import CourseReferences from '@/components/course/CourseReferences.vue';
-import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
-
-import { getCourseById, type Course } from '@/lib/course';
-import { onMounted, ref, type Ref } from 'vue';
-
-const course: Ref<Course | null> = ref(null);
-
-onMounted(() => {
-  course.value = getCourseById('CS101') || null;
-})
-
-const editing = ref(false);
-const updateEditing = (ev: boolean, ) => {
-  editing.value = ev;
-};
 </script>
 
 <template>
@@ -41,20 +19,20 @@ const updateEditing = (ev: boolean, ) => {
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/course">
-            Course
+          <BreadcrumbLink href="/programme">
+            Programme
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/course/ETC2073">
-            Artificial Intelligence
+          <BreadcrumbLink href="/programme/bmec">
+            Bachelor of Mechanical Engineering with Honours
           </BreadcrumbLink>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
   </div>
-  <template v-if="course">
+  <!-- <template v-if="course">
     <div class="card-plain px-4 text-muted-foreground text-sm">
       {{ course.code }} {{ course.name }}
       <Badge>{{ course.revision }}</Badge>
@@ -66,5 +44,5 @@ const updateEditing = (ev: boolean, ) => {
     <CoursePlan :course="course" :editing="editing" @update:editing="updateEditing" />
     <CourseReferences :references="course.references || []" :editing="editing" @update:editing="updateEditing" />
     <CourseUpdateDialog v-model:isOpen="editing" />
-  </template>
+  </template> -->
 </template>
