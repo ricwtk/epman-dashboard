@@ -4,7 +4,6 @@ export interface Co {
   description: string;
   bloomtax: [string, number]; // e.g., ['c', 6]
   pos: number[];
-  was: number[];
   wks: number[];
   wps: number[];
   eas: number[];

@@ -32,7 +32,6 @@ defineEmits(['update:editing']);
             <TableHead class="text-center">#</TableHead>
             <TableHead class="">CO</TableHead>
             <TableHead class="text-center">PO</TableHead>
-            <TableHead class="text-center">WA</TableHead>
             <TableHead class="text-center">WK</TableHead>
             <TableHead class="text-center">WP</TableHead>
             <TableHead class="text-center">EA</TableHead>
@@ -45,9 +44,6 @@ defineEmits(['update:editing']);
             <TableCell>{{ co.description }}</TableCell>
             <TableCell class="text-center">
               <BadgeList :items="co.pos.map((po) => 'PO'+po)" />
-            </TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="co.was.map((wa) => 'WA'+wa)" />
             </TableCell>
             <TableCell class="text-center">
               <BadgeList :items="co.wks.map((wk) => 'WK'+wk)" />

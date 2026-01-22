@@ -72,7 +72,6 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
           <TableRow>
             <TableHead class="text-center" rowspan="2">CO</TableHead>
             <TableHead class="text-center" rowspan="2">PO</TableHead>
-            <TableHead class="text-center" rowspan="2">WA</TableHead>
             <TableHead class="text-center" rowspan="2">WK</TableHead>
             <TableHead class="text-center" rowspan="2">WP</TableHead>
             <TableHead class="text-center" rowspan="2">EA</TableHead>
@@ -93,9 +92,6 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
             <TableCell class="text-center">CO{{ index + 1 }}</TableCell>
             <TableCell class="text-center">
               <BadgeList :items="co.pos.map((po) => 'PO'+po)" />
-            </TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="co.was.map((wa) => 'WA'+wa)" />
             </TableCell>
             <TableCell class="text-center">
               <BadgeList :items="co.wks.map((wk) => 'WK'+wk)" />
