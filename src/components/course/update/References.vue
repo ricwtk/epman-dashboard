@@ -47,10 +47,10 @@ const references = ref<Reference[]>([
       </TableHeader>
       <TableBody>
         <TableRow v-for="(reference, refIndex) in references" :key="refIndex">
-          <TableCell class="w-14 align-top text-center">
+          <TableCell class="w-14 text-center">
             <Button variant="destructive" @click="console.log(`Deleting reference ${refIndex}`)"><MinusIcon /></Button>
           </TableCell>
-          <TableCell class="w-30 align-top">
+          <TableCell class="w-30 ">
             <Select v-model="reference.label">
               <SelectTrigger class="w-full">
                 <SelectValue placeholder="Select a label" />
@@ -65,10 +65,10 @@ const references = ref<Reference[]>([
               </SelectContent>
             </Select>
           </TableCell>
-          <TableCell class="align-top">
+          <TableCell class="">
             <Textarea v-model="reference.description" />
           </TableCell>
-          <TableCell class="w-14 align-top text-center">
+          <TableCell class="w-14 text-center">
             <div class="flex flex-col gap-1">
               <Button
                 variant="secondary"
