@@ -11,7 +11,14 @@ import { ref } from 'vue'
 import { type Reference } from '@/lib/course'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHeader,
+  TableHead
+} from '@/components/ui/table'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 
 const referenceTypes = [
@@ -30,6 +37,14 @@ const references = ref<Reference[]>([
 <template>
   <div class="flex flex-col gap-1">
     <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead></TableHead>
+          <TableHead>Category</TableHead>
+          <TableHead>Description</TableHead>
+          <TableHead></TableHead>
+        </TableRow>
+      </TableHeader>
       <TableBody>
         <TableRow v-for="(reference, refIndex) in references" :key="refIndex">
           <TableCell class="w-14 align-top text-center">
