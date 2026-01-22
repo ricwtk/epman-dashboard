@@ -64,7 +64,7 @@ export interface Course {
   cos: Co[];
   startFrom: [string, string]; // ['semester' | 'intake', 'YYYY-MM']
   assessments: Assessment[];
-  weeklyPlan: Plan[];
+  teachingPlan: Plan[];
   references: Reference[];
   gradingScheme: string; // function name
   committed: {

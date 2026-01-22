@@ -61,7 +61,7 @@ export const courses: Course[] = [
       }
     ],
 
-    weeklyPlan: [
+    teachingPlan: [
       {
         description: "Programming fundamentals and variables",
         hours: { lecture: { online: 1, f2f: 2 }, practical: { online: 0, f2f: 0 }, tutorial: { online: 0, f2f: 0 }, self: { online: 0, f2f: 0 }, others: { online: 0, f2f: 0 }, assessment: { online: 0, f2f: 0 } }
@@ -142,7 +142,7 @@ export const courses: Course[] = [
       }
     ],
 
-    weeklyPlan: [
+    teachingPlan: [
       {
         description: "Stacks and Queues",
         hours: {
@@ -225,7 +225,7 @@ export const courses: Course[] = [
       }
     ],
 
-    weeklyPlan: [
+    teachingPlan: [
       {
         description: "Agile and Scrum",
         hours: { lecture: { online: 1, f2f: 2 }, practical: { online: 0, f2f: 0 }, tutorial: { online: 0, f2f: 0 }, self: { online: 0, f2f: 0 }, others: { online: 0, f2f: 0 }, assessment: { online: 0, f2f: 0 } }
@@ -303,7 +303,7 @@ export const courses: Course[] = [
       }
     ],
 
-    weeklyPlan: [
+    teachingPlan: [
       {
         description: "Neural Networks",
         hours: {
@@ -385,7 +385,7 @@ export const courses: Course[] = [
       }
     ],
 
-    weeklyPlan: [
+    teachingPlan: [
       {
         description: "Final Presentation",
         hours: { lecture: { online: 0, f2f: 1 }, practical: { online: 0, f2f: 1 }, tutorial: { online: 0, f2f: 1 }, self: { online: 0, f2f: 1 }, others: { online: 0, f2f: 3 }, assessment: { online: 0, f2f: 0 } }

@@ -23,13 +23,13 @@ const getTopicHours = (hours: Allocation) =>
   + getTotalHours(hours.others)
   + getTotalHours(hours.self);
 const getTotalComponentHours = (component: keyof Allocation) => {
-  const total = props.course.weeklyPlan.reduce((acc, topic) => {
+  const total = props.course.teachingPlan.reduce((acc, topic) => {
     return acc + getTotalHours(topic.hours[component]);
   }, 0);
   return total;
 };
 const totalSLT = computed(() => {
-  const total = props.course.weeklyPlan.reduce((acc, topic) => {
+  const total = props.course.teachingPlan.reduce((acc, topic) => {
     return acc + getTopicHours(topic.hours);
   }, 0);
   return total;
@@ -62,7 +62,7 @@ const creditHours = computed(() => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="plan in course.weeklyPlan">
+          <TableRow v-for="plan in course.teachingPlan">
             <TableCell>{{ plan.description }}</TableCell>
             <TableCell class="text-center">{{ getTotalHours(plan.hours.lecture) }}</TableCell>
             <TableCell class="text-center">{{ getTotalHours(plan.hours.tutorial) }}</TableCell>
