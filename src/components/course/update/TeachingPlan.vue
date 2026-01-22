@@ -94,8 +94,8 @@ const creditHours = computed(() => {
         </TableCell>
         <TableCell class="w-0">
           <div class="flex flex-col">
-            <Button variant="ghost" :disabled="planIndex === 0"><ChevronUpIcon /></Button>
-            <Button variant="ghost" :disabled="planIndex === teachingPlan.length - 1"><ChevronDownIcon /></Button>
+            <Button variant="secondary" :disabled="planIndex === 0"><ChevronUpIcon /></Button>
+            <Button variant="secondary" :disabled="planIndex === teachingPlan.length - 1"><ChevronDownIcon /></Button>
           </div>
         </TableCell>
         <TableCell class="text-center">
