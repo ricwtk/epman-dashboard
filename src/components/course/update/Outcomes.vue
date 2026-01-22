@@ -87,6 +87,12 @@ const eaOptions = [
   "Familiarity"
 ]
 
+const truncateWithEllipsis = (text: string) => {
+  let maxLength = 20;
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - 3) + '...';
+}
+
 </script>
 
 <template>
@@ -161,8 +167,8 @@ const eaOptions = [
             v-for="(po, poIndex) in poOptions"
             :key="poIndex"
           >
-            <span class="vertical-text">
-              {{ `PO${poIndex + 1} ${po}` }}
+            <span class="vertical-text" :title="`PO${poIndex + 1} ${po}`">
+              {{ truncateWithEllipsis(`PO${poIndex + 1} ${po}`) }}
             </span>
           </TableHead>
         </TableRow>
@@ -188,8 +194,8 @@ const eaOptions = [
             v-for="(wk, wkIndex) in wkOptions"
             :key="wkIndex"
           >
-            <span class="vertical-text">
-              {{ `WK${wkIndex + 1} ${wk}` }}
+            <span class="vertical-text" :title="`WK${wkIndex + 1} ${wk}`">
+              {{ truncateWithEllipsis(`WK${wkIndex + 1} ${wk}`) }}
             </span>
           </TableHead>
         </TableRow>
@@ -216,8 +222,8 @@ const eaOptions = [
             v-for="(wp, wpIndex) in wpOptions"
             :key="wpIndex"
           >
-            <span class="vertical-text">
-              {{ `WP${wpIndex + 1} ${wp}` }}
+            <span class="vertical-text" :title="`WP${wpIndex + 1} ${wp}`">
+              {{ truncateWithEllipsis(`WP${wpIndex + 1} ${wp}`) }}
             </span>
           </TableHead>
         </TableRow>
@@ -244,8 +250,8 @@ const eaOptions = [
             v-for="(ea, eaIndex) in eaOptions"
             :key="eaIndex"
           >
-            <span class="vertical-text">
-              {{ `EA${eaIndex + 1} ${ea}` }}
+            <span class="vertical-text" :title="`EA${eaIndex + 1} ${ea}`">
+              {{ truncateWithEllipsis(`EA${eaIndex + 1} ${ea}`) }}
             </span>
           </TableHead>
         </TableRow>
