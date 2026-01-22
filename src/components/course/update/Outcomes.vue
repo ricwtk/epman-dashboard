@@ -112,14 +112,14 @@ const truncateWithEllipsis = (text: string) => {
       </TableHeader>
       <TableBody>
         <TableRow v-for="(co, coIndex) in colist" :key="coIndex">
-          <TableCell class="w-14 align-top text-center">
+          <TableCell class="w-14 text-center">
             <Button variant="destructive" @click="console.log(`Deleting reference ${coIndex}`)"><MinusIcon /></Button>
           </TableCell>
-          <TableCell class="align-top">{{ coIndex + 1 }}</TableCell>
-          <TableCell class="align-top">
+          <TableCell class="">{{ coIndex + 1 }}</TableCell>
+          <TableCell class="">
             <Textarea :id="'desc' + coIndex" :value="co.description" />
           </TableCell>
-          <TableCell class="w-0 align-top">
+          <TableCell class="w-0">
             <Select>
               <SelectTrigger class="w-40">
                 <SelectValue placeholder="Select" />
@@ -134,10 +134,10 @@ const truncateWithEllipsis = (text: string) => {
               </SelectContent>
             </Select>
           </TableCell>
-          <TableCell class="w-0 align-top text-center">
+          <TableCell class="w-0 text-center">
             <Checkbox :default-value="false" :id="`co${coIndex + 1}sdg`"/>
           </TableCell>
-          <TableCell class="w-14 align-top text-center">
+          <TableCell class="w-14 text-center">
             <div class="flex flex-col gap-1">
               <Button
                 variant="secondary"
