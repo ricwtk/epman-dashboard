@@ -14,29 +14,16 @@ import {
 const props = defineProps<{ course: Course; editing: boolean }>();
 defineEmits(['update:editing']);
 
-const getTotalHours = (hours: { online: number, f2f: number }) => (hours.online + hours.f2f);
-const getTopicHours = (hours: Allocation) =>
-  getTotalHours(hours.lecture)
-  + getTotalHours(hours.tutorial)
-  + getTotalHours(hours.practical)
-  + getTotalHours(hours.assessment)
-  + getTotalHours(hours.others)
-  + getTotalHours(hours.self);
-const getTotalComponentHours = (component: keyof Allocation) => {
-  const total = props.course.teachingPlan.reduce((acc, topic) => {
-    return acc + getTotalHours(topic.hours[component]);
-  }, 0);
-  return total;
-};
-const totalSLT = computed(() => {
-  const total = props.course.teachingPlan.reduce((acc, topic) => {
-    return acc + getTopicHours(topic.hours);
-  }, 0);
-  return total;
-});
-const creditHours = computed(() => {
-  return totalSLT.value / 40;
-});
+import {
+  getTotalHours,
+  getTopicHours,
+  getTotalComponentHours,
+  getTotalHoursForCourse,
+  getCreditHours
+} from '@/lib/course';
+
+const totalSLT = computed(() => getTotalHoursForCourse(props.course.teachingPlan))
+const creditHours = computed(() => getCreditHours(totalSLT.value))
 </script>
 
 <template>
@@ -74,12 +61,12 @@ const creditHours = computed(() => {
           </TableRow>
           <TableRow>
             <TableCell class="font-medium">Sub-total for each SLT components</TableCell>
-            <TableCell class="font-medium text-center">{{ getTotalComponentHours("lecture") }}</TableCell>
-            <TableCell class="font-medium text-center">{{ getTotalComponentHours("tutorial") }}</TableCell>
-            <TableCell class="font-medium text-center">{{ getTotalComponentHours("practical") }}</TableCell>
-            <TableCell class="font-medium text-center">{{ getTotalComponentHours("assessment") }}</TableCell>
-            <TableCell class="font-medium text-center">{{ getTotalComponentHours("others") }}</TableCell>
-            <TableCell class="font-medium text-center">{{ getTotalComponentHours("self") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours(course.teachingPlan, "lecture") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours(course.teachingPlan, "tutorial") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours(course.teachingPlan, "practical") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours(course.teachingPlan, "assessment") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours(course.teachingPlan, "others") }}</TableCell>
+            <TableCell class="font-medium text-center">{{ getTotalComponentHours(course.teachingPlan, "self") }}</TableCell>
             <TableCell class="font-medium text-center">{{ totalSLT }}</TableCell>
           </TableRow>
           <TableRow>

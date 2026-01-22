@@ -22,41 +22,18 @@ const teachingPlan: Plan[] = [
   }
 ]
 
-const getTotalHours = (hours: { online: number, f2f: number }) => (hours.online + hours.f2f);
-const getTopicHours = (hours: Allocation) =>
-  getTotalHours(hours.lecture)
-  + getTotalHours(hours.tutorial)
-  + getTotalHours(hours.practical)
-  + getTotalHours(hours.assessment)
-  + getTotalHours(hours.others)
-  + getTotalHours(hours.self);
-const getTotalComponentHours = (component: keyof Allocation) => {
-  const total = teachingPlan.reduce((acc, topic) => {
-    return acc + getTotalHours(topic.hours[component]);
-  }, 0);
-  return total;
-};
-const getTotalComponentOnlineHours = (component: keyof Allocation) => {
-  const total = teachingPlan.reduce((acc, topic) => {
-    return acc + topic.hours[component].online;
-  }, 0);
-  return total;
-};
-const getTotalComponentF2FHours = (component: keyof Allocation) => {
-  const total = teachingPlan.reduce((acc, topic) => {
-    return acc + topic.hours[component].f2f;
-  }, 0);
-  return total;
-};
-const totalSLT = computed(() => {
-  const total = teachingPlan.reduce((acc, topic) => {
-    return acc + getTopicHours(topic.hours);
-  }, 0);
-  return total;
-});
-const creditHours = computed(() => {
-  return totalSLT.value / 40;
-});
+import {
+  getTotalHours,
+  getTopicHours,
+  getTotalComponentHours,
+  getTotalComponentOnlineHours,
+  getTotalComponentF2FHours,
+  getTotalHoursForCourse,
+  getCreditHours
+} from '@/lib/course';
+
+const totalSLT = computed(() => getTotalHoursForCourse(teachingPlan))
+const creditHours = computed(() => getCreditHours(totalSLT.value))
 </script>
 
 <template>
@@ -148,18 +125,18 @@ const creditHours = computed(() => {
         <TableCell></TableCell>
         <TableCell class="font-medium">Sub-total for each SLT components</TableCell>
         <TableCell></TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours("lecture") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours("lecture") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours("tutorial") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours("tutorial") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours("practical") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours("practical") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours("assessment") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours("assessment") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours("others") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours("others") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours("self") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours("self") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "lecture") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "lecture") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "tutorial") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "tutorial") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "practical") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "practical") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "assessment") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "assessment") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "others") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "others") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "self") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "self") }}</TableCell>
         <TableCell class="font-medium text-center">{{ totalSLT }}</TableCell>
       </TableRow>
 
