@@ -132,7 +132,6 @@ const truncateWithEllipsis = (text: string) => {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Select v-model="co.bloomtax" :options="bloomtaxOptions" />
           </TableCell>
           <TableCell class="w-0 align-top text-center">
             <Checkbox :default-value="false" :id="`co${coIndex + 1}sdg`"/>
