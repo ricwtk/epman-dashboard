@@ -17,18 +17,21 @@ import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
 
 import type { Course } from '@/types/course';
 import { getCourseByCode } from '@/utils/courseHelpers';
-import { onMounted, ref, type Ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 import { useViewingCourseStore } from '@/stores/viewingcourse';
+import { navigateToPath } from '@/utils/navigationHelpers';
+import { storeToRefs } from 'pinia';
 
-const { course, loadCourseByCode } = useViewingCourseStore();
+const viewingCourseStore = useViewingCourseStore();
+const { course } = storeToRefs(viewingCourseStore)
 
 const props = defineProps<{
   code: string,
 }>();
 
 onMounted(() => {
-  loadCourseByCode(props.code!);
+  viewingCourseStore.loadCourseByCode(props.code!);
 });
 
 const editing = ref(false);
@@ -42,19 +45,19 @@ const updateEditing = (ev: boolean, ) => {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">
+          <BreadcrumbLink @click="navigateToPath('/')">
             Home
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/course">
+          <BreadcrumbLink @click="navigateToPath('/course')">
             Course
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/course/ETC2073">
+          <BreadcrumbLink @click="navigateToPath('/course/ETC2073')">
             Artificial Intelligence
           </BreadcrumbLink>
         </BreadcrumbItem>

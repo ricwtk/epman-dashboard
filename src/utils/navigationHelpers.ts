@@ -1,5 +1,7 @@
+import router from '@/router';
+
 export function navigateToPath(path: string) {
-  window.location.href = path;
+  router.push(path);
 }
 
 export function navigateToCourse(courseCode: string) {
