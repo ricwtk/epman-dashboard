@@ -9,7 +9,7 @@ import {
 import { getCourseList } from '@/utils/courseHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
-import { navigateToCourse } from '@/utils/navigation';
+import { navigateToCourse } from '@/utils/navigationHelpers';
 
 const courses: Ref<{ code: string, name: string }[]> = ref([]);
 onMounted(() => {

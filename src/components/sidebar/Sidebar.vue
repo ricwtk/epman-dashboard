@@ -14,14 +14,7 @@ import {
   UserCogIcon
 } from 'lucide-vue-next';
 import { Separator } from '@/components/ui/separator';
-
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-
-function navigateTo(path: string) {
-  router.push(path);
-}
+import { navigateToPath } from '@/utils/navigationHelpers';
 </script>
 
 <template>
@@ -33,15 +26,15 @@ function navigateTo(path: string) {
       <template #text>Email</template>
     </SidebarItem>
     <Separator />
-    <SidebarItem @click="navigateTo('/')">
+    <SidebarItem @click="navigateToPath('/')">
       <template #icon><HomeIcon /></template>
       <template #text>Home</template>
     </SidebarItem>
-    <SidebarItem @click="navigateTo('/programme')">
+    <SidebarItem @click="navigateToPath('/programme')">
       <template #icon><LayoutDashboardIcon /></template>
       <template #text>Programmes</template>
     </SidebarItem>
-    <SidebarItem @click="navigateTo('/course')">
+    <SidebarItem @click="navigateToPath('/course')">
       <template #icon><LayersIcon /></template>
       <template #text>Courses</template>
     </SidebarItem>
