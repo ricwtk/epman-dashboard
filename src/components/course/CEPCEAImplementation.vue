@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Course } from '@/lib/course';
+import type { Course, Assessment } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import {
   Table,
@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/table';
 import BadgeList from '@/components/BadgeList.vue';
 import { CheckIcon, MinusIcon } from 'lucide-vue-next';
-import { type Assessment } from '@/lib/course';
 
 defineProps<{ course: Course; editing: boolean }>();
 

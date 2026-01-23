@@ -11,7 +11,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { type Plan, type Allocation } from "@/lib/course"
+import { type Plan, type Allocation } from "@/types/course"
 
 import { PlusIcon, MinusIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 
@@ -30,7 +30,7 @@ import {
   getTotalComponentF2FHours,
   getTotalHoursForCourse,
   getCreditHours
-} from '@/lib/course';
+} from '@/utils/courseHelpers';
 
 const totalSLT = computed(() => getTotalHoursForCourse(teachingPlan))
 const creditHours = computed(() => getCreditHours(totalSLT.value))

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Assessment } from '@/lib/course';
+import { type Assessment } from '@/types/course';
 import {
   Table,
   TableHeader,

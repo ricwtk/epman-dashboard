@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type Reference } from '@/lib/course';
+import { type Reference } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import {
   Table,

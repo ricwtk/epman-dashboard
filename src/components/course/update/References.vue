@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { ref } from 'vue'
-import { type Reference } from '@/lib/course'
+import { type Reference } from '@/types/course'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import {

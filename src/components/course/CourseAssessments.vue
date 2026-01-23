@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
-import { type Assessment } from '@/lib/course'
+import { type Assessment } from '@/types/course'
 import AssessmentMainTable from '@/components/course/AssessmentMainTable.vue';
 import AssessmentBreakdown from '@/components/course/AssessmentBreakdown.vue';
 import { Badge } from '@/components/ui/badge';

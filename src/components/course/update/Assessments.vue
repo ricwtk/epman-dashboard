@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { type Co, type Assessment } from '@/lib/course';
+import { type Co, type Assessment } from '@/types/course';
 import {
   Table,
   TableHeader,

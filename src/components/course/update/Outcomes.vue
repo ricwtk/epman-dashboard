@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { type Co } from '@/lib/course'
+import { type Co } from '@/types/course'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import MultiSelect from '@/components/multiselectwithfilter/MultiSelect.vue'

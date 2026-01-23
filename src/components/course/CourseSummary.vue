@@ -3,7 +3,7 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import ContentItem from '@/components/contentcard/ContentItem.vue';
 import ContentItemBadges from '@/components/contentcard/ContentItemBadges.vue';
 import { Button } from '@/components/ui/button';
-import { type Course } from '@/lib/course';
+import { type Course } from '@/types/course';
 
 defineProps<{
   course: Course;

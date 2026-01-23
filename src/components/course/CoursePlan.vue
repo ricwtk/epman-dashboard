@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
-import { type Allocation, type Course } from '@/lib/course';
+import { type Allocation, type Course } from '@/types/course';
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
   getTotalComponentHours,
   getTotalHoursForCourse,
   getCreditHours
-} from '@/lib/course';
+} from '@/utils/courseHelpers';
 
 const totalSLT = computed(() => getTotalHoursForCourse(props.course.teachingPlan))
 const creditHours = computed(() => getCreditHours(totalSLT.value))

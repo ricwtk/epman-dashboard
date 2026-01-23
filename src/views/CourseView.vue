@@ -15,7 +15,8 @@ import CoursePlan from '@/components/course/CoursePlan.vue';
 import CourseReferences from '@/components/course/CourseReferences.vue';
 import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
 
-import { getCourseById, type Course } from '@/lib/course';
+import type { Course } from '@/types/course';
+import { getCourseById } from '@/utils/courseHelpers';
 import { onMounted, ref, type Ref } from 'vue';
 
 const course: Ref<Course | null> = ref(null);

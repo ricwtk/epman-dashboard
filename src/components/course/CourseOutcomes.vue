@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Co } from '@/lib/course';
+import { type Co } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import BadgeList from '@/components/BadgeList.vue';
 import {
