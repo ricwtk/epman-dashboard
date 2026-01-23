@@ -16,14 +16,20 @@ import CourseReferences from '@/components/course/CourseReferences.vue';
 import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
 
 import type { Course } from '@/types/course';
-import { getCourseById } from '@/utils/courseHelpers';
+import { getCourseByCode } from '@/utils/courseHelpers';
 import { onMounted, ref, type Ref } from 'vue';
 
-const course: Ref<Course | null> = ref(null);
+import { useViewingCourseStore } from '@/stores/viewingcourse';
+
+const { course, loadCourseByCode } = useViewingCourseStore();
+
+const props = defineProps<{
+  code: string,
+}>();
 
 onMounted(() => {
-  course.value = getCourseById('CS101') || null;
-})
+  loadCourseByCode(props.code!);
+});
 
 const editing = ref(false);
 const updateEditing = (ev: boolean, ) => {
