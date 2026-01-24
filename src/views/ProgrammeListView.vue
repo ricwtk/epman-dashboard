@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from 'vue';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { getProgrammeList } from '@/utils/programmeHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
-import { navigateToProgramme, navigateToPath } from '@/utils/navigationHelpers';
+import NavIndicator from '@/components/NavIndicator.vue';
+import { navigateToProgramme } from '@/utils/navigationHelpers';
 
 const programmes: Ref<{ code: string, name: string }[]> = ref([]);
 onMounted(() => {
@@ -19,23 +14,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="card-plain px-4">
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink @click="navigateToPath('/')">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink @click="navigateToPath('/programme')">
-            Programme
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-  </div>
+  <NavIndicator :items="[
+    { label: 'Home', path: '/' },
+    { label: 'Programme', path: '/programme' }
+  ]"/>
 
   <ContentCard :editable="false">
     <template #title>

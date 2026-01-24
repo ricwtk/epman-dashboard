@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbSeparator,
-  BreadcrumbLink
-} from '@/components/ui/breadcrumb';
 import { Badge } from '@/components/ui/badge';
+import NavIndicator from '@/components/NavIndicator.vue';
 
 import CourseSummary from '@/components/course/CourseSummary.vue';
 import CourseOutcomes from '@/components/course/CourseOutcomes.vue';
@@ -17,8 +11,6 @@ import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
 import CoursePlan from '@/components/course/CoursePlan.vue';
 import CourseReferences from '@/components/course/CourseReferences.vue';
 import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
-
-import { navigateToPath } from '@/utils/navigationHelpers';
 
 import { useViewingCourseStore } from '@/stores/viewingcourse';
 const viewingCourseStore = useViewingCourseStore();
@@ -31,29 +23,12 @@ const updateEditing = (ev: boolean, ) => { editing.value = ev; };
 </script>
 
 <template>
-  <div class="card-plain px-4">
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink @click="navigateToPath('/')">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink @click="navigateToPath('/course')">
-            Course
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink @click="navigateToPath('/course/ETC2073')">
-            Artificial Intelligence
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-  </div>
+  <NavIndicator :items="[
+    { label: 'Home', path: '/' },
+    { label: 'Course', path: '/course' },
+    { label: 'Artificial Intelligence', path: '/course/ETC2073' }
+  ]"/>
+
   <template v-if="viewingCourseStore.course">
     <div class="card-plain px-4 text-muted-foreground text-sm">
       {{ viewingCourseStore.course.code }} {{ viewingCourseStore.course.name }}
