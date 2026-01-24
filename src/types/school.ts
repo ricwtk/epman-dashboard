@@ -2,16 +2,20 @@ export interface School {
   code: string;
   name: string;
   programmes: string[];
-  components?: object;
+  revision: string;
+  parentRevision: string;
+  components?: {
+    [key: string]: any
+  };
 }
 
-export interface AttDesc {
+export interface AttrDesc {
   attribute: string;
   descriptor: string;
 }
 
-export interface Wk extends AttDesc {  }
+export interface Wk extends AttrDesc {  }
 
-export interface Wp extends AttDesc { }
+export interface Wp extends AttrDesc { }
 
-export interface Ea extends AttDesc { }
+export interface Ea extends AttrDesc { }

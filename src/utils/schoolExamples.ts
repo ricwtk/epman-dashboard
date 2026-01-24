@@ -4,6 +4,8 @@ export const schools: School[] = [
   {
     code: "SEN",
     name: "School of Engineering",
+    revision: "2026-01",
+    parentRevision: "",
     programmes: ["BEEE", "BCHE", "BMEC", "BMRE", "BCIV"],
     components: {
       wks: [

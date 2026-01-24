@@ -15,6 +15,8 @@ export function createNewSchool(overrides?: Partial<School>): School {
   return {
     name: 'New School',
     code: 'NS',
+    revision: "",
+    parentRevision: "",
     programmes: [],
     components: {},
     ...overrides,

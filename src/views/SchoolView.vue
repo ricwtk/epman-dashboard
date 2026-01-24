@@ -1,5 +1,21 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import NavIndicator from '@/components/NavIndicator.vue';
+import { Badge } from '@/components/ui/badge';
+import { useViewingSchoolStore } from "@/stores/viewingschoool";
+
+import SchoolSummary from '@/components/school/SchoolSummary.vue';
+import ComponentDisplay from '@/components/school/ComponentDisplay.vue';
+
+const props = defineProps<{ code: string }>();
+const viewingSchoolStore = useViewingSchoolStore();
+
+onMounted(() => {
+  viewingSchoolStore.loadSchoolByCode(props.code);
+});
+
+const editing = ref(false);
+const updateEditing = (ev: boolean, ) => { editing.value = ev; };
 </script>
 
 <template>
@@ -7,4 +23,34 @@ import NavIndicator from '@/components/NavIndicator.vue';
     { label: 'School', path: '/schools' },
     { label: 'School View', path: '/schools/:id' }
   ]"/>
+
+  <template v-if="viewingSchoolStore.school">
+    <div class="card-plain px-4 text-muted-foreground text-sm">
+      {{ viewingSchoolStore.school.code }} {{ viewingSchoolStore.school.name }}
+      <Badge>{{ viewingSchoolStore.school.revision }}</Badge>
+    </div>
+    <SchoolSummary :school="viewingSchoolStore.school" :editing="editing" @updateEditing="updateEditing" />
+    <ComponentDisplay
+      title="Washington Accord Knowledge & Attribute Profile (WK)"
+      shortlabel="WK"
+      :items="viewingSchoolStore.school.components?.wks"
+      :editing="editing"
+      @update:editing="updateEditing"
+    />
+    <ComponentDisplay
+      title="Washington Accord Problem Identification & Solving (WP)"
+      shortlabel="WP"
+      :items="viewingSchoolStore.school.components?.wps"
+      :editing="editing"
+      @update:editing="updateEditing"
+    />
+    <ComponentDisplay
+      title="Complex Engineering Activities (EA)"
+      shortlabel="EA"
+      :items="viewingSchoolStore.school.components?.eas"
+      :editing="editing"
+      @update:editing="updateEditing"
+    />
+  </template>
+
 </template>
