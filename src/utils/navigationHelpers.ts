@@ -11,3 +11,7 @@ export function navigateToCourse(courseCode: string) {
 export function navigateToProgramme(programmeCode: string) {
   navigateToPath(`/programme/${programmeCode}`);
 }
+
+export function navigateToSchool(schoolCode: string) {
+  navigateToPath(`/school/${schoolCode}`);
+}

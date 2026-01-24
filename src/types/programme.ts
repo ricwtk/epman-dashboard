@@ -8,17 +8,6 @@ export interface Cohort {
   programmeRevision: string;
 }
 
-interface AttDesc {
-  attribute: string;
-  descriptor: string;
-}
-
-export interface Wk extends AttDesc {  }
-
-export interface Wp extends AttDesc { }
-
-export interface Ea extends AttDesc { }
-
 export interface Mapping {
   wk: number[];
   wp: number[];
