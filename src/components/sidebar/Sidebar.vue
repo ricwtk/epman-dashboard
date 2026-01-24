@@ -3,6 +3,8 @@ import { useSidebarStatusStore } from '@/stores/sidebarstatus';
 const { sidebarstatus, toggleSidebarCollapse, toggleSidebarText } = useSidebarStatusStore();
 import SidebarItem from './SidebarItem.vue';
 import {
+  LandmarkIcon,
+  SchoolIcon,
   HomeIcon,
   InfoIcon,
   ChevronFirst,
@@ -27,8 +29,12 @@ import { navigateToPath } from '@/utils/navigationHelpers';
     </SidebarItem>
     <Separator />
     <SidebarItem @click="navigateToPath('/')">
-      <template #icon><HomeIcon /></template>
-      <template #text>Home</template>
+      <template #icon><LandmarkIcon /></template>
+      <template #text>Faculties</template>
+    </SidebarItem>
+    <SidebarItem @click="navigateToPath('/school')">
+      <template #icon><SchoolIcon /></template>
+      <template #text>Schools</template>
     </SidebarItem>
     <SidebarItem @click="navigateToPath('/programme')">
       <template #icon><LayoutDashboardIcon /></template>

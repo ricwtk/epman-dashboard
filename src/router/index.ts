@@ -1,14 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import CourseView from '../views/CourseView.vue'
-import ProgrammeView from '../views/ProgrammeView.vue'
+import SchoolListView from '../views/SchoolListView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [{
     path: '/',
-    name: 'home',
-    component: HomeView,
+    name: 'schoollist',
+    component: SchoolListView,
+  },{
+    path: '/school',
+    name: 'schoollist',
+    component: SchoolListView,
   },{
     path: '/course',
     name: 'courselist',
