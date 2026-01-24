@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Po } from '@/types/programme';
+import type { Po } from '@/types/programme';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import {
   Table,
@@ -21,7 +21,7 @@ defineEmits(['update:editing']);
 <template>
   <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
-      PO List
+      Programme Outcomes (POs)
     </template>
     <template #body>
       <template v-if="poList.length === 0">

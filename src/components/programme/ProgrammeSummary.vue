@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Programme } from '@/types/programme';
+import type { Programme } from '@/types/programme';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import ContentItem from '@/components/contentcard/ContentItem.vue';
 

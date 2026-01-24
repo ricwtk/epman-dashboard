@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 
 import ProgrammeSummary from '@/components/programme/ProgrammeSummary.vue';
 import ProgrammePo from '@/components/programme/ProgrammePo.vue';
+import PoMapping from '@/components/programme/PoMapping.vue';
 
 import { navigateToPath } from '@/utils/navigationHelpers';
 
@@ -55,6 +56,7 @@ const updateEditing = (ev: boolean, ) => { editing.value = ev; };
     </div>
      <ProgrammeSummary :programme="viewingProgrammeStore.programme" :editing="editing" @update:editing="updateEditing" />
      <ProgrammePo :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
+     <PoMapping :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
     <!-- <CourseOutcomes :cos="course?.cos || []" :editing="editing" @update:editing="updateEditing" /> -->
     <!-- <CourseAssessments :assessments="course?.assessments" :coCount="course?.cos?.length || 0" :editing="editing" @update:editing="updateEditing" /> -->
     <!-- <CEPCEAImplementation :course="course" :editing="editing" @update:editing="updateEditing" /> -->
