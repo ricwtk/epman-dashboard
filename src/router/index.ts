@@ -20,8 +20,13 @@ const router = createRouter({
     props: true,
   },{
     path: '/programme',
+    name: 'programmelist',
+    component: () => import('../views/ProgrammeListView.vue'),
+  },{
+    path: '/programme/:code',
     name: 'programme',
     component: () => import('../views/ProgrammeView.vue'),
+    props: true
   }],
 })
 

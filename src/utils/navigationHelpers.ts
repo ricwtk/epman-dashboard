@@ -7,3 +7,7 @@ export function navigateToPath(path: string) {
 export function navigateToCourse(courseCode: string) {
   navigateToPath(`/course/${courseCode}`);
 }
+
+export function navigateToProgramme(programmeCode: string) {
+  navigateToPath(`/programme/${programmeCode}`);
+}

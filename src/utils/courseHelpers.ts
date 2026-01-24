@@ -7,8 +7,8 @@ import type {
 } from "@/types/course";
 
 // currently using courseExamples.ts
-export function getCourseByCode(code: string): Course | undefined {
-  return courses.find((course) => course.code === code);
+export function getCourseByCode(code: string): Course {
+  return courses.find((course) => course.code === code) || createNewCourse({ code: code });
 }
 
 // currently using courseExamples.ts

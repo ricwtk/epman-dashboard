@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,6 +7,17 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
+
+import { navigateToPath } from '@/utils/navigationHelpers';
+
+import { useViewingProgrammeStore } from '@/stores/viewingprogramme';
+const viewingProgrammeStore = useViewingProgrammeStore();
+
+const props = defineProps<{ code: string }>();
+onMounted(() => { viewingProgrammeStore.loadProgrammeByCode(props.code!); });
+
+const editing = ref(false);
+const updateEditing = (ev: boolean, ) => { editing.value = ev; };
 </script>
 
 <template>
@@ -13,20 +25,20 @@ import {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">
+          <BreadcrumbLink @click="navigateToPath('/')">
             Home
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/programme">
+          <BreadcrumbLink @click="navigateToPath('/programme')">
             Programme
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/programme/bmec">
-            Bachelor of Mechanical Engineering with Honours
+          <BreadcrumbLink @click="navigateToPath(`/programme/${viewingProgrammeStore.programme.code}`)">
+            {{ viewingProgrammeStore.programme.name }}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </BreadcrumbList>
