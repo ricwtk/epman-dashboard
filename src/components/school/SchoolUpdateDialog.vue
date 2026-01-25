@@ -28,8 +28,8 @@ const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
 
-import { useEditingSchoolStore } from "@/stores/editingschoool";
-const editingSchoolStore = useEditingSchoolStore();
+import { getEditingSchoolAndStore } from "@/composables/school";
+const { editingSchoolStore } = getEditingSchoolAndStore();
 const diff = computed(() => editingSchoolStore.checkDiff([]))
 const resetSchool = () => { editingSchoolStore.resetSchool(); }
 </script>

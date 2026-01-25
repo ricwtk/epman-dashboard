@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,9 @@ import {
   TabsContent
 } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-// import Summary from './update/Summary.vue'
+import Summary from './update/Summary.vue'
+import Po from './update/Po.vue'
+import { RotateCcwIcon } from 'lucide-vue-next';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -24,6 +27,11 @@ const emit = defineEmits(['update:isOpen']);
 const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
+
+import { getEditingProgrammeAndStore } from "@/composables/programme";
+const { editingProgrammeStore } = getEditingProgrammeAndStore();
+const diff = computed(() => editingProgrammeStore.checkDiff([]))
+const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
 </script>
 
 <template>
@@ -34,21 +42,36 @@ const toggleDialog = () => {
       <DialogDescription>Update programme details</DialogDescription>
     </DialogHeader>
     <Tabs default-value="summary" class="overflow-hidden">
-      <div class="overflow-auto">
-        <TabsList>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="po">PO</TabsTrigger>
-          <TabsTrigger value="mapping">Mapping</TabsTrigger>
-        </TabsList>
+      <div class="flex flex-row overflow-hidden justify-between">
+        <div class="overflow-auto">
+          <TabsList>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="po">PO</TabsTrigger>
+            <TabsTrigger value="exambased">Exam Based</TabsTrigger>
+            <TabsTrigger value="projectbased">Project Based</TabsTrigger>
+          </TabsList>
+        </div>
+        <div>
+          <Button v-if="diff"
+            variant="ghost"
+            class="reset-button"
+            @click="resetProgramme"
+          >
+            <RotateCcwIcon />
+          </Button>
+        </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">
         <TabsContent value="summary" class="w-full">
-          <!-- <Summary /> -->
+           <Summary />
         </TabsContent>
         <TabsContent value="po">
-          <!-- <Outcomes /> -->
+          <Po />
         </TabsContent>
-        <TabsContent value="mapping">
+        <TabsContent value="exambased">
+          <!-- <Assessments /> -->
+        </TabsContent>
+        <TabsContent value="projectbased">
           <!-- <Assessments /> -->
         </TabsContent>
       </div>
