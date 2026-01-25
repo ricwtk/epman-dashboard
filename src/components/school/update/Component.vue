@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { getEditingSchoolAndStore } from '@/composables/school';
-const { school } = getEditingSchoolAndStore();
+
 import {
   Table,
   TableBody,
@@ -12,13 +13,26 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusIcon, MinusIcon } from 'lucide-vue-next';
+import { PlusIcon, MinusIcon, RotateCcwIcon } from 'lucide-vue-next';
 
 const props = defineProps<{
   title: string,
   shortlabel: string,
   component: string,
 }>();
+
+const { school, editingSchoolStore } = getEditingSchoolAndStore();
+const overallDiff = computed(() => {
+  return editingSchoolStore.checkDiff(["components", props.component]);
+});
+const diffs = computed(() => {
+  return school.value.components![props.component].map((_: any, index: number) =>
+    editingSchoolStore.checkDiff(["components", props.component, String(index)])
+  );
+});
+const resetDiff = () => {
+  editingSchoolStore.resetDiff(["components", props.component]);
+};
 
 const addItem = () => {
   school.value.components![props.component].push({
@@ -34,7 +48,16 @@ const removeItem = (index: number) => {
 
 <template>
   <div class="flex flex-col gap-4">
-    <div class="font-medium">{{ title }}</div>
+    <div class="font-medium flex flex-row items-center gap-1">
+      {{ title }}
+      <Button v-if="overallDiff"
+        variant="ghost"
+        class="reset-button"
+        @click="resetDiff"
+      >
+        <RotateCcwIcon />
+      </Button>
+    </div>
     <Table>
       <TableHeader>
         <TableRow>
@@ -45,7 +68,11 @@ const removeItem = (index: number) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(item, index) in school.components![component]" :key="index">
+        <TableRow
+          v-for="(item, index) in school.components![component]"
+          :key="index"
+          :class="diffs[index] ? 'bg-yellow-100' : ''"
+        >
           <TableCell>
             <Button variant="destructive" @click="removeItem(Number(index))">
               <MinusIcon />

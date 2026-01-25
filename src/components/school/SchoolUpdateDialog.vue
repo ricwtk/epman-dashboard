@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import Summary from './update/Summary.vue'
 import Component from './update/Component.vue'
+import { RotateCcwIcon } from 'lucide-vue-next';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -27,9 +29,9 @@ const toggleDialog = () => {
 };
 
 import { useEditingSchoolStore } from "@/stores/editingschoool";
-import { storeToRefs } from 'pinia';
 const editingSchoolStore = useEditingSchoolStore();
-const { school, originalSchool } = storeToRefs(editingSchoolStore);
+const diff = computed(() => editingSchoolStore.checkDiff([]))
+const resetSchool = () => { editingSchoolStore.resetSchool(); }
 </script>
 
 <template>
@@ -40,13 +42,24 @@ const { school, originalSchool } = storeToRefs(editingSchoolStore);
       <DialogDescription>Update school level details</DialogDescription>
     </DialogHeader>
     <Tabs default-value="summary" class="overflow-hidden">
-      <div class="overflow-auto">
-        <TabsList>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="wk">WK</TabsTrigger>
-          <TabsTrigger value="wp">WP</TabsTrigger>
-          <TabsTrigger value="ea">EA</TabsTrigger>
-        </TabsList>
+      <div class="flex flex-row overflow-hidden justify-between">
+        <div class="overflow-auto">
+          <TabsList>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="wk">WK</TabsTrigger>
+            <TabsTrigger value="wp">WP</TabsTrigger>
+            <TabsTrigger value="ea">EA</TabsTrigger>
+          </TabsList>
+        </div>
+        <div>
+          <Button v-if="diff"
+            variant="ghost"
+            class="reset-button"
+            @click="resetSchool"
+          >
+            <RotateCcwIcon />
+          </Button>
+        </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">
         <TabsContent value="summary" class="w-full">

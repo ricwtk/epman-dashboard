@@ -235,4 +235,13 @@
   .content-item-title {
     @apply text-xs font-light text-gray-500 mb-0.5;
   }
+  .reset-button {
+    @apply text-destructive;
+  }
+  .reset-button:hover {
+    @apply text-destructive/80!;
+  }
+  .reset-button:active {
+    @apply text-destructive/60;
+  }
 }
