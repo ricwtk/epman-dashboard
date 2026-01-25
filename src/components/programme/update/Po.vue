@@ -41,8 +41,8 @@ const removeItem = (index: number) => {
 
 <template>
   <div class="flex flex-col gap-4">
-    <div class="font-medium flex flex-row items-center gap-1">
-      Programme Outcomes
+    <div class="font-semibold flex flex-row items-center gap-1">
+      Programme Outcomes Definition
       <Button v-if="overallDiff"
         variant="ghost"
         class="reset-button"
