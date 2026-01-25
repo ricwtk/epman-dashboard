@@ -11,6 +11,11 @@ export function getSchoolByCode(code: string): School {
   return schools.find((school) => school.code === code) || createNewSchool();
 }
 
+// using schoolExamples.ts
+export function getSchoolByProgrammeCode(programmeCode: string): School | null {
+  return schools.find(school => school.programmes.includes(programmeCode)) || null;
+}
+
 export function createNewSchool(overrides?: Partial<School>): School {
   return {
     name: 'New School',

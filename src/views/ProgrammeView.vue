@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, toRaw } from 'vue';
 import { Badge } from '@/components/ui/badge';
 
 import NavIndicator from '@/components/NavIndicator.vue';
@@ -15,8 +15,18 @@ const viewingProgrammeStore = useViewingProgrammeStore();
 const props = defineProps<{ code: string }>();
 onMounted(() => { viewingProgrammeStore.loadProgrammeByCode(props.code!); });
 
+import { useEditingProgrammeStore } from "@/stores/editingprogramme";
+const editingProgrammeStore = useEditingProgrammeStore();
+
 const editing = ref(false);
-const updateEditing = (ev: boolean, ) => { editing.value = ev; };
+const updateEditing = (ev: boolean, ) => {
+  if (ev) {
+    if (editingProgrammeStore.programme.code !== viewingProgrammeStore.programme.code) {
+      editingProgrammeStore.loadProgramme(toRaw(viewingProgrammeStore.programme));
+    }
+  }
+  editing.value = ev;
+};
 </script>
 
 <template>

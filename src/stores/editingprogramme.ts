@@ -1,13 +1,18 @@
-import { ref, type Ref, toRaw } from 'vue';
+import { ref, type Ref, toRaw, computed } from 'vue';
 import type { Programme } from "@/types/programme";
 import { createNewProgramme } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
 import { get, set } from 'lodash';
 import diff from 'microdiff';
+import { getSchoolByProgrammeCode } from "@/utils/schoolHelpers";
 
 export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const programme: Ref<Programme> = ref(createNewProgramme())
   const originalProgramme: Ref<Programme> = ref(createNewProgramme())
+
+  const school = computed(() => {
+    return getSchoolByProgrammeCode(programme.value.code);
+  });
 
   function resetProgramme(): void {
     programme.value = structuredClone(toRaw(originalProgramme.value))
@@ -33,5 +38,5 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     programme.value = structuredClone(prog)
   }
 
-  return { programme, resetProgramme, loadProgramme, checkDiff, resetDiff }
+  return { school, programme, resetProgramme, loadProgramme, checkDiff, resetDiff }
 })
