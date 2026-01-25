@@ -7,6 +7,7 @@ import NavIndicator from '@/components/NavIndicator.vue';
 import ProgrammeSummary from '@/components/programme/ProgrammeSummary.vue';
 import ProgrammePo from '@/components/programme/ProgrammePo.vue';
 import PoMapping from '@/components/programme/PoMapping.vue';
+import ProgrammeUpdateDialog from '@/components/programme/ProgrammeUpdateDialog.vue';
 
 import { useViewingProgrammeStore } from '@/stores/viewingprogramme';
 const viewingProgrammeStore = useViewingProgrammeStore();
@@ -33,5 +34,6 @@ const updateEditing = (ev: boolean, ) => { editing.value = ev; };
     <ProgrammeSummary :programme="viewingProgrammeStore.programme" :editing="editing" @update:editing="updateEditing" />
     <ProgrammePo :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
     <PoMapping :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
+    <ProgrammeUpdateDialog v-model:isOpen="editing" />
   </template>
 </template>

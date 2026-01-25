@@ -29,7 +29,7 @@ defineEmits(['update:editing']);
     <Table class="">
       <TableHeader>
         <TableRow>
-          <TableHead class="text-center">{{ shortlabel }}</TableHead>
+          <TableHead class="text-center">#</TableHead>
           <TableHead class="">Attribute</TableHead>
           <TableHead class="">Descriptor</TableHead>
         </TableRow>
@@ -37,8 +37,8 @@ defineEmits(['update:editing']);
       <TableBody>
         <TableRow v-for="(item, index) in items" :key="index">
           <TableCell class="text-center w-0">{{ `${shortlabel}${index + 1}` }}</TableCell>
-          <TableCell class="whitespace-normal wrap-break-word">{{ item.attribute }}</TableCell>
-          <TableCell class="w-7/10 whitespace-normal wrap-break-word">{{ item.descriptor }}</TableCell>
+          <TableCell class="max-w-[] whitespace-normal wrap-break-word">{{ item.attribute }}</TableCell>
+          <TableCell class="w-7/10">{{ item.descriptor }}</TableCell>
         </TableRow>
       </TableBody>
     </Table>

@@ -13,11 +13,7 @@ import {
   TabsContent
 } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import Summary from './update/Summary.vue'
-import Outcomes from './update/Outcomes.vue'
-import Assessments from './update/Assessments.vue'
-import TeachingPlan from './update/TeachingPlan.vue'
-import References from './update/References.vue'
+// import Summary from './update/Summary.vue'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -34,34 +30,26 @@ const toggleDialog = () => {
 <Dialog :open="isOpen" @update:open="toggleDialog">
   <DialogContent class="overflow-clip">
     <DialogHeader>
-      <DialogTitle>Course Details Update</DialogTitle>
-      <DialogDescription>Update course details</DialogDescription>
+      <DialogTitle>Programme Details Update</DialogTitle>
+      <DialogDescription>Update programme details</DialogDescription>
     </DialogHeader>
     <Tabs default-value="summary" class="overflow-hidden">
       <div class="overflow-auto">
         <TabsList>
           <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="outcomes">Outcomes</TabsTrigger>
-          <TabsTrigger value="assessments">Assessments</TabsTrigger>
-          <TabsTrigger value="teachingplan">Teaching Plan</TabsTrigger>
-          <TabsTrigger value="references">References</TabsTrigger>
+          <TabsTrigger value="po">PO</TabsTrigger>
+          <TabsTrigger value="mapping">Mapping</TabsTrigger>
         </TabsList>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">
         <TabsContent value="summary" class="w-full">
-          <Summary />
+          <!-- <Summary /> -->
         </TabsContent>
-        <TabsContent value="outcomes">
-          <Outcomes />
+        <TabsContent value="po">
+          <!-- <Outcomes /> -->
         </TabsContent>
-        <TabsContent value="assessments">
-          <Assessments />
-        </TabsContent>
-        <TabsContent value="teachingplan">
-          <TeachingPlan />
-        </TabsContent>
-        <TabsContent value="references">
-          <References />
+        <TabsContent value="mapping">
+          <!-- <Assessments /> -->
         </TabsContent>
       </div>
     </Tabs>

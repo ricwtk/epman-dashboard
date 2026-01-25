@@ -19,9 +19,9 @@ const engineeringPoAttributes = [
  * Utility to generate unique, random mapping data
  */
 const getRandomMapping = (): Mapping => ({
-  wk: Array.from({ length: Math.floor(Math.random() * 3) + 1 }, () => Math.floor(Math.random() * 8) + 1),
-  wp: Array.from({ length: Math.floor(Math.random() * 2) + 1 }, () => Math.floor(Math.random() * 7) + 1),
-  ea: Array.from({ length: Math.floor(Math.random() * 2) + 1 }, () => Math.floor(Math.random() * 5) + 1),
+  wk: Array.from(new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }, () => Math.floor(Math.random() * 8) + 1))),
+  wp: Array.from(new Set(Array.from({ length: Math.floor(Math.random() * 2) + 1 }, () => Math.floor(Math.random() * 7) + 1))),
+  ea: Array.from(new Set(Array.from({ length: Math.floor(Math.random() * 2) + 1 }, () => Math.floor(Math.random() * 5) + 1))),
   sdg: Math.random() > 0.5
 });
 const getRandomPEO = (): number => Math.floor(Math.random() * 3) + 1;
