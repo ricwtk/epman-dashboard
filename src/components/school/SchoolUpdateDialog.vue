@@ -13,7 +13,8 @@ import {
   TabsContent
 } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-// import Summary from './update/Summary.vue'
+import Summary from './update/Summary.vue'
+import Component from './update/Component.vue'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -24,6 +25,11 @@ const emit = defineEmits(['update:isOpen']);
 const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
+
+import { useEditingSchoolStore } from "@/stores/editingschoool";
+import { storeToRefs } from 'pinia';
+const editingSchoolStore = useEditingSchoolStore();
+const { school, originalSchool } = storeToRefs(editingSchoolStore);
 </script>
 
 <template>
@@ -44,16 +50,25 @@ const toggleDialog = () => {
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">
         <TabsContent value="summary" class="w-full">
-          <!-- <Summary /> -->
+           <Summary />
         </TabsContent>
         <TabsContent value="wk">
-          <!-- <Outcomes /> -->
+          <Component
+            title="Washington Accord Knowledge & Attribute Profile (WK)"
+            shortlabel="WK"
+            component="wks" />
         </TabsContent>
         <TabsContent value="wp">
-          <!-- <Assessments /> -->
+          <Component
+            title="Washington Accord Problem Identification & Solving (WP)"
+            shortlabel="WP"
+            component="wps" />
         </TabsContent>
         <TabsContent value="ea">
-          <!-- <TeachingPlan /> -->
+          <Component
+            title="Complex Engineering Activities (EA)"
+            shortlabel="EA"
+            component="eas" />
         </TabsContent>
       </div>
     </Tabs>

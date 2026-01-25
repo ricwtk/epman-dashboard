@@ -1,22 +1,34 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, toRaw } from 'vue';
 import NavIndicator from '@/components/NavIndicator.vue';
 import { Badge } from '@/components/ui/badge';
-import { useViewingSchoolStore } from "@/stores/viewingschoool";
 
 import SchoolSummary from '@/components/school/SchoolSummary.vue';
 import ComponentDisplay from '@/components/school/ComponentDisplay.vue';
 import SchoolUpdateDialog from '@/components/school/SchoolUpdateDialog.vue';
 
 const props = defineProps<{ code: string }>();
+
+import { useViewingSchoolStore } from "@/stores/viewingschoool";
 const viewingSchoolStore = useViewingSchoolStore();
 
 onMounted(() => {
   viewingSchoolStore.loadSchoolByCode(props.code);
 });
 
+import { useEditingSchoolStore } from "@/stores/editingschoool";
+const editingSchoolStore = useEditingSchoolStore();
+
 const editing = ref(false);
-const updateEditing = (ev: boolean, ) => { editing.value = ev; };
+const updateEditing = (ev: boolean, ) => {
+  if (ev) {
+    if (editingSchoolStore.school.code !== viewingSchoolStore.school.code) {
+      editingSchoolStore.loadSchool(toRaw(viewingSchoolStore.school));
+    }
+  }
+  editing.value = ev;
+};
+
 </script>
 
 <template>
@@ -30,7 +42,11 @@ const updateEditing = (ev: boolean, ) => { editing.value = ev; };
       {{ viewingSchoolStore.school.code }} {{ viewingSchoolStore.school.name }}
       <Badge>{{ viewingSchoolStore.school.revision }}</Badge>
     </div>
-    <SchoolSummary :school="viewingSchoolStore.school" :editing="editing" @updateEditing="updateEditing" />
+    <SchoolSummary
+      :school="viewingSchoolStore.school"
+      :editing="editing"
+      @update:editing="updateEditing"
+    />
     <ComponentDisplay
       title="Washington Accord Knowledge & Attribute Profile (WK)"
       shortlabel="WK"
