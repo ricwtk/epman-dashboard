@@ -33,10 +33,34 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     } else return true;
   }
 
+  function checkMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): boolean {
+    const originalPoList = originalProgramme.value.poList
+    const original = originalPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+    const currentPoList = programme.value.poList
+    const current = currentPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+    if (original && current) {
+      return diff(original, current).length > 0 || original.length !== current.length;
+    } else return true;
+  }
+
+  function resetMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): void {
+    const originalPoList = originalProgramme.value.poList
+    const original = originalPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+    const currentPoList = programme.value.poList
+    const current = currentPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+    if (original && current) {
+      currentPoList.map((po, index) => set(po, ['mapping', coursetype, component], structuredClone(toRaw(original[index]))))
+    }
+  }
+
   function loadProgramme(prog: Programme): void {
     originalProgramme.value = structuredClone(prog)
     programme.value = structuredClone(prog)
   }
 
-  return { school, programme, resetProgramme, loadProgramme, checkDiff, resetDiff }
+  return { school, programme, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff }
 })

@@ -70,10 +70,10 @@ const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
           <Po />
         </TabsContent>
         <TabsContent value="exambased">
-           <PoMapping title="Exam Based Mapping" component="examBased" />
+          <PoMapping title="Exam Based Mapping" coursetype="examBased" />
         </TabsContent>
         <TabsContent value="projectbased">
-          <!-- <Assessments /> -->
+          <PoMapping title="Project Based Mapping" coursetype="projectBased" />
         </TabsContent>
       </div>
     </Tabs>
