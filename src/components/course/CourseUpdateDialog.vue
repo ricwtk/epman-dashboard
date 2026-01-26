@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ import Outcomes from './update/Outcomes.vue'
 import Assessments from './update/Assessments.vue'
 import TeachingPlan from './update/TeachingPlan.vue'
 import References from './update/References.vue'
+import { RotateCcwIcon } from 'lucide-vue-next'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -28,6 +30,11 @@ const emit = defineEmits(['update:isOpen']);
 const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
+
+import { getEditingCourseAndStore } from "@/composables/course";
+const { editingCourseStore } = getEditingCourseAndStore();
+const diff = computed(() => editingCourseStore.checkDiff([]))
+const resetCourse = () => { editingCourseStore.resetCourse(); }
 </script>
 
 <template>
@@ -38,14 +45,25 @@ const toggleDialog = () => {
       <DialogDescription>Update course details</DialogDescription>
     </DialogHeader>
     <Tabs default-value="summary" class="overflow-hidden">
-      <div class="overflow-auto">
-        <TabsList>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="outcomes">Outcomes</TabsTrigger>
-          <TabsTrigger value="assessments">Assessments</TabsTrigger>
-          <TabsTrigger value="teachingplan">Teaching Plan</TabsTrigger>
-          <TabsTrigger value="references">References</TabsTrigger>
-        </TabsList>
+      <div class="flex flex-row overflow-hidden justify-between">
+        <div class="overflow-auto">
+          <TabsList>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="outcomes">Outcomes</TabsTrigger>
+            <TabsTrigger value="assessments">Assessments</TabsTrigger>
+            <TabsTrigger value="teachingplan">Teaching Plan</TabsTrigger>
+            <TabsTrigger value="references">References</TabsTrigger>
+          </TabsList>
+        </div>
+        <div>
+          <Button v-if="diff"
+            variant="ghost"
+            class="reset-button"
+            @click="resetCourse"
+          >
+            <RotateCcwIcon />
+          </Button>
+        </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">
         <TabsContent value="summary" class="w-full">

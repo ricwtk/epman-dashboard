@@ -2,7 +2,7 @@ import { ref, type Ref, toRaw, computed } from 'vue';
 import type { Programme } from "@/types/programme";
 import { createNewProgramme } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
-import { get, set } from 'lodash';
+import { get, set } from 'lodash-es';
 import diff from 'microdiff';
 import { getSchoolByProgrammeCode } from "@/utils/schoolHelpers";
 

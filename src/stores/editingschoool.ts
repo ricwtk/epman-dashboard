@@ -2,7 +2,7 @@ import { ref, type Ref, toRaw } from 'vue';
 import type { School } from "@/types/school";
 import { createNewSchool } from "@/utils/schoolHelpers";
 import { defineStore } from "pinia";
-import { get, set } from 'lodash';
+import { get, set } from 'lodash-es';
 import diff from 'microdiff';
 
 export const useEditingSchoolStore = defineStore('editing-school', () => {

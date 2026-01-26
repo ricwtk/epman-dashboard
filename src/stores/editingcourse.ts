@@ -1,0 +1,53 @@
+import { ref, type Ref, toRaw } from 'vue';
+import type { Course } from "@/types/course";
+import { createNewCourse } from "@/utils/courseHelpers";
+import { defineStore } from "pinia";
+import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon } from '@/utils/common.ts'
+
+export const useEditingCourseStore = defineStore('editing-course', () => {
+  const course: Ref<Course> = ref(createNewCourse())
+  const originalCourse: Ref<Course> = ref(createNewCourse())
+
+  function resetCourse(): void {
+    course.value = structuredClone(toRaw(originalCourse.value))
+  }
+
+  function resetDiff(pathArray: string[]): void {
+    resetDiffCommon(course.value, originalCourse.value, pathArray)
+  }
+
+  function checkDiff(pathArray: string[]): boolean {
+    return checkDiffCommon(course.value, originalCourse.value, pathArray)
+  }
+
+  // function checkMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): boolean {
+  //   const originalPoList = originalProgramme.value.poList
+  //   const original = originalPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+  //   const currentPoList = programme.value.poList
+  //   const current = currentPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+  //   if (original && current) {
+  //     return diff(original, current).length > 0 || original.length !== current.length;
+  //   } else return true;
+  // }
+
+  // function resetMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): void {
+  //   const originalPoList = originalProgramme.value.poList
+  //   const original = originalPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+  //   const currentPoList = programme.value.poList
+  //   const current = currentPoList.map(po => get(po, ['mapping', coursetype, component]))
+
+  //   if (original && current) {
+  //     currentPoList.map((po, index) => set(po, ['mapping', coursetype, component], structuredClone(toRaw(original[index]))))
+  //   }
+  // }
+
+  function loadCourse(cse: Course): void {
+    originalCourse.value = structuredClone(cse)
+    course.value = structuredClone(cse)
+  }
+
+  return { course, resetCourse, loadCourse, checkDiff, resetDiff }
+})

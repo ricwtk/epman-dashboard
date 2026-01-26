@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-
+import { onMounted, ref, toRaw } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import NavIndicator from '@/components/NavIndicator.vue';
 
@@ -18,8 +17,18 @@ const viewingCourseStore = useViewingCourseStore();
 const props = defineProps<{ code: string }>();
 onMounted(() => { viewingCourseStore.loadCourseByCode(props.code!); });
 
+import { useEditingCourseStore } from "@/stores/editingcourse";
+const editingCourseStore = useEditingCourseStore();
+
 const editing = ref(false);
-const updateEditing = (ev: boolean, ) => { editing.value = ev; };
+const updateEditing = (ev: boolean,) => {
+  if (ev) {
+    if (editingCourseStore.course.code !== viewingCourseStore.course.code) {
+      editingCourseStore.loadCourse(toRaw(viewingCourseStore.course));
+    }
+  }
+  editing.value = ev;
+};
 </script>
 
 <template>

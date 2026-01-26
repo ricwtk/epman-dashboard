@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, toRaw } from 'vue';
 import { Badge } from '@/components/ui/badge';
-
 import NavIndicator from '@/components/NavIndicator.vue';
 
 import ProgrammeSummary from '@/components/programme/ProgrammeSummary.vue';
