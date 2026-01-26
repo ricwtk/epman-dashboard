@@ -19,7 +19,7 @@ import Outcomes from './update/Outcomes.vue'
 import Assessments from './update/Assessments.vue'
 import TeachingPlan from './update/TeachingPlan.vue'
 import References from './update/References.vue'
-import { RotateCcwIcon } from 'lucide-vue-next'
+import ResetButton from '@/components/ResetButton.vue'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -56,13 +56,12 @@ const resetCourse = () => { editingCourseStore.resetCourse(); }
           </TabsList>
         </div>
         <div>
-          <Button v-if="diff"
-            variant="ghost"
-            class="reset-button"
+          <ResetButton
+            v-if="diff"
             @click="resetCourse"
           >
-            <RotateCcwIcon />
-          </Button>
+            Reset
+          </ResetButton>
         </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">

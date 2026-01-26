@@ -11,24 +11,10 @@ import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import VerticalText from '@/components/VerticalText.vue'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
+import ResetButton from '@/components/ResetButton.vue'
 
-const colist = ref<Co[]>([{
-  description: 'Outcome 1',
-  bloomtax: ['c', 1],
-  pos: [1],
-  wks: [2,3],
-  wps: [5,6],
-  eas: [],
-  sdg: false
-},{
-  description: 'Outcome 2',
-  bloomtax: ['c', 6],
-  pos: [1],
-  wks: [2,3],
-  wps: [],
-  eas: [3],
-  sdg: false
-}])
+import { getEditingCourseAndStore } from '@/composables/course'
+const { course, editingCourseStore } = getEditingCourseAndStore()
 
 const bloomtaxOptions = [
   { domain: "Cognitive", levels: [
@@ -109,18 +95,18 @@ const truncateWithEllipsis = (text: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(co, coIndex) in colist" :key="coIndex">
+        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex">
           <TableCell class="w-14 text-center">
-            <Button variant="destructive" @click="console.log(`Deleting reference ${coIndex}`)"><MinusIcon /></Button>
+            <Button variant="destructive" @click="console.log(`Deleting outcome ${coIndex}`)"><MinusIcon /></Button>
           </TableCell>
           <TableCell class="">{{ coIndex + 1 }}</TableCell>
           <TableCell class="">
-            <Textarea :id="'desc' + coIndex" :value="co.description" />
+            <Textarea :id="'desc' + coIndex" v-model="co.description" />
           </TableCell>
           <TableCell class="w-0">
             <Select>
               <SelectTrigger class="w-40">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder="Select" :modelValue="`${co.bloomtax[0]}${co.bloomtax[1]}`" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup v-for="(domain, index) in bloomtaxOptions" :key="index">
@@ -133,7 +119,7 @@ const truncateWithEllipsis = (text: string) => {
             </Select>
           </TableCell>
           <TableCell class="w-0 text-center">
-            <Checkbox :default-value="false" :id="`co${coIndex + 1}sdg`"/>
+            <Checkbox v-model="co.sdg" :id="`co${coIndex + 1}sdg`"/>
           </TableCell>
           <TableCell class="w-14 text-center">
             <div class="flex flex-col gap-1">
@@ -144,7 +130,7 @@ const truncateWithEllipsis = (text: string) => {
               ><ChevronUpIcon /></Button>
               <Button
                 variant="secondary"
-                :disabled="coIndex === colist.length - 1"
+                :disabled="coIndex === course.cos.length - 1"
                 @click="console.log(`Move down ${coIndex}`)"
               ><ChevronDownIcon /></Button>
             </div>
@@ -170,7 +156,7 @@ const truncateWithEllipsis = (text: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(co, coIndex) in colist" :key="coIndex" class="text-center">
+        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
           <TableCell v-for="(po, poIndex) in poOptions" :key="poIndex">
             <Checkbox :default-value="false" :id="`co${coIndex + 1}po${poIndex + 1}`"/>
@@ -195,7 +181,7 @@ const truncateWithEllipsis = (text: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(co, coIndex) in colist" :key="coIndex" class="text-center">
+        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
           <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos + 1}`).join(', ') }}</TableCell>
           <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex">
@@ -221,7 +207,7 @@ const truncateWithEllipsis = (text: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(co, coIndex) in colist" :key="coIndex" class="text-center">
+        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
           <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos + 1}`).join(', ') }}</TableCell>
           <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex">
@@ -247,7 +233,7 @@ const truncateWithEllipsis = (text: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(co, coIndex) in colist" :key="coIndex" class="text-center">
+        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
           <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos + 1}`).join(', ') }}</TableCell>
           <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex">
