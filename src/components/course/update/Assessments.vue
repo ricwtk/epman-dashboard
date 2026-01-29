@@ -18,46 +18,32 @@ import BadgeList from '@/components/BadgeList.vue';
 import VerticalText from '@/components/VerticalText.vue';
 import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon } from 'lucide-vue-next';
 
+import { getEditingCourseAndStore } from '@/composables/course'
+const { course, editingCourseStore } = getEditingCourseAndStore()
+
+
 const componentOptions = ['Written Assessment', 'Assignment', 'Lab'];
 
-const colist = ref<Co[]>([{
-  description: 'Outcome 1',
-  bloomtax: ['c', 1],
-  pos: [1],
-  wks: [2,3],
-  wps: [5,6],
-  eas: [],
-  sdg: false
-},{
-  description: 'Outcome 2',
-  bloomtax: ['c', 6],
-  pos: [1],
-  wks: [2,3],
-  wps: [],
-  eas: [3],
-  sdg: false
-}])
-
-const assessmentList = ref<Assessment[]>([
-  {
-    description: "Continuous Assessment",
-    component: "Written Assessment",
-    weightage: 40,
-    cos: [1, 2],
-    breakdown: [
-      { description: "Lab Exercises", weightage: 20, co: 2, wps: [2] },
-      { description: "Quiz", weightage: 20, co: 1, wps: [2], eas: [1, 2, 3] }
-    ]
-  },
-  {
-    description: "Final Examination",
-    component: "Written Assessment",
-    weightage: 60,
-    cos: [1, 2],
-    breakdown: [],
-    wps: [4]
-  }
-])
+// const assessmentList = ref<Assessment[]>([
+//   {
+//     description: "Continuous Assessment",
+//     component: "Written Assessment",
+//     weightage: 40,
+//     cos: [1, 2],
+//     breakdown: [
+//       { description: "Lab Exercises", weightage: 20, co: 2, wps: [2] },
+//       { description: "Quiz", weightage: 20, co: 1, wps: [2], eas: [1, 2, 3] }
+//     ]
+//   },
+//   {
+//     description: "Final Examination",
+//     component: "Written Assessment",
+//     weightage: 60,
+//     cos: [1, 2],
+//     breakdown: [],
+//     wps: [4]
+//   }
+// ])
 
 const wpOptions = [
   "Depth of Knowledge Required",
@@ -107,13 +93,13 @@ const recommendedPO2WPEAMapping = {
 }
 
 const totalWeightage = computed(() => {
-  return assessmentList.value.reduce((acc, assessment) => acc + assessment.weightage, 0);
+  return course.value.assessments.reduce((acc, assessment) => acc + assessment.weightage, 0);
 });
 
 const getPoList = (assessment: Assessment) => {
   let poList = new Set<string>();
   assessment.cos.forEach((co) => {
-    colist.value[co - 1]!.pos.forEach((po) => {
+    course.value.cos[co - 1]!.pos.forEach((po) => {
       poList.add(`PO${po}`);
     })
   });
@@ -135,7 +121,7 @@ const getPoList = (assessment: Assessment) => {
         <TableHead>Component</TableHead>
         <TableHead class="text-center">Weightage</TableHead>
         <TableHead
-          v-for="(co, coIndex) in colist"
+          v-for="(co, coIndex) in course.cos"
           :key="coIndex"
           class="text-center"
         >
@@ -144,7 +130,7 @@ const getPoList = (assessment: Assessment) => {
       </TableRow>
     </TableHeader>
     <TableBody>
-      <template v-for="(assessment, assessmentIndex) in assessmentList" :key="assessmentIndex">
+      <template v-for="(assessment, assessmentIndex) in course.assessments" :key="assessmentIndex">
         <TableRow>
           <TableCell>
             <Button variant="destructive"><MinusIcon /></Button>
@@ -168,7 +154,7 @@ const getPoList = (assessment: Assessment) => {
             <Input v-model="assessment.weightage" class="text-sm" type="number" />
           </TableCell>
           <TableCell
-            v-for="(co, coIndex) in colist"
+            v-for="(co, coIndex) in course.cos"
             :key="coIndex"
             class="w-0 text-center"
           >
@@ -188,7 +174,7 @@ const getPoList = (assessment: Assessment) => {
           </TableCell>
           <TableCell></TableCell>
           <TableCell
-            v-for="(co, coIndex) in colist"
+            v-for="(co, coIndex) in course.cos"
             :key="coIndex"
             class="w-0 text-center"
           >
@@ -197,13 +183,13 @@ const getPoList = (assessment: Assessment) => {
         </TableRow>
         <TableRow>
           <TableCell></TableCell>
-          <TableCell :colspan="colist.length+4">
+          <TableCell :colspan="course.cos.length+4">
             <Button variant="secondary" class="w-full text-xs" size="sm"><ListPlusIcon /> Add Breakdown</Button>
           </TableCell>
         </TableRow>
       </template>
       <TableRow>
-        <TableCell :colspan="colist.length+5">
+        <TableCell :colspan="course.cos.length+5">
           <Button variant="default" class="w-full text-xs" size="sm"><PlusIcon /> Add Assessment</Button>
         </TableCell>
       </TableRow>
@@ -216,7 +202,7 @@ const getPoList = (assessment: Assessment) => {
           class="text-center font-medium"
           :class="totalWeightage === 100 ? '' : 'bg-destructive text-white'"
         >{{ totalWeightage }}</TableCell>
-        <TableCell v-for="_ in colist.length"></TableCell>
+        <TableCell v-for="_ in course.cos.length"></TableCell>
       </TableRow>
     </TableBody>
   </Table>
@@ -249,7 +235,7 @@ const getPoList = (assessment: Assessment) => {
       </TableRow>
     </TableHeader>
     <TableBody>
-      <template v-for="(assessment, assessmentIndex) in assessmentList" :key="assessmentIndex">
+      <template v-for="(assessment, assessmentIndex) in course.assessments" :key="assessmentIndex">
         <TableRow>
           <TableCell>{{ assessment.description }}</TableCell>
           <TableCell class="text-center">{{ assessment.weightage }}</TableCell>
@@ -283,7 +269,7 @@ const getPoList = (assessment: Assessment) => {
               <BadgeList :items="[`CO${breakdown.co}`]" />
             </TableCell>
             <TableCell class="text-center">
-              <BadgeList :items="colist[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
+              <BadgeList :items="course.cos[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
             </TableCell>
             <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
               <Checkbox />
