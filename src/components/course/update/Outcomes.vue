@@ -22,10 +22,43 @@ const selectedBloomTaxonomy = computed(() => {
   return course.value.cos.map((co) => `${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`)
 })
 
-const updateBloomTaxonomy = (coIndex, newBloomTaxonomy) => {
+const updateBloomTaxonomy = (coIndex: number, newBloomTaxonomy: string) => {
   const co = course.value.cos[coIndex]
   if (co) {
-    co.bloomtax = newBloomTaxonomy.toLowerCase().split('')
+    let newBloomTaxonomyArray = newBloomTaxonomy.toLowerCase().split('')
+    co.bloomtax = [String(newBloomTaxonomyArray[0]), Number(newBloomTaxonomyArray[1])]
+    editingCourseStore.updateCourse(course.value)
+  }
+}
+
+const handleMappingChange = (coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', mappingIndex: number, checked: boolean) => {
+  const co = course.value.cos[coIndex]
+  if (co) {
+    if (type === 'po') {
+      if (checked) {
+        co.pos.push(mappingIndex + 1)
+      } else {
+        co.pos = co.pos.filter((pos) => pos !== mappingIndex + 1)
+      }
+    } else if (type === 'wk') {
+      if (checked) {
+        co.wks.push(mappingIndex + 1)
+      } else {
+        co.wks = co.wks.filter((wk) => wk !== mappingIndex + 1)
+      }
+    } else if (type === 'wp') {
+      if (checked) {
+        co.wps.push(mappingIndex + 1)
+      } else {
+        co.wps = co.wps.filter((wp) => wp !== mappingIndex + 1)
+      }
+    } else if (type === 'ea') {
+      if (checked) {
+        co.eas.push(mappingIndex + 1)
+      } else {
+        co.eas = co.eas.filter((ea) => ea !== mappingIndex + 1)
+      }
+    }
     editingCourseStore.updateCourse(course.value)
   }
 }
@@ -92,15 +125,15 @@ const truncateWithEllipsis = (text: string) => {
             <Textarea :id="'desc' + coIndex" v-model="co.description" />
           </TableCell>
           <TableCell class="w-0">
-            <Select :modelValue="selectedBloomTaxonomy[coIndex]" @update:modelValue="updateBloomTaxonomy(coIndex, $event)">
+            <Select :modelValue="selectedBloomTaxonomy[coIndex]" @update:modelValue="(value) => updateBloomTaxonomy(coIndex, String(value))">
               <SelectTrigger class="w-40">
                 <SelectValue placeholder="Select"/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup v-for="(domain, index) in BLOOM_TAXONOMY" :key="index">
                   <SelectLabel>{{ domain.domain }}</SelectLabel>
-                  <SelectItem v-for="(level, levelIndex) in domain.levels" :key="levelIndex" :value="`${domain.domain[0].toUpperCase()}${levelIndex+1}`">
-                    {{ `${domain.domain[0].toUpperCase()}${levelIndex+1} ${level}` }}
+                  <SelectItem v-for="(level, levelIndex) in domain.levels" :key="levelIndex" :value="`${domain.domain[0]!.toUpperCase()}${levelIndex+1}`">
+                    {{ `${domain.domain[0]!.toUpperCase()}${levelIndex+1} ${level}` }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -147,7 +180,11 @@ const truncateWithEllipsis = (text: string) => {
         <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
           <TableCell v-for="(po, poIndex) in PO_ATTRIBUTES" :key="poIndex">
-            <Checkbox :default-value="false" :id="`co${coIndex + 1}po${poIndex + 1}`"/>
+            <Checkbox
+              :modelValue="co.pos.includes(poIndex + 1)"
+              :id="`co${coIndex + 1}po${poIndex + 1}`"
+              @update:modelValue="(checked) => handleMappingChange(coIndex, 'po', poIndex, Boolean(checked))"
+            />
           </TableCell>
         </TableRow>
       </TableBody>
@@ -171,9 +208,13 @@ const truncateWithEllipsis = (text: string) => {
       <TableBody>
         <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos + 1}`).join(', ') }}</TableCell>
+          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
           <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex">
-            <Checkbox :default-value="false" :id="`co${coIndex + 1}wk${wkIndex + 1}`"/>
+            <Checkbox
+              :modelValue="co.wks.includes(wkIndex + 1)"
+              :id="`co${coIndex + 1}wk${wkIndex + 1}`"
+              @update:modelValue="(checked) => handleMappingChange(coIndex, 'wk', wkIndex, Boolean(checked))"
+            />
           </TableCell>
         </TableRow>
       </TableBody>
@@ -197,9 +238,13 @@ const truncateWithEllipsis = (text: string) => {
       <TableBody>
         <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos + 1}`).join(', ') }}</TableCell>
+          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
           <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex">
-            <Checkbox :default-value="false" :id="`co${coIndex + 1}wp${wpIndex + 1}`"/>
+            <Checkbox
+            :modelValue="co.wps.includes(wpIndex + 1)"
+            :id="`co${coIndex + 1}wp${wpIndex + 1}`"
+            @update:modelValue="(checked) => handleMappingChange(coIndex, 'wp', wpIndex, Boolean(checked))"
+            />
           </TableCell>
         </TableRow>
       </TableBody>
@@ -223,9 +268,13 @@ const truncateWithEllipsis = (text: string) => {
       <TableBody>
         <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos + 1}`).join(', ') }}</TableCell>
+          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
           <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex">
-            <Checkbox :default-value="false" :id="`co${coIndex + 1}ea${eaIndex + 1}`"/>
+            <Checkbox
+            :modelValue="co.eas.includes(eaIndex + 1)"
+            :id="`co${coIndex + 1}ea${eaIndex + 1}`"
+            @update:modelValue="(checked) => handleMappingChange(coIndex, 'ea', eaIndex, Boolean(checked))"
+            />
           </TableCell>
         </TableRow>
       </TableBody>
