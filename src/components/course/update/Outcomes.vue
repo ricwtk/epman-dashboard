@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { type Co } from '@/types/course'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -15,6 +15,18 @@ import ResetButton from '@/components/ResetButton.vue'
 
 import { getEditingCourseAndStore } from '@/composables/course'
 const { course, editingCourseStore } = getEditingCourseAndStore()
+
+const selectedBloomTaxonomy = computed(() => {
+  return course.value.cos.map((co) => `${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`)
+})
+
+const updateBloomTaxonomy = (coIndex, newBloomTaxonomy) => {
+  const co = course.value.cos[coIndex]
+  if (co) {
+    co.bloomtax = newBloomTaxonomy.toLowerCase().split('')
+    editingCourseStore.updateCourse(course.value)
+  }
+}
 
 const bloomtaxOptions = [
   { domain: "Cognitive", levels: [
@@ -104,15 +116,15 @@ const truncateWithEllipsis = (text: string) => {
             <Textarea :id="'desc' + coIndex" v-model="co.description" />
           </TableCell>
           <TableCell class="w-0">
-            <Select>
+            <Select :modelValue="selectedBloomTaxonomy[coIndex]" @update:modelValue="updateBloomTaxonomy(coIndex, $event)">
               <SelectTrigger class="w-40">
-                <SelectValue placeholder="Select" :modelValue="`${co.bloomtax[0]}${co.bloomtax[1]}`" />
+                <SelectValue placeholder="Select"/>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup v-for="(domain, index) in bloomtaxOptions" :key="index">
                   <SelectLabel>{{ domain.domain }}</SelectLabel>
-                  <SelectItem v-for="(level, levelIndex) in domain.levels" :key="levelIndex" :value="`${domain.domain[0]}${levelIndex}`">
-                    {{ `${domain.domain[0]}${levelIndex} ${level}` }}
+                  <SelectItem v-for="(level, levelIndex) in domain.levels" :key="levelIndex" :value="`${domain.domain[0].toUpperCase()}${levelIndex+1}`">
+                    {{ `${domain.domain[0].toUpperCase()}${levelIndex+1} ${level}` }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>

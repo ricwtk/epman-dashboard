@@ -49,5 +49,12 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     course.value = structuredClone(cse)
   }
 
-  return { course, resetCourse, loadCourse, checkDiff, resetDiff }
+  function updateCourse(course: Course): void {
+  }
+
+  return {
+    course, resetCourse, loadCourse,
+    checkDiff, resetDiff,
+    updateCourse
+  }
 })

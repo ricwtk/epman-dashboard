@@ -18,7 +18,7 @@ export const courses: Course[] = [
     cos: [
       {
         description: "Explain basic programming concepts",
-        bloomtax: ["understand", 2],
+        bloomtax: ["c", 2],
         pos: [1, 2],
         wks: [1, 2],
         wps: [1, 2],
@@ -27,7 +27,7 @@ export const courses: Course[] = [
       },
       {
         description: "Write simple programs using control structures",
-        bloomtax: ["apply", 3],
+        bloomtax: ["c", 3],
         pos: [2, 3],
         wks: [2, 3],
         wps: [2, 3],
@@ -96,7 +96,7 @@ export const courses: Course[] = [
     cos: [
       {
         description: "Describe common data structures",
-        bloomtax: ["understand", 2],
+        bloomtax: ["c", 2],
         pos: [1],
         wks: [1],
         wps: [1],
@@ -105,7 +105,7 @@ export const courses: Course[] = [
       },
       {
         description: "Implement data structures in code",
-        bloomtax: ["apply", 3],
+        bloomtax: ["c", 3],
         pos: [2, 3],
         wks: [2, 3],
         wps: [2, 3],
@@ -179,7 +179,7 @@ export const courses: Course[] = [
     cos: [
       {
         description: "Explain software development life cycle models",
-        bloomtax: ["understand", 2],
+        bloomtax: ["c", 2],
         pos: [1, 4],
         wks: [1, 4],
         wps: [1, 4],
@@ -188,7 +188,7 @@ export const courses: Course[] = [
       },
       {
         description: "Apply software design principles in projects",
-        bloomtax: ["apply", 3],
+        bloomtax: ["c", 3],
         pos: [3, 5],
         wks: [3, 5],
         wps: [3, 5],
@@ -253,7 +253,7 @@ export const courses: Course[] = [
     cos: [
       {
         description: "Explain fundamental AI concepts",
-        bloomtax: ["understand", 2],
+        bloomtax: ["c", 2],
         pos: [1],
         wks: [1],
         wps: [1],
@@ -262,7 +262,7 @@ export const courses: Course[] = [
       },
       {
         description: "Develop simple AI models",
-        bloomtax: ["create", 6],
+        bloomtax: ["c", 6],
         pos: [2, 3],
         wks: [2, 3],
         wps: [2, 3],
@@ -341,7 +341,7 @@ export const courses: Course[] = [
     cos: [
       {
         description: "Formulate a research or development problem",
-        bloomtax: ["analyze", 4],
+        bloomtax: ["c", 4],
         pos: [3, 4],
         wks: [1, 2],
         wps: [1, 2],
@@ -350,7 +350,7 @@ export const courses: Course[] = [
       },
       {
         description: "Produce a complete project and report",
-        bloomtax: ["create", 6],
+        bloomtax: ["c", 6],
         pos: [5, 6],
         wks: [1, 2],
         wps: [1, 2],
