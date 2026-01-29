@@ -13,6 +13,8 @@ import VerticalText from '@/components/VerticalText.vue'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 import ResetButton from '@/components/ResetButton.vue'
 
+import { BLOOM_TAXONOMY, PO_ATTRIBUTES } from '@/constants'
+
 import { getEditingCourseAndStore } from '@/composables/course'
 const { course, editingCourseStore } = getEditingCourseAndStore()
 
@@ -27,32 +29,6 @@ const updateBloomTaxonomy = (coIndex, newBloomTaxonomy) => {
     editingCourseStore.updateCourse(course.value)
   }
 }
-
-const bloomtaxOptions = [
-  { domain: "Cognitive", levels: [
-    'Remember', 'Understand', 'Apply', 'Analyze', 'Synthesize', 'Evaluate'
-  ]},
-  { domain: "Affective", levels: [
-    'Receiving', 'Responding', 'Valuing', 'Organization', 'Characterizing by a Value'
-  ]},
-  { domain: "Psychomotor", levels: [
-    'Imitation', 'Manipulation', 'Precision', 'Articulation', 'Naturalisation'
-  ]}
-]
-
-const poOptions = [
-  "Engineering Knowledge",
-  "Problem Analysis",
-  "Design/Development of Solutions",
-  "Investigation",
-  "Tool Usage",
-  "The Engineer and the World",
-  "Ethics",
-  "Individual and Collaborative Team Work",
-  "Communication",
-  "Project Management and Finance",
-  "Lifelong Learning"
-]
 
 const wkOptions = [
   "Natural and Social Sciences",
@@ -121,7 +97,7 @@ const truncateWithEllipsis = (text: string) => {
                 <SelectValue placeholder="Select"/>
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup v-for="(domain, index) in bloomtaxOptions" :key="index">
+                <SelectGroup v-for="(domain, index) in BLOOM_TAXONOMY" :key="index">
                   <SelectLabel>{{ domain.domain }}</SelectLabel>
                   <SelectItem v-for="(level, levelIndex) in domain.levels" :key="levelIndex" :value="`${domain.domain[0].toUpperCase()}${levelIndex+1}`">
                     {{ `${domain.domain[0].toUpperCase()}${levelIndex+1} ${level}` }}
@@ -160,7 +136,7 @@ const truncateWithEllipsis = (text: string) => {
         <TableRow>
           <TableHead class="align-bottom text-center w-0">CO</TableHead>
           <TableHead class="align-bottom text-center"
-            v-for="(po, poIndex) in poOptions"
+            v-for="(po, poIndex) in PO_ATTRIBUTES"
             :key="poIndex"
           >
             <VerticalText :label="`PO${poIndex + 1}`" :content="po" />
@@ -170,7 +146,7 @@ const truncateWithEllipsis = (text: string) => {
       <TableBody>
         <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
           <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell v-for="(po, poIndex) in poOptions" :key="poIndex">
+          <TableCell v-for="(po, poIndex) in PO_ATTRIBUTES" :key="poIndex">
             <Checkbox :default-value="false" :id="`co${coIndex + 1}po${poIndex + 1}`"/>
           </TableCell>
         </TableRow>
