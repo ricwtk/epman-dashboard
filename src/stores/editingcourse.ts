@@ -2,7 +2,7 @@ import { ref, type Ref, toRaw } from 'vue';
 import type { Course } from "@/types/course";
 import { createNewCourse } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
-import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon } from '@/utils/common.ts'
+import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon, updateMapping as updateMappingCommon } from '@/utils/common.ts'
 import { createPlan, createReference } from '@/utils/courseHelpers'
 
 export const useEditingCourseStore = defineStore('editing-course', () => {
@@ -19,6 +19,10 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
 
   function checkDiff(pathArray: string[]): boolean {
     return checkDiffCommon(course.value, originalCourse.value, pathArray)
+  }
+
+  function updateMapping(pathArray: string[], itemIndex: number, isChecked: boolean | 'indeterminate'): void {
+    updateMappingCommon(course.value, pathArray, itemIndex, isChecked)
   }
 
   // function checkMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): boolean {
@@ -88,6 +92,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   return {
     course, resetCourse, loadCourse,
     checkDiff, resetDiff,
+    updateMapping,
     updateCourse,
     addTopic, removeTopic,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown

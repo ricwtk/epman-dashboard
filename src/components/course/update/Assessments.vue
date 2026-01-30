@@ -17,12 +17,19 @@ import { Badge } from '@/components/ui/badge';
 import BadgeList from '@/components/BadgeList.vue';
 import VerticalText from '@/components/VerticalText.vue';
 import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon } from 'lucide-vue-next';
+import { get } from 'lodash-es';
 
 import { getEditingCourseAndStore } from '@/composables/course'
 const { course, editingCourseStore } = getEditingCourseAndStore()
 
 
 const componentOptions = ['Written Assessment', 'Assignment', 'Lab'];
+const updateMapping = (pathArray: string[], itemIndex: number, isChecked: boolean | 'indeterminate') => {
+  if (isChecked === 'indeterminate') { return; }
+
+  console.log(pathArray, itemIndex, isChecked)
+  editingCourseStore.updateMapping(["assessments", ...pathArray], itemIndex, isChecked)
+}
 
 // const assessmentList = ref<Assessment[]>([
 //   {
@@ -158,7 +165,10 @@ const getPoList = (assessment: Assessment) => {
             :key="coIndex"
             class="w-0 text-center"
           >
-            <Checkbox :v-model="assessment.cos.includes(coIndex + 1)" />
+            <Checkbox
+              :modelValue="assessment.cos.includes(coIndex + 1)"
+              @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'cos'], coIndex + 1, isChecked)"
+            />
           </TableCell>
         </TableRow>
         <TableRow v-for="(breakdown, index) in assessment.breakdown" :key="index">
@@ -178,7 +188,10 @@ const getPoList = (assessment: Assessment) => {
             :key="coIndex"
             class="w-0 text-center"
           >
-            <Checkbox :v-model="breakdown.co == coIndex + 1" />
+            <Checkbox
+              :modelValue="breakdown.co == coIndex + 1"
+              @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(index), 'co'], coIndex + 1, isChecked)"
+            />
           </TableCell>
         </TableRow>
         <TableRow>
@@ -248,13 +261,21 @@ const getPoList = (assessment: Assessment) => {
           <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
             <div class="flex flex-col gap-0.5 items-center">
               <span class="bg-green-600 rounded w-1 h-1"></span>
-              <Checkbox v-if="assessment.breakdown.length == 0"/>
+              <Checkbox
+                v-if="assessment.breakdown.length == 0"
+                :modelValue="assessment.wps?.includes(wpIndex + 1)"
+                @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'wps'], wpIndex + 1, checked)"
+              />
             </div>
           </TableCell>
           <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex" class="text-center">
             <div class="flex flex-col gap-0.5 items-center">
                <span class="bg-transparent rounded w-1 h-1"></span>
-              <Checkbox v-if="assessment.breakdown.length == 0"/>
+              <Checkbox
+                v-if="assessment.breakdown.length == 0"
+                :modelValue="assessment.eas?.includes(eaIndex + 1)"
+                @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'eas'], eaIndex + 1, checked)"
+              />
             </div>
           </TableCell>
         </TableRow>
@@ -272,10 +293,16 @@ const getPoList = (assessment: Assessment) => {
               <BadgeList :items="course.cos[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
             </TableCell>
             <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
-              <Checkbox />
+              <Checkbox
+                :modelValue="breakdown.wps?.includes(wpIndex + 1)"
+                @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'wps'], wpIndex + 1, isChecked)"
+              />
             </TableCell>
             <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex" class="text-center">
-              <Checkbox />
+              <Checkbox
+                :modelValue="breakdown.eas?.includes(eaIndex + 1)"
+                @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'eas'], eaIndex + 1, isChecked)"
+              />
             </TableCell>
           </TableRow>
         </template>
