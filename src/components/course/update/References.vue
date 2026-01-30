@@ -54,7 +54,7 @@ const referenceTypes = [
 <template>
   <div class="flex flex-col gap-1">
     <div class="font-semibold flex flex-row items-center gap-1 h-9">
-      PO to WK Mapping
+      References
       <ResetButton v-if="diffs" @reset="resetDiff(['references'])" />
     </div>
     <Table>
