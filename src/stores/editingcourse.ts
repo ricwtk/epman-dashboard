@@ -52,9 +52,34 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   function updateCourse(course: Course): void {
   }
 
+  function addReference(): void {
+    course.value.references.push({ description: '', label: 'additional' })
+  }
+
+  function deleteReference(index: number): void {
+    course.value.references.splice(index, 1)
+  }
+
+  function moveReferenceUp(index: number): void {
+    if (index > 0) {
+      const reference = course.value.references[index]!;
+      course.value.references.splice(index, 1);
+      course.value.references.splice(index - 1, 0, reference);
+    }
+  }
+
+  function moveReferenceDown(index: number): void {
+    if (index < course.value.references.length - 1) {
+      const reference = course.value.references[index]!;
+      course.value.references.splice(index, 1);
+      course.value.references.splice(index + 1, 0, reference);
+    }
+  }
+
   return {
     course, resetCourse, loadCourse,
     checkDiff, resetDiff,
-    updateCourse
+    updateCourse,
+    addReference, deleteReference, moveReferenceUp, moveReferenceDown
   }
 })
