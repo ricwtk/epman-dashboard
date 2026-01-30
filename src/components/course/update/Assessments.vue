@@ -26,11 +26,12 @@ const { course, editingCourseStore } = getEditingCourseAndStore()
 const componentOptions = ['Written Assessment', 'Assignment', 'Lab'];
 const updateMapping = (pathArray: string[], itemIndex: number, isChecked: boolean | 'indeterminate') => {
   if (isChecked === 'indeterminate') { return; }
-
-  console.log(pathArray, itemIndex, isChecked)
   editingCourseStore.updateMapping(["assessments", ...pathArray], itemIndex, isChecked)
 }
-
+const addAssessment = () => { editingCourseStore.addAssessment() }
+const deleteAssessment = (index: number) => { editingCourseStore.deleteAssessment(index) }
+const addBreakdown = (index: number) => { editingCourseStore.addBreakdown(index) }
+const deleteBreakdown = (assessmentIndex: number, breakdownIndex: number) => { editingCourseStore.deleteBreakdown(assessmentIndex, breakdownIndex) }
 // const assessmentList = ref<Assessment[]>([
 //   {
 //     description: "Continuous Assessment",
@@ -140,7 +141,7 @@ const getPoList = (assessment: Assessment) => {
       <template v-for="(assessment, assessmentIndex) in course.assessments" :key="assessmentIndex">
         <TableRow>
           <TableCell>
-            <Button variant="destructive"><MinusIcon /></Button>
+            <Button variant="destructive" @click="deleteAssessment(assessmentIndex)"><MinusIcon /></Button>
           </TableCell>
           <TableCell colspan="2">
             <Input v-model="assessment.description" class="text-sm" />
@@ -174,7 +175,7 @@ const getPoList = (assessment: Assessment) => {
         <TableRow v-for="(breakdown, index) in assessment.breakdown" :key="index">
           <TableCell></TableCell>
           <TableCell class="w-0">
-            <Button variant="destructive"><ListMinusIcon /></Button>
+            <Button variant="destructive" @click="deleteBreakdown(assessmentIndex, index)"><ListMinusIcon /></Button>
           </TableCell>
           <TableCell>
             <Input v-model="breakdown.description" class="text-sm" />
@@ -197,13 +198,13 @@ const getPoList = (assessment: Assessment) => {
         <TableRow>
           <TableCell></TableCell>
           <TableCell :colspan="course.cos.length+4">
-            <Button variant="secondary" class="w-full text-xs" size="sm"><ListPlusIcon /> Add Breakdown</Button>
+            <Button variant="secondary" class="w-full text-xs" size="sm" @click="addBreakdown(assessmentIndex)"><ListPlusIcon /> Add Breakdown</Button>
           </TableCell>
         </TableRow>
       </template>
       <TableRow>
         <TableCell :colspan="course.cos.length+5">
-          <Button variant="default" class="w-full text-xs" size="sm"><PlusIcon /> Add Assessment</Button>
+          <Button variant="default" class="w-full text-xs" size="sm" @click="addAssessment"><PlusIcon /> Add Assessment</Button>
         </TableCell>
       </TableRow>
       <TableRow>

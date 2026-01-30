@@ -3,7 +3,12 @@ import type { Course } from "@/types/course";
 import { createNewCourse } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
 import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon, updateMapping as updateMappingCommon } from '@/utils/common.ts'
-import { createPlan, createReference } from '@/utils/courseHelpers'
+import {
+  createPlan,
+  createReference,
+  createAssessment,
+  createBreakdown,
+} from '@/utils/courseHelpers'
 
 export const useEditingCourseStore = defineStore('editing-course', () => {
   const course: Ref<Course> = ref(createNewCourse())
@@ -57,6 +62,26 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   function updateCourse(course: Course): void {
   }
 
+  function addAssessment(): void {
+    course.value.assessments.push(createAssessment())
+  }
+
+  function deleteAssessment(index: number): void {
+    course.value.assessments.splice(index, 1)
+  }
+
+  function addBreakdown(assessmentIndex: number): void {
+    if (assessmentIndex >= 0 && assessmentIndex < course.value.assessments.length) {
+      course.value.assessments[assessmentIndex]!.breakdown.push(createBreakdown())
+    }
+  }
+
+  function deleteBreakdown(assessmentIndex: number, breakdownIndex: number): void {
+    if (assessmentIndex >= 0 && assessmentIndex < course.value.assessments.length) {
+      course.value.assessments[assessmentIndex]!.breakdown.splice(breakdownIndex, 1)
+    }
+  }
+
   function addTopic(): void {
     course.value.teachingPlan.push(createPlan())
   }
@@ -95,6 +120,8 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     updateMapping,
     updateCourse,
     addTopic, removeTopic,
+    addAssessment, deleteAssessment,
+    addBreakdown, deleteBreakdown,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown
   }
 })
