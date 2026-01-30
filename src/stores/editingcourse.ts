@@ -3,6 +3,7 @@ import type { Course } from "@/types/course";
 import { createNewCourse } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
 import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon } from '@/utils/common.ts'
+import { createPlan, createReference } from '@/utils/courseHelpers'
 
 export const useEditingCourseStore = defineStore('editing-course', () => {
   const course: Ref<Course> = ref(createNewCourse())
@@ -52,8 +53,16 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   function updateCourse(course: Course): void {
   }
 
+  function addTopic(): void {
+    course.value.teachingPlan.push(createPlan())
+  }
+
+  function removeTopic(index: number): void {
+    course.value.teachingPlan.splice(index, 1)
+  }
+
   function addReference(): void {
-    course.value.references.push({ description: '', label: 'additional' })
+    course.value.references.push(createReference())
   }
 
   function deleteReference(index: number): void {
@@ -80,6 +89,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     course, resetCourse, loadCourse,
     checkDiff, resetDiff,
     updateCourse,
+    addTopic, removeTopic,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown
   }
 })

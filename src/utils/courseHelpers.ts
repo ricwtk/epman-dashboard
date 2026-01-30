@@ -3,7 +3,8 @@ import type {
   Course,
   Allocation,
   Plan,
-  Assessment
+  Assessment,
+  Reference,
 } from "@/types/course";
 
 // currently using courseExamples.ts
@@ -87,8 +88,8 @@ export const createNewCourse = (overrides?: Partial<Course>): Course => {
   return { ...defaultCourse, ...overrides };
 };
 
-export const createPlan = (description: string, overrides?: Partial<Allocation>): Plan => ({
-  description,
+export const createPlan = (description?: string, overrides?: Partial<Allocation>): Plan => ({
+  description: description || '',
   hours: {
     lecture: { online: 0, f2f: 0 },
     practical: { online: 0, f2f: 0 },
@@ -106,4 +107,10 @@ export const createAssessment = (description: string, component: string): Assess
   weightage: 0,
   cos: [],
   breakdown: []
+});
+
+export const createReference = (description?: string, overrides?: Partial<Reference>): Reference => ({
+  description: description || '',
+  label: 'additional',
+  ...overrides
 });

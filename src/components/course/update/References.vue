@@ -28,8 +28,8 @@ const { course, editingCourseStore } = getEditingCourseAndStore()
 const diffs = computed(() => {
   return editingCourseStore.checkDiff(['references'])
 })
-const resetDiff = (keys: string[]) => {
-  editingCourseStore.resetDiff(keys)
+const resetDiff = () => {
+  editingCourseStore.resetDiff(['references'])
 }
 
 const addReference = () => {
@@ -55,7 +55,7 @@ const referenceTypes = [
   <div class="flex flex-col gap-1">
     <div class="font-semibold flex flex-row items-center gap-1 h-9">
       References
-      <ResetButton v-if="diffs" @reset="resetDiff(['references'])" />
+      <ResetButton v-if="diffs" @reset="resetDiff()" />
     </div>
     <Table>
       <TableHeader>

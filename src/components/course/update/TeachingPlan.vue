@@ -15,12 +15,32 @@ import { type Plan, type Allocation } from "@/types/course"
 
 import { PlusIcon, MinusIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 
-const teachingPlan: Plan[] = [
-  {
-    description: "Programming fundamentals and variables",
-    hours: { lecture: { online: 1, f2f: 2 }, practical: { online: 0, f2f: 0 }, tutorial: { online: 0, f2f: 0 }, self: { online: 0, f2f: 0 }, others: { online: 0, f2f: 0 }, assessment: { online: 0, f2f: 0 } }
-  }
-]
+import ResetButton from '@/components/ResetButton.vue';
+
+import { getEditingCourseAndStore } from '@/composables/course'
+const { course, editingCourseStore } = getEditingCourseAndStore()
+
+const diffs = computed(() => {
+  return editingCourseStore.checkDiff(['teachingPlan'])
+})
+const resetDiff = () => {
+  editingCourseStore.resetDiff(['teachingPlan'])
+}
+
+const addTopic = () => {
+  editingCourseStore.addTopic()
+}
+
+const removeTopic = (index: number) => {
+  editingCourseStore.removeTopic(index)
+}
+
+// const teachingPlan: Plan[] = [
+//   {
+//     description: "Programming fundamentals and variables",
+//     hours: { lecture: { online: 1, f2f: 2 }, practical: { online: 0, f2f: 0 }, tutorial: { online: 0, f2f: 0 }, self: { online: 0, f2f: 0 }, others: { online: 0, f2f: 0 }, assessment: { online: 0, f2f: 0 } }
+//   }
+// ]
 
 import {
   getTotalHours,
@@ -32,11 +52,15 @@ import {
   getCreditHours
 } from '@/utils/courseHelpers';
 
-const totalSLT = computed(() => getTotalHoursForCourse(teachingPlan))
+const totalSLT = computed(() => getTotalHoursForCourse(course.value.teachingPlan))
 const creditHours = computed(() => getCreditHours(totalSLT.value))
 </script>
 
 <template>
+  <div class="font-semibold flex flex-row items-center gap-1 h-9">
+    Teaching Plan
+    <ResetButton v-if="diffs" @reset="resetDiff()" />
+  </div>
   <Table>
     <TableHeader>
       <TableRow>
@@ -62,9 +86,9 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
       </TableRow>
     </TableHeader>
     <TableBody>
-      <TableRow v-for="(plan, planIndex) in teachingPlan">
+      <TableRow v-for="(plan, planIndex) in course.teachingPlan">
         <TableCell class="w-0">
-          <Button variant="destructive" size="icon"><MinusIcon /></Button>
+          <Button variant="destructive" size="icon" @click="removeTopic(planIndex)"><MinusIcon /></Button>
         </TableCell>
         <TableCell class="text-center">
           <Textarea v-model="plan.description" class="min-w-60 w-full"/>
@@ -72,7 +96,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         <TableCell class="w-0">
           <div class="flex flex-col">
             <Button variant="secondary" :disabled="planIndex === 0"><ChevronUpIcon /></Button>
-            <Button variant="secondary" :disabled="planIndex === teachingPlan.length - 1"><ChevronDownIcon /></Button>
+            <Button variant="secondary" :disabled="planIndex === course.teachingPlan.length - 1"><ChevronDownIcon /></Button>
           </div>
         </TableCell>
         <TableCell class="text-center">
@@ -117,7 +141,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
       <TableRow>
         <TableCell></TableCell>
         <TableCell colspan="2">
-          <Button variant="default" class="w-full"><PlusIcon /></Button>
+          <Button variant="default" class="w-full" @click="addTopic"><PlusIcon /></Button>
         </TableCell>
       </TableRow>
 
@@ -125,18 +149,18 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         <TableCell></TableCell>
         <TableCell class="font-medium">Sub-total for each SLT components</TableCell>
         <TableCell></TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "lecture") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "lecture") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "tutorial") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "tutorial") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "practical") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "practical") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "assessment") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "assessment") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "others") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "others") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(teachingPlan, "self") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(teachingPlan, "self") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "lecture") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "lecture") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "tutorial") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "tutorial") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "practical") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "practical") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "assessment") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "assessment") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "others") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "others") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "self") }}</TableCell>
+        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "self") }}</TableCell>
         <TableCell class="font-medium text-center">{{ totalSLT }}</TableCell>
       </TableRow>
 
