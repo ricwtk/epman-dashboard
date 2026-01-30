@@ -159,7 +159,10 @@ const getPoList = (assessment: Assessment) => {
             </Select>
           </TableCell>
           <TableCell class="w-0 text-center">
-            <Input v-model="assessment.weightage" class="text-sm" type="number" />
+            <Input
+              :class="{ 'border-destructive focus-visible:ring-destructive': totalWeightage !== 100 }"
+              v-model="assessment.weightage" class="text-sm" type="number"
+            />
           </TableCell>
           <TableCell
             v-for="(co, coIndex) in course.cos"
