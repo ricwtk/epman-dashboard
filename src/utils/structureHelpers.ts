@@ -2,10 +2,12 @@ import { type ProgrammeStructure } from "@/types/programme";
 import { structures } from "./structureExamples";
 
 // using structureExamples
-export const getStructuresByProgramme = (
-  programmeCode: string
-): ProgrammeStructure[] => {
-  return structures.filter(item => item.programme === programmeCode);
+export const getStructureByProgrammeAndLabel = (
+  programmeCode: string,
+  programmeRevision: string,
+  label: string
+): ProgrammeStructure | undefined => {
+  return structures.find(item => item.programme === programmeCode && item.programmeRevision === programmeRevision && item.label === label);
 };
 
 // using structureExamples
