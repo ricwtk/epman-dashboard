@@ -43,6 +43,28 @@ export const getStructureLabelsByProgramme = (
     .map((item) => item.label);
 };
 
+/**
+ * Converts a structure array into a table format,
+ * with each group of rows representing a semester
+ * and each column representing a year.
+ * @param structure - The structure array to convert.
+ * @returns The converted table.
+ */
+export const convertStructureToTable = (
+  structure: string[][]
+): string[][] => {
+  const maxSemesters = Math.max(...structure.map(s => s.length));
+  const table = Array.from({ length: maxSemesters }, () => []);
+
+  structure.forEach((semester, index) => {
+    semester.forEach((course, courseIndex) => {
+      table[courseIndex].push(course);
+    });
+  });
+
+  return table;
+};
+
 export const createNewStructure = (
   overrides?: Partial<ProgrammeStructure>
 ): ProgrammeStructure => {

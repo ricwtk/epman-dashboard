@@ -53,13 +53,14 @@ const structureInSemesters = computed(() => {
       </Select>
       <div v-if="selectedStructure">
         <div>{{ selectedStructure.structure }}</div>
+        <div>{{ structureInSemesters }}</div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead
+               <TableHead
                 class="text-center"
-                v-for="_, index in Math.max(structureInSemesters!.map(s => s.length))"
-              >Year {{ index }}</TableHead>
+                 v-for="_, index in Math.max(...structureInSemesters!.map(s => s.length))"
+              >Year {{ index+1 }}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

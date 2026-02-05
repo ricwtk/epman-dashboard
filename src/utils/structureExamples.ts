@@ -64,9 +64,22 @@ export const structures: ProgrammeStructure[] = [
   // --- BMRE (Mechatronics) ---
   {
     programme: "BMRE",
-    programmeRevision: "2026-V1",
+    programmeRevision: "2024-V1",
     label: "default",
-    structure: [["CIRCUITS101", "PROG_C++"], ["ROBOT_KINEMATICS"]],
+    structure: [
+      ["MATH101", "PHYS101", "INTRO_ENG"], // Sem 1
+      ["MATH102", "PROG101", "CIRCUITS01"], // Sem 2
+      ["MATH201", "STATICS", "DYNAMICS"],    // Sem 3
+      ["THERMO1", "MAT_SCI", "PROB_STATS"],  // Sem 4
+      ["ELECTRONICS1", "SIGNALS", "MECH1"],  // Sem 5
+      ["CONTROL_SYS1", "EM_FIELDS", "CAD"],  // Sem 6
+      ["MICRO_PROC", "FLUIDS", "POWER_SYS"], // Sem 7
+      ["ROBOT_KIN", "SENSORS", "EMBEDDED"],  // Sem 8
+      ["AI_ROBOTICS", "MACHINE_LEARN"],      // Sem 9
+      ["IND_AUTO", "ETHICS", "ELECTIVE_1"],  // Sem 10
+      ["CAPSTONE_A", "ELECTIVE_2"],          // Sem 11
+      ["CAPSTONE_B", "ELECTIVE_3"]           // Sem 12
+    ],
     committed: { on: new Date('2025-12-10'), by: "dept_robotics_head" },
     revision: "MRE-BASE",
     parentRevision: "null"
