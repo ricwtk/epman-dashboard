@@ -1,5 +1,7 @@
 import diff from 'microdiff';
 import { get, set, cloneDeep } from 'lodash-es'
+import type { Course } from '@/types/course';
+import type { Programme } from '@/types/programme';
 
 function isPrimitive(val: unknown): val is string | number | boolean | null | undefined {
   return val === null || (typeof val !== 'object' && typeof val !== 'function');
@@ -49,4 +51,72 @@ export function resetDiff(currentObj: any, originalObj: any, pathArray: string[]
   if (original === undefined) return
 
   set(currentObj, pathArray, cloneDeep(original))
+}
+
+// export function updateMapping(object: Course | Programme, pathArray: string[], itemIndex: number, isChecked: boolean): void {
+//   const currentList = get(object, pathArray);
+
+//   console.log(currentList)
+
+//   if (currentList === undefined) return;
+
+//   if (Array.isArray(currentList)) {
+//     if (isChecked) {
+//       if (!currentList.includes(itemIndex)) {
+//         currentList.push(itemIndex);
+//       }
+//     } else {
+//       set(object, pathArray, currentList.filter(id => id !== itemIndex));
+//     }
+//   } else {
+//     set(object, pathArray, isChecked ? itemIndex : undefined);
+//   }
+// };
+//
+type IndexableObject = Record<string, unknown>;
+
+export function updateMapping(
+  object: Course | Programme,
+  pathArray: readonly string[],
+  itemIndex: number,
+  isChecked: boolean | 'indeterminate'
+): void {
+  if (isChecked === 'indeterminate') return;
+
+  const currentValue = get(object, pathArray) as unknown;
+
+  if (currentValue === undefined || currentValue === null) return;
+
+  // 🔹 Array case → mutate in place
+  if (Array.isArray(currentValue)) {
+    const list = currentValue as number[];
+    const index = list.indexOf(itemIndex);
+
+    if (isChecked) {
+      if (index === -1) {
+        list.push(itemIndex);
+      }
+    } else {
+      if (index !== -1) {
+        list.splice(index, 1);
+      }
+    }
+    return;
+  }
+
+  // 🔹 Non-array case → mutate parent object
+  const parentPath = pathArray.slice(0, -1);
+  const key = pathArray[pathArray.length - 1];
+
+  if (!key) return;
+
+  const parent = (parentPath.length
+    ? get(object, parentPath)
+    : object) as IndexableObject | null | undefined;
+
+  if (parent && typeof parent === 'object') {
+    if (isChecked) {
+      parent[key] = itemIndex;
+    } else { }
+  }
 }

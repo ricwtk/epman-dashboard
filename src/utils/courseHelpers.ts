@@ -4,6 +4,7 @@ import type {
   Allocation,
   Plan,
   Assessment,
+  Breakdown,
   Reference,
 } from "@/types/course";
 
@@ -101,12 +102,23 @@ export const createPlan = (description?: string, overrides?: Partial<Allocation>
   }
 });
 
-export const createAssessment = (description: string, component: string): Assessment => ({
-  description,
-  component,
+export const createAssessment = (overrides?: Partial<Assessment>): Assessment => ({
+  description: '',
+  component: '',
   weightage: 0,
   cos: [],
-  breakdown: []
+  breakdown: [],
+  ...overrides
+});
+
+export const createBreakdown = (overrides?: Partial<Breakdown>): Breakdown => ({
+  description: '',
+  weightage: 0,
+  co: 1,
+  wps: [],
+  eas: [],
+  rubrics: {},
+  ...overrides
 });
 
 export const createReference = (description?: string, overrides?: Partial<Reference>): Reference => ({
