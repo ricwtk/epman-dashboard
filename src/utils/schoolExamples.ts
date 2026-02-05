@@ -6,6 +6,10 @@ export const schools: School[] = [
     name: "School of Engineering",
     revision: "2026-01",
     parentRevision: "",
+    committed: {
+      on: null,
+      by: ""
+    },
     programmes: ["BEEE", "BCHE", "BMEC", "BMRE", "BCIV"],
     components: {
       wks: [

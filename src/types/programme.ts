@@ -3,7 +3,7 @@ export interface Cohort {
   intakeSemester: string;
   revision: string;
   parentRevision: string;
-  structureVersion: string[];
+  structureLabel: string;
   programme: string;
   programmeRevision: string;
 }
@@ -31,16 +31,21 @@ export interface Programme {
   revision: string;
   parentRevision: string;
   poList: Po[];
+  committed: {
+    on: Date | null;
+    by: string;
+  };
 }
 
 export interface ProgrammeStructure {
   programme: string;
+  programmeRevision: string;
   label: string; // 'default' | 'direct entry' | student name
   structure: string[][]; // array of array of course codes
   committed: {
-    on: Date;
+    on: Date | null;
     by: string;
   };
-  version: string;
-  parentVersion: string;
+  revision: string;
+  parentRevision: string;
 }

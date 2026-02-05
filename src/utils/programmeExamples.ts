@@ -41,7 +41,11 @@ export const mechanicalEngineering: Programme = {
       examBased: getRandomMapping(),
       projectBased: getRandomMapping()
     }
-  }))
+  })),
+  committed: {
+    on: null,
+    by: ""
+  }
 };
 
 export const electronicEngineering: Programme = {
@@ -57,7 +61,11 @@ export const electronicEngineering: Programme = {
       examBased: getRandomMapping(),
       projectBased: getRandomMapping()
     }
-  }))
+  })),
+  committed: {
+    on: null,
+    by: ""
+  }
 };
 
 export const mechatronicEngineering: Programme = {
@@ -73,7 +81,11 @@ export const mechatronicEngineering: Programme = {
       examBased: getRandomMapping(),
       projectBased: getRandomMapping()
     }
-  }))
+  })),
+  committed: {
+    on: null,
+    by: ""
+  }
 };
 
 export const chemicalEngineering: Programme = {
@@ -89,7 +101,11 @@ export const chemicalEngineering: Programme = {
       examBased: getRandomMapping(),
       projectBased: getRandomMapping()
     }
-  }))
+  })),
+  committed: {
+    on: null,
+    by: ""
+  }
 };
 
 export const civilEngineering: Programme = {
@@ -105,7 +121,11 @@ export const civilEngineering: Programme = {
       examBased: getRandomMapping(),
       projectBased: getRandomMapping()
     }
-  }))
+  })),
+  committed: {
+    on: null,
+    by: ""
+  }
 };
 
 export const programmes = [

@@ -22,6 +22,10 @@ export function createNewSchool(overrides?: Partial<School>): School {
     code: 'NS',
     revision: "",
     parentRevision: "",
+    committed: {
+      on: null,
+      by: ""
+    },
     programmes: [],
     components: {},
     ...overrides,

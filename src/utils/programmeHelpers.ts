@@ -1,8 +1,7 @@
 import type {
   Po,
   Mapping,
-  Programme,
-  ProgrammeStructure
+  Programme
 } from "@/types/programme"
 import { programmes } from "@/utils/programmeExamples"
 
@@ -45,18 +44,9 @@ export const createNewProgramme = (overrides?: Partial<Programme>): Programme =>
   revision: "",
   parentRevision: "",
   poList: [],
-  ...overrides,
-});
-
-export const createNewProgrammeStructure = (overrides?: Partial<ProgrammeStructure>): ProgrammeStructure => ({
-  programme: "",
-  label: "default",
-  structure: [],
   committed: {
-    on: new Date(),
-    by: "System",
+    on: null,
+    by: ""
   },
-  version: "1.0.0",
-  parentVersion: "",
   ...overrides,
 });

@@ -65,7 +65,7 @@ export interface Course {
   references: Reference[];
   gradingScheme: string; // function name
   committed: {
-    on: Date;
+    on: Date | null;
     by: string;
   };
   revision: string;

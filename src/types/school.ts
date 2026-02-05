@@ -7,6 +7,10 @@ export interface School {
   components?: {
     [key: string]: any
   };
+  committed: {
+    on: Date | null;
+    by: string;
+  };
 }
 
 export interface AttrDesc {

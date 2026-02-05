@@ -7,6 +7,7 @@ import ProgrammeSummary from '@/components/programme/ProgrammeSummary.vue';
 import ProgrammePo from '@/components/programme/ProgrammePo.vue';
 import PoMapping from '@/components/programme/PoMapping.vue';
 import ProgrammeUpdateDialog from '@/components/programme/ProgrammeUpdateDialog.vue';
+import ProgrammeStructure from '@/components/programme/ProgrammeStructure.vue';
 
 import { useViewingProgrammeStore } from '@/stores/viewingprogramme';
 const viewingProgrammeStore = useViewingProgrammeStore();
@@ -44,5 +45,6 @@ const updateEditing = (ev: boolean, ) => {
     <ProgrammePo :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
     <PoMapping :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
     <ProgrammeUpdateDialog v-model:isOpen="editing" />
+    <ProgrammeStructure :programme="viewingProgrammeStore.programme.code" :programmeRevision="viewingProgrammeStore.programme.revision" :editing="editing" @update:editing="updateEditing" />
   </template>
 </template>
