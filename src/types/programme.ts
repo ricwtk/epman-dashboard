@@ -39,7 +39,6 @@ export interface Programme {
 
 export interface ProgrammeStructure {
   programme: string;
-  programmeRevision: string;
   label: string; // 'default' | 'direct entry' | student name
   structure: string[][]; // array of array of course codes
   committed: {

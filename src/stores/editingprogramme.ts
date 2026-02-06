@@ -5,10 +5,15 @@ import { defineStore } from "pinia";
 import { get, set } from 'lodash-es';
 import diff from 'microdiff';
 import { getSchoolByProgrammeCode } from "@/utils/schoolHelpers";
+import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
 
 export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const programme: Ref<Programme> = ref(createNewProgramme())
   const originalProgramme: Ref<Programme> = ref(createNewProgramme())
+
+  const structureLabels = computed(() => {
+    return getStructureLabelsByProgramme(programme.value.code);
+  })
 
   const school = computed(() => {
     return getSchoolByProgrammeCode(programme.value.code);
@@ -62,5 +67,5 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     programme.value = structuredClone(prog)
   }
 
-  return { school, programme, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff }
+  return { school, programme, structureLabels, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff }
 })

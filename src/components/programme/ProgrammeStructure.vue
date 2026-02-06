@@ -15,7 +15,6 @@ defineEmits(['update:editing']);
 
 const props = defineProps<{
   programme: string;
-  programmeRevision: string;
   editing: boolean;
 }>();
 
@@ -33,11 +32,11 @@ watch(structureDisplayMode, (newMode) => {
   localStorage.setItem('structureDisplayMode', newMode || "");
 });
 
-const labels = computed(() => getStructureLabelsByProgramme(props.programme, props.programmeRevision));
+const labels = computed(() => getStructureLabelsByProgramme(props.programme));
 const selectedStructureLabel = ref<string | null>(null);
 const selectedStructure = computed(() => {
   if (!selectedStructureLabel.value) return null;
-  return getStructureByProgrammeAndLabel(props.programme, props.programmeRevision, selectedStructureLabel.value);
+  return getStructureByProgrammeAndLabel(props.programme, selectedStructureLabel.value);
 });
 const structureWithCourseInfo = computed(() => {
   if (!selectedStructure.value) return [];

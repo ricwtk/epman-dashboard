@@ -5,10 +5,9 @@ import { getCourseInfoByCode } from "./courseHelpers";
 // using structureExamples
 export const getStructureByProgrammeAndLabel = (
   programmeCode: string,
-  programmeRevision: string,
   label: string
 ): ProgrammeStructure | undefined => {
-  return structures.find(item => item.programme === programmeCode && item.programmeRevision === programmeRevision && item.label === label);
+  return structures.find(item => item.programme === programmeCode && item.label === label);
 };
 
 // using structureExamples
@@ -19,7 +18,6 @@ export const getProgrammesByCourse = (
     item.structure.some(sem => sem.includes(courseCode))
   ).map(item => ({
     programme: item.programme,
-    programmeRevision: item.programmeRevision,
     structureLabel: item.label,
     structureRevision: item.revision
   }));
@@ -33,14 +31,9 @@ export const getProgrammesByCourse = (
  */
 export const getStructureLabelsByProgramme = (
   programme: string,
-  programmeRevision: string
 ): string[] => {
   return structures
-    .filter(
-      (item) =>
-        item.programme === programme &&
-        item.programmeRevision === programmeRevision
-    )
+    .filter((item) => item.programme === programme)
     .map((item) => item.label);
 };
 
@@ -111,7 +104,6 @@ export const createNewStructure = (
 ): ProgrammeStructure => {
   return {
     programme: "",
-    programmeRevision: "",
     label: "",
     structure: [],
     committed: {

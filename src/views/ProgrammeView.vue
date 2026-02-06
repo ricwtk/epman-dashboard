@@ -45,6 +45,6 @@ const updateEditing = (ev: boolean, ) => {
     <ProgrammePo :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
     <PoMapping :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
     <ProgrammeUpdateDialog v-model:isOpen="editing" />
-    <ProgrammeStructure :programme="viewingProgrammeStore.programme.code" :programmeRevision="viewingProgrammeStore.programme.revision" :editing="editing" @update:editing="updateEditing" />
+    <ProgrammeStructure :programme="viewingProgrammeStore.programme.code" :editing="editing" @update:editing="updateEditing" />
   </template>
 </template>

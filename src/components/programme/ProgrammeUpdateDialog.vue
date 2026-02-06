@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import Summary from './update/Summary.vue'
 import Po from './update/Po.vue'
 import PoMapping from './update/PoMapping.vue'
+import Structure from './update/Structure.vue'
 import { RotateCcwIcon } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -50,6 +51,7 @@ const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
             <TabsTrigger value="po">PO</TabsTrigger>
             <TabsTrigger value="exambased">Exam Based</TabsTrigger>
             <TabsTrigger value="projectbased">Project Based</TabsTrigger>
+            <TabsTrigger value="structure">Structure</TabsTrigger>
           </TabsList>
         </div>
         <div>
@@ -74,6 +76,9 @@ const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
         </TabsContent>
         <TabsContent value="projectbased">
           <PoMapping title="Project Based Mapping" coursetype="projectBased" />
+        </TabsContent>
+        <TabsContent value="structure">
+          <Structure />
         </TabsContent>
       </div>
     </Tabs>
