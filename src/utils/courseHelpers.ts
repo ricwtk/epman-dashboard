@@ -14,6 +14,12 @@ export function getCourseByCode(code: string): Course {
 }
 
 // currently using courseExamples.ts
+export function getCourseInfoByCode(code: string): { code: string, name: string, credits: number } {
+  let thisCourse = courses.find((course) => course.code === code) || createNewCourse({ code: code });
+  return { code: thisCourse.code, name: thisCourse.name, credits: thisCourse.credits };
+}
+
+// currently using courseExamples.ts
 export function getCourseList(): { code: string, name: string }[] {
   return courses.map((course) => ({ code: course.code, name: course.name }));
 }

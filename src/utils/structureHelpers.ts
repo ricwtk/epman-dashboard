@@ -1,5 +1,6 @@
 import { type ProgrammeStructure } from "@/types/programme";
 import { structures } from "./structureExamples";
+import { getCourseInfoByCode } from "./courseHelpers";
 
 // using structureExamples
 export const getStructureByProgrammeAndLabel = (
@@ -44,25 +45,65 @@ export const getStructureLabelsByProgramme = (
 };
 
 /**
+ * Retrieves all course information associated with a specific Structure.
+ * @param structure - The structure array with course codes.
+ * @returns The structure array with course information.
+ */
+export const getCourseInfoInStructure = (
+  structure: string[][],
+): { code: string, name: string, credits: number }[][] => {
+  return structure.map((sem) =>
+    sem.map((course) => getCourseInfoByCode(course))
+  );
+};
+
+/**
  * Converts a structure array into a table format,
  * with each group of rows representing a semester
  * and each column representing a year.
+ * |       | Year 1   | Year 2   | Year 3   | Year 4   |
+ * | Sem 1 | Course 1 | Course 2 | Course 3 | Course 4 |
+ * | Sem 2 | Course 5 | Course 6 | Course 7 | Course 8 |
+ * | Sem 3 | Course 9 | Course 10| Course 11| Course 12|
  * @param structure - The structure array to convert.
  * @returns The converted table.
  */
 export const convertStructureToTable = (
-  structure: string[][]
-): string[][] => {
-  const maxSemesters = Math.max(...structure.map(s => s.length));
-  const table = Array.from({ length: maxSemesters }, () => []);
+  structure?: any[][]
+): {
+  info: {
+    numberOfSemestersPerYear: number;
+    numberOfYears: number;
+  };
+  structure: any[][][]
+} => {
+  if (!structure) {
+    return {
+      info: {
+        numberOfSemestersPerYear: 3,
+        numberOfYears: 1,
+      },
+      structure: [],
+    };
+  }
+  const numberOfSemestersPerYear = 3;
+  const numberOfYears = Math.ceil(structure.length / numberOfSemestersPerYear);
+  let arrangedStructure: string[][][] = [];
 
-  structure.forEach((semester, index) => {
-    semester.forEach((course, courseIndex) => {
-      table[courseIndex].push(course);
-    });
-  });
-
-  return table;
+  for (let s = 0; s < numberOfSemestersPerYear; s++) {
+    let semesterStructure: string[][] = [];
+    for (let i = s; i < structure.length; i+=numberOfSemestersPerYear) {
+      semesterStructure.push(structure[i] || []);
+    }
+    arrangedStructure.push(semesterStructure);
+  };
+  return {
+    info: {
+      numberOfSemestersPerYear,
+      numberOfYears,
+    },
+    structure: arrangedStructure,
+  };
 };
 
 export const createNewStructure = (
