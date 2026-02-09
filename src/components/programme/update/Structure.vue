@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import StructureGrid from "@/components/programme/StructureGrid.vue"
 
 const diffs = computed(() => {
   return false
@@ -107,6 +108,7 @@ const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: s
         <Label for="label">Label</Label>
         <Input id="label" placeholder="Label for Programme Structure" v-model="structure.label"/>
       </div>
+      <StructureGrid v-model="structure.structure"></StructureGrid>
       <Table v-if="structureDisplayMode === STRUCTURE_DISPLAY_MODES[0]">
         <TableHeader>
           <TableRow>
