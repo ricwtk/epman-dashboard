@@ -52,6 +52,25 @@ watch(selectedStructureLabel, (newLabel) => {
     editingStructureStore.loadStructure(programme.value.code, newLabel);
   }
 });
+
+const onDragStart = (event: DragEvent, semIndex: number, courseIndex: number) => {
+  event.dataTransfer!.setData('application/json', JSON.stringify({sem: semIndex, course: courseIndex}));
+  event.dataTransfer!.effectAllowed = 'move';
+};
+
+const onDragEnd = (event: DragEvent) => {
+  event.dataTransfer!.clearData();
+};
+
+const onDragOver = (event: DragEvent) => {
+  event.preventDefault();
+};
+
+const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: string|null) => {
+  console.log(event.dataTransfer!.getData('application/json'));
+  console.log(`move to ${semIndex}, ${courseIndex}, ${zone}`)
+};
+
 </script>
 
 <template>
@@ -134,13 +153,19 @@ watch(selectedStructureLabel, (newLabel) => {
           <TableRow>
             <TableCell
               class="text-center align-top"
-               v-for="semester in structureWithCourseInfo"
+               v-for="semester, semIndex in structureWithCourseInfo"
             >
               <Table>
                 <TableBody>
-                  <TableRow v-for="course in semester">
+                  <TableRow v-for="course, courseIndex in semester">
                     <TableCell>
-                      <CourseListItem :code="course.code" :name="course.name" :credits="course.credits" />
+                      <CourseListItem
+                        :code="course.code"
+                        :name="course.name"
+                        :credits="course.credits"
+                        @drag-start="(event: DragEvent) => onDragStart(event, semIndex, courseIndex)"
+                        @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, semIndex, courseIndex, zone)"
+                      />
                     </TableCell>
                   </TableRow>
                 </TableBody>

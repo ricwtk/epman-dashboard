@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
 const props = defineProps<{
   code: string,
@@ -7,52 +7,57 @@ const props = defineProps<{
   credits: number,
 }>();
 
+const cliroot = useTemplateRef<HTMLDivElement>('cliroot');
+
 const emits = defineEmits<{
-  (e: 'onDragStart', event: DragEvent): void;
-  (e: 'onDragEnd'): void;
-  (e: 'onDrop', event: DragEvent): void;
-  (e: 'onDragOver', event: DragEvent): void;
+  (e: 'drag-start', event: DragEvent): void;
+  (e: 'drag-end', event: DragEvent): void;
+  (e: 'item-drop', event: DragEvent, zone: 'top'|'bottom'|null): void;
+  (e: 'drag-over', event: DragEvent): void;
 }>()
 
 const onDragStart = (event: DragEvent) => {
-  emits('onDragStart', event);
-  const el = event.target as HTMLElement;
-  requestAnimationFrame(() => {
-    el!.classList.add('hidden');
-  });
+  // cliroot.value?.classList.add('hidden');
+  emits('drag-start', event);
 };
-const onDragEnd = () => {
-  emits('onDragEnd');
-  document.querySelectorAll('.course-list-item').forEach(el => {
-    el.classList.remove('hidden');
-  });
-  dropZone.value = null;
+const onDragEnd = (event: DragEvent) => {
+  // cliroot.value?.classList.remove('hidden');
+  // dropZone.value = null;
+  emits('drag-end', event);
 };
 const onDragOver = (event: DragEvent) => {
   event.preventDefault();
 
-  const bounding = (event.target as HTMLElement).getBoundingClientRect();
-  const offset = bounding.y + bounding.height / 2;
+  if (cliroot.value) {
+    const bounding = cliroot.value.getBoundingClientRect();
+    // const bounding = (event.target as HTMLElement).getBoundingClientRect();
+    const offset = bounding.y + bounding.height / 2;
 
-  if (event.clientY - offset > 0) {
-    dropZone.value = 'bottom';
-  } else {
-    dropZone.value = 'top';
+    if (event.clientY - offset > 5) {
+      dropZone.value = 'bottom';
+    } else if (event.clientY - offset < -5) {
+      dropZone.value = 'top';
+    }
   }
-  emits('onDragOver', event);
+  emits('drag-over', event);
 };
 const onDrop = (event: DragEvent) => {
-  emits('onDrop', event);
+  // console.log(event.dataTransfer!.getData('text/plain'))
+  emits('item-drop', event, dropZone.value);
+  // console.log(event, dropZone.value)
   dropZone.value = null;
 };
-const onDragLeave = () => dropZone.value = null;
+const onDragLeave = () => {
+  dropZone.value = null;
+};
 
 const dropZone = ref<'top' | 'bottom' | null>(null);
 const targetIndex = ref<number | null>(null);
 </script>
 
 <template>
-  <div class="flex flex-col gap-1 text-xs course-list-item"
+  <div ref="cliroot"
+    class="flex flex-col gap-1 text-xs course-list-item"
     draggable="true"
     @dragstart="onDragStart"
     @dragend="onDragEnd"
