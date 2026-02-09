@@ -2,6 +2,7 @@
 import { ref, useTemplateRef } from 'vue';
 
 const props = defineProps<{
+  draggable: boolean,
   code: string,
   name: string,
   credits: number,
@@ -58,7 +59,7 @@ const targetIndex = ref<number | null>(null);
 <template>
   <div ref="cliroot"
     class="flex flex-col gap-1 text-xs course-list-item"
-    draggable="true"
+    :draggable="draggable"
     @dragstart="onDragStart"
     @dragend="onDragEnd"
     @dragover="onDragOver"
@@ -77,11 +78,12 @@ const targetIndex = ref<number | null>(null);
 .drop-indicator {
   width: 100%;
   height: 4px;
-  background-color: #42b983;
-  display: none;
+  display: block;
 }
 
 /*.drop-indicator.top { top: 0; }
 .drop-indicator.bottom { bottom: 0; }*/
-.drop-indicator.visible { display: block; }
+.drop-indicator.visible {
+  background-color: #42b983;
+}
 </style>

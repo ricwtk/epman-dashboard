@@ -53,25 +53,6 @@ watch(selectedStructureLabel, (newLabel) => {
     editingStructureStore.loadStructure(programme.value.code, newLabel);
   }
 });
-
-const onDragStart = (event: DragEvent, semIndex: number, courseIndex: number) => {
-  event.dataTransfer!.setData('application/json', JSON.stringify({sem: semIndex, course: courseIndex}));
-  event.dataTransfer!.effectAllowed = 'move';
-};
-
-const onDragEnd = (event: DragEvent) => {
-  event.dataTransfer!.clearData();
-};
-
-const onDragOver = (event: DragEvent) => {
-  event.preventDefault();
-};
-
-const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: string|null) => {
-  console.log(event.dataTransfer!.getData('application/json'));
-  console.log(`move to ${semIndex}, ${courseIndex}, ${zone}`)
-};
-
 </script>
 
 <template>
@@ -108,74 +89,9 @@ const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: s
         <Label for="label">Label</Label>
         <Input id="label" placeholder="Label for Programme Structure" v-model="structure.label"/>
       </div>
-      <StructureGrid v-model="structure.structure"></StructureGrid>
-      <Table v-if="structureDisplayMode === STRUCTURE_DISPLAY_MODES[0]">
-        <TableHeader>
-          <TableRow>
-            <TableHead></TableHead>
-            <TableHead
-              class="text-center"
-               v-for="_, yearIndex in structureBySemesters.info.numberOfYears"
-            >Year {{ yearIndex+1 }}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow v-for="_, semIndex in structureBySemesters.info.numberOfSemestersPerYear"
-            :key="semIndex"
-          >
-            <TableHead>Semester {{ semIndex + 1 }}</TableHead>
-            <TableCell
-              class="text-center align-top"
-               v-for="semester, yearIndex in structureBySemesters.structure[semIndex]"
-            >
-              <Table>
-                <TableBody>
-                  <TableRow v-for="course in semester">
-                    <TableCell>
-                      <CourseListItem :code="course.code" :name="course.name" :credits="course.credits" />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
 
-      <Table v-else>
-        <TableHeader>
-          <TableRow>
-            <TableHead
-              class="text-center"
-               v-for="_, semIndex in structureWithCourseInfo"
-            >Semester {{ semIndex+1 }}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-            <TableCell
-              class="text-center align-top"
-               v-for="semester, semIndex in structureWithCourseInfo"
-            >
-              <Table>
-                <TableBody>
-                  <TableRow v-for="course, courseIndex in semester">
-                    <TableCell>
-                      <CourseListItem
-                        :code="course.code"
-                        :name="course.name"
-                        :credits="course.credits"
-                        @drag-start="(event: DragEvent) => onDragStart(event, semIndex, courseIndex)"
-                        @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, semIndex, courseIndex, zone)"
-                      />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <StructureGrid v-model="structure.structure" :editable="true"></StructureGrid>
+
     </template>
   </div>
 </template>

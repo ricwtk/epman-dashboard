@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from 'vue';
 
+defineProps<{
+  editable: boolean
+}>();
+
 import { STRUCTURE_DISPLAY_MODES, NUMBER_OF_SEMESTER_PER_YEAR } from '@/constants'
 const structureDisplayMode = ref<string | null>(null)
 onMounted(() => {
@@ -62,6 +66,24 @@ const sem_indices = computed(() => {
   }
 })
 
+const onDragStart = (event: DragEvent, semIndex: number, courseIndex: number) => {
+  event.dataTransfer!.setData('application/json', JSON.stringify({sem: semIndex, course: courseIndex}));
+  event.dataTransfer!.effectAllowed = 'move';
+};
+
+const onDragEnd = (event: DragEvent) => {
+  event.dataTransfer!.clearData();
+};
+
+const onDragOver = (event: DragEvent) => {
+  event.preventDefault();
+};
+
+const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: string|null) => {
+  console.log(event.dataTransfer!.getData('application/json'));
+  console.log(`move to ${semIndex}, ${courseIndex}, ${zone}`)
+};
+
 import {
   Table,
   TableBody,
@@ -119,12 +141,15 @@ import CourseListItem from '@/components/programme/CourseListItem.vue';
           >
             <Table>
               <TableBody>
-                <TableRow v-for="course in structureArrayWithCourseInfo[sem_index]">
-                  <TableCell>
+                <TableRow v-for="course, course_index in structureArrayWithCourseInfo[sem_index]">
+                  <TableCell class="py-0">
                     <CourseListItem
+                      :draggable="editable"
                       :code="course.code"
                       :name="course.name"
                       :credits="course.credits"
+                      @drag-start="(event: DragEvent) => onDragStart(event, sem_index, course_index)"
+                      @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_index, course_index, zone)"
                     />
                   </TableCell>
                 </TableRow>
