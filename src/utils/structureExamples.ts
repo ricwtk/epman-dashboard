@@ -60,10 +60,10 @@ export const structures: ProgrammeStructure[] = [
     programme: "BMRE",
     label: "default",
     structure: [
-      ["MATH101", "PHYS101", "INTRO_ENG"], // Sem 1
+      ["MATH101", "PHYS101", "CS101"], // Sem 1
       ["MATH102", "PROG101", "CIRCUITS01"], // Sem 2
       ["MATH201", "STATICS", "DYNAMICS"],    // Sem 3
-      ["THERMO1", "MAT_SCI", "PROB_STATS"],  // Sem 4
+      ["THERMO1", "MAT_SCI", "CS202"],  // Sem 4
       ["ELECTRONICS1", "SIGNALS", "MECH1"],  // Sem 5
       ["CONTROL_SYS1", "EM_FIELDS", "CAD"],  // Sem 6
       ["MICRO_PROC", "FLUIDS", "POWER_SYS"], // Sem 7
