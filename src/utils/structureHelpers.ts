@@ -6,8 +6,8 @@ import { getCourseInfoByCode } from "./courseHelpers";
 export const getStructureByProgrammeAndLabel = (
   programmeCode: string,
   label: string
-): ProgrammeStructure | undefined => {
-  return structures.find(item => item.programme === programmeCode && item.label === label);
+): ProgrammeStructure => {
+  return structures.find(item => item.programme === programmeCode && item.label === label) || createNewStructure();
 };
 
 // using structureExamples

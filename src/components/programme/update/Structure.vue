@@ -69,7 +69,7 @@ watch(selectedStructureLabel, (newLabel) => {
         </SelectContent>
       </Select>
 
-      <Select v-model="structureDisplayMode">
+      <!-- <Select v-model="structureDisplayMode">
         <SelectTrigger>
           <SelectValue placeholder="Select a display mode" />
         </SelectTrigger>
@@ -78,19 +78,23 @@ watch(selectedStructureLabel, (newLabel) => {
             <SelectItem v-for="label in STRUCTURE_DISPLAY_MODES" :value="label">{{ label }}</SelectItem>
           </SelectGroup>
         </SelectContent>
-      </Select>
+      </Select> -->
     </div>
     <template v-if="selectedStructureLabel">
       <div class="font-semibold flex flex-row items-center gap-1 h-9">
         Structure label: {{ selectedStructureLabel }}
         <ResetButton v-if="diffs" @reset="resetDiff()" />
       </div>
-      <div class="flex flex-col gap-1 grow">
-        <Label for="label">Label</Label>
-        <Input id="label" placeholder="Label for Programme Structure" v-model="structure.label"/>
-      </div>
 
-      <StructureGrid v-model="structure.structure" :editable="true"></StructureGrid>
+
+      <StructureGrid v-model="structure.structure" :editable="true">
+        <template #header>
+          <div class="flex flex-col gap-1 grow">
+            <Label for="label">Label</Label>
+            <Input id="label" placeholder="Label for Programme Structure" v-model="structure.label"/>
+          </div>
+        </template>
+      </StructureGrid>
 
     </template>
   </div>

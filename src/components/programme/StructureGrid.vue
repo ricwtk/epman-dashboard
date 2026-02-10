@@ -80,14 +80,29 @@ const onDragOver = (event: DragEvent) => {
 };
 
 const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: string|null) => {
-  console.log(event.dataTransfer!.getData('application/json'));
-  console.log(`move to ${semIndex}, ${courseIndex}, ${zone}`)
+  const originalPosition = JSON.parse(event.dataTransfer!.getData('application/json'))
+  const newPosition = { sem: semIndex, course: courseIndex, place: zone}
+
+  // 1. Remove item
+  const [item] = structureArray.value[originalPosition.sem]!.splice(originalPosition.course, 1)
+
+  // 2. Fix indices if removal affects destination
+  if (originalPosition.sem === newPosition.sem
+    && originalPosition.course < newPosition.course) {
+    newPosition.course -= 1
+  }
+  if (newPosition.place === 'bottom') { newPosition.course += 1 }
+
+  // Clamp column index
+  newPosition.course = Math.max(0, Math.min(newPosition.course, structureArray.value[newPosition.sem]!.length))
+
+  // 3. Insert item
+  structureArray.value[newPosition.sem]!.splice(newPosition.course, 0, item || "")
 };
 
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -106,7 +121,8 @@ import CourseListItem from '@/components/programme/CourseListItem.vue';
 
 <template>
   <div class="flex flex-col gap-1">
-    <div class="flex flex-row justify-end">
+    <div class="flex flex-row justify-between gap-1 items-end">
+      <slot name="header"></slot>
       <Select v-model="structureDisplayMode">
         <SelectTrigger>
           <SelectValue placeholder="Select a display mode" />
@@ -121,8 +137,7 @@ import CourseListItem from '@/components/programme/CourseListItem.vue';
         </SelectContent>
       </Select>
     </div>
-    {{ col_n }}{{ row_n }} {{ sem_indices }}
-    <Table>
+    <Table v-if="structureArray && structureArray.length > 0">
       <TableHeader>
         <TableRow>
           <TableHead v-if="row_header!==''"></TableHead>
