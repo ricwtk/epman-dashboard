@@ -15,7 +15,7 @@ import {
 import CourseListItem from '../CourseListItem.vue';
 import { getEditingProgrammeAndStore, getEditingStructureAndStore } from '@/composables/programme';
 const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
-const { structure, structureWithCourseInfo, structureBySemesters, editingStructureStore } = getEditingStructureAndStore();
+const { structure, editingStructureStore } = getEditingStructureAndStore();
 import {
   Select,
   SelectContent,
@@ -27,10 +27,10 @@ import {
 import StructureGrid from "@/components/programme/StructureGrid.vue"
 
 const diffs = computed(() => {
-  return false
+  return editingStructureStore.checkDiff()
 })
-const resetDiff = () => {
-}
+// const diffContent = computed(() => editingStructureStore.getDiff())
+const resetDiff = () => editingStructureStore.resetDiff()
 
 const structureDisplayMode = ref<string | null>(null);
 const STRUCTURE_DISPLAY_MODES = ['by year', 'by semester'];
@@ -68,24 +68,12 @@ watch(selectedStructureLabel, (newLabel) => {
           </SelectGroup>
         </SelectContent>
       </Select>
-
-      <!-- <Select v-model="structureDisplayMode">
-        <SelectTrigger>
-          <SelectValue placeholder="Select a display mode" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectItem v-for="label in STRUCTURE_DISPLAY_MODES" :value="label">{{ label }}</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select> -->
     </div>
     <template v-if="selectedStructureLabel">
       <div class="font-semibold flex flex-row items-center gap-1 h-9">
         Structure label: {{ selectedStructureLabel }}
-        <ResetButton v-if="diffs" @reset="resetDiff()" />
+        <ResetButton v-if="diffs" @reset="resetDiff" />
       </div>
-
 
       <StructureGrid v-model="structure.structure" :editable="true">
         <template #header>

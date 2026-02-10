@@ -14,33 +14,23 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
   const structure: Ref<ProgrammeStructure> = ref(createNewStructure())
   const originalStructure: Ref<ProgrammeStructure> = ref(createNewStructure())
 
-  const structureWithCourseInfo = computed(() => {
-    if (!structure.value.label) { return [] }
-    return getCourseInfoInStructure(structure.value.structure)
-  })
-
-  const structureBySemesters = computed(() => {
-    if (!structure.value.label) { return convertStructureToTable() }
-    return convertStructureToTable(structureWithCourseInfo.value)
-  })
-
   function resetStructure(): void {
     structure.value = structuredClone(toRaw(originalStructure.value))
   }
 
-  function resetDiff(pathArray: string[]): void {
-    const original = get(originalStructure.value, pathArray)
-    set(structure.value, pathArray, original)
+  function resetDiff(): void {
+    resetStructure()
   }
 
-  function checkDiff(pathArray: string[]): boolean {
-    if (!pathArray.length)
-      return diff(structure.value, originalStructure.value).length > 0;
-    const original = get(originalStructure.value, pathArray)
-    const current = get(structure.value, pathArray)
-    if (original && current) {
-      return diff(original, current).length > 0 || original.length !== current.length;
-    } else return true;
+  function checkDiff(): boolean {
+    return getDiff().length > 0;
+  }
+
+  function getDiff() {
+    console.log(structure.value)
+    console.log(originalStructure.value)
+    return diff(originalStructure.value, structure.value)
+    // return diff(structure.value, originalStructure.value)
   }
 
   function loadStructure(prog: string, label: string): void {
@@ -49,5 +39,5 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
     structure.value = structuredClone(progstruct)
   }
 
-  return { structure, originalStructure, structureWithCourseInfo, structureBySemesters, resetStructure, resetDiff, checkDiff, loadStructure }
+  return { structure, originalStructure, resetStructure, resetDiff, checkDiff, getDiff, loadStructure }
 })

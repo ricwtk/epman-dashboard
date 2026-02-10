@@ -117,6 +117,9 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import CourseListItem from '@/components/programme/CourseListItem.vue';
+import { Button } from '@/components/ui/button';
+import { PlusIcon, XIcon, PenIcon } from 'lucide-vue-next'
+import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
 </script>
 
 <template>
@@ -157,15 +160,35 @@ import CourseListItem from '@/components/programme/CourseListItem.vue';
             <Table>
               <TableBody>
                 <TableRow v-for="course, course_index in structureArrayWithCourseInfo[sem_index]">
-                  <TableCell class="py-0">
-                    <CourseListItem
-                      :draggable="editable"
-                      :code="course.code"
-                      :name="course.name"
-                      :credits="course.credits"
-                      @drag-start="(event: DragEvent) => onDragStart(event, sem_index, course_index)"
-                      @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_index, course_index, zone)"
-                    />
+                  <TableCell class="py-0 min-w-50">
+                    <ContextMenu>
+                      <ContextMenuTrigger>
+                        <CourseListItem
+                          :draggable="editable"
+                          :code="course.code"
+                          :name="course.name"
+                          :credits="course.credits"
+                          @drag-start="(event: DragEvent) => onDragStart(event, sem_index, course_index)"
+                          @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_index, course_index, zone)"
+                        />
+                      </ContextMenuTrigger>
+                      <ContextMenuContent class="w-fit">
+                        <ContextMenuItem>
+                          <XIcon />
+                          Delete
+                        </ContextMenuItem>
+                        <ContextMenuItem>
+                          <PenIcon />
+                          Edit
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenu>
+
+                  </TableCell>
+                </TableRow>
+                <TableRow v-if="editable">
+                  <TableCell>
+                    <Button size="sm" class="w-full bg-muted text-muted-foreground"><PlusIcon/></Button>
                   </TableCell>
                 </TableRow>
               </TableBody>
