@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import SchoolListView from '../views/SchoolListView.vue'
+import LoginView from '@/views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [{
     path: '/',
-    name: 'schoollist',
-    component: SchoolListView,
+    name: 'login',
+    component: LoginView,
   },{
     path: '/school',
     name: 'schoollist',
