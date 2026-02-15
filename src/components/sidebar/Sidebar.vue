@@ -17,6 +17,8 @@ import {
 } from 'lucide-vue-next';
 import { Separator } from '@/components/ui/separator';
 import { navigateToPath } from '@/utils/navigationHelpers';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
 </script>
 
 <template>
@@ -25,7 +27,7 @@ import { navigateToPath } from '@/utils/navigationHelpers';
   >
     <SidebarItem>
       <template #icon><UserIcon /></template>
-      <template #text>Email</template>
+      <template #text>{{ authStore.user }}</template>
     </SidebarItem>
     <Separator />
     <SidebarItem @click="navigateToPath('/')">

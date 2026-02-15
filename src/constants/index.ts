@@ -1,3 +1,4 @@
+export const FIREBASE_EMAIL_LOCAL_STORAGE_NAME = "epman:emailforsignin"
 export const STRUCTURE_DISPLAY_MODES = ['by year', 'by semester'];
 export const NUMBER_OF_SEMESTER_PER_YEAR = 3;
 export const BLOOM_TAXONOMY = [
