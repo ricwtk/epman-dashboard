@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, type Ref, computed } from 'vue';
-import { auth } from '@/lib/firebase'; // Your firebase config file
+import { auth } from '@/services/firebase'; // Your firebase config file
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
