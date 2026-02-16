@@ -13,11 +13,12 @@ import {
   type User
 } from "firebase/auth";
 import type { FirebaseError } from "firebase/app"
-import { FIREBASE_EMAIL_LOCAL_STORAGE_NAME } from "@/constants";
+import { useRouter } from 'vue-router';
 
 export const useAuthStore = defineStore('auth', () => {
   const user: Ref<User | null> = ref(null)
   const isReady: Ref<boolean> = ref(false)
+  const router = useRouter();
 
   const isAuthenticated = computed(() => !!user.value);
   // const linkSentCountdown: Ref<{
@@ -108,6 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     await signOut(auth);
     user.value = null;
+    router.push("/")
   };
 
   // --- NEW: Reset Password Action ---

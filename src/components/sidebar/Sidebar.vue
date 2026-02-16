@@ -13,7 +13,8 @@ import {
   ChartColumnStackedIcon,
   LayoutDashboardIcon,
   LayersIcon,
-  UserCogIcon
+  UserCogIcon,
+  LogOutIcon
 } from 'lucide-vue-next';
 import { Separator } from '@/components/ui/separator';
 import { navigateToPath } from '@/utils/navigationHelpers';
@@ -22,13 +23,19 @@ const authStore = useAuthStore();
 </script>
 
 <template>
-  <div class="card-plain flex flex-col gap-2 w-auto"
+  <div class="card-plain flex flex-col gap-2 w-60"
     :class="[sidebarstatus.collapsed ? 'hidden' : 'visible']"
   >
-    <SidebarItem>
-      <template #icon><UserIcon /></template>
-      <template #text>{{ authStore.user }}</template>
-    </SidebarItem>
+    <template v-if="authStore.user">
+      <SidebarItem>
+        <template #icon><UserIcon /></template>
+        <template #text>{{ authStore.user.email }}</template>
+      </SidebarItem>
+      <SidebarItem @click="authStore.logout">
+        <template #icon><LogOutIcon /></template>
+        <template #text>Log out</template>
+      </SidebarItem>
+    </template>
     <Separator />
     <SidebarItem @click="navigateToPath('/')">
       <template #icon><LandmarkIcon /></template>
