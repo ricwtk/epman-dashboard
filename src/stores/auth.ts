@@ -5,36 +5,42 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  // sendSignInLinkToEmail,
-  // signInWithEmailLink,
   signOut,
   sendPasswordResetEmail,
-  // isSignInWithEmailLink,
   type User
 } from "firebase/auth";
 import type { FirebaseError } from "firebase/app"
 import { useRouter } from 'vue-router';
+import type { UserProfile } from '@/types/user';
+import { userService } from '@/services/userService';
 
 export const useAuthStore = defineStore('auth', () => {
   const user: Ref<User | null> = ref(null)
+  const userProfile: Ref<UserProfile | null> = ref(null)
   const isReady: Ref<boolean> = ref(false)
   const router = useRouter();
 
   const isAuthenticated = computed(() => !!user.value);
-  // const linkSentCountdown: Ref<{
-  //   linkSent: boolean,
-  //   countdown: number,
-  //   timer: number | null
-  // }> = ref({
-  //   linkSent: false,
-  //   countdown: 0,
-  //   timer: null
-  // })
+
+  // Computed helpers for checking level in UI
+  const canEditCourses = computed(() => (userProfile.value?.datalevel || 0) >= 2);
+  const canEditProgrammes = computed(() => (userProfile.value?.datalevel || 0) >= 3);
+  const canEditSchools = computed(() => (userProfile.value?.datalevel || 0) >= 4);
+
+  const canEditUsers = computed(() => (userProfile.value?.userlevel || 0) >= 2);
+  const canCreateUsers = computed(() => (userProfile.value?.userlevel || 0) >= 3);
+  const canDeleteUsers = computed(() => (userProfile.value?.userlevel || 0) >= 4);
 
   const init = () => {
     return new Promise((resolve) => {
-      onAuthStateChanged(auth, (currentUser) => {
+      onAuthStateChanged(auth, async (currentUser) => {
         user.value = currentUser;
+        if (currentUser) {
+          // Fetch profile whenever auth state changes to logged in
+          await userService.fetchUserProfile(currentUser.uid);
+        } else {
+          userProfile.value = null;
+        }
         isReady.value = true;
         resolve(currentUser);
       });
@@ -47,8 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       user.value = userCredential.user;
     } catch (error) {
-      const firebaseError = error as FirebaseError;
-      throw firebaseError;
+      throw error as FirebaseError;
     }
   };
 
@@ -58,8 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       user.value = userCredential.user;
     } catch (error) {
-      const firebaseError = error as FirebaseError;
-      throw firebaseError;
+      throw error as FirebaseError;
     }
   };
 
@@ -109,6 +113,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     await signOut(auth);
     user.value = null;
+    userProfile.value = null;
     router.push("/")
   };
 
@@ -117,8 +122,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await sendPasswordResetEmail(auth, email);
     } catch (error) {
-      const firebaseError = error as FirebaseError;
-      throw firebaseError;
+      throw error as FirebaseError;
     }
   };
 
@@ -126,6 +130,12 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isReady,
     isAuthenticated,
+    canEditCourses,
+    canEditProgrammes,
+    canEditSchools,
+    canEditUsers,
+    canCreateUsers,
+    canDeleteUsers,
     init,
     signUp,
     login,
