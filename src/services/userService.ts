@@ -1,5 +1,5 @@
 import { db } from '@/services/firebase'; // Assumes initialized Firestore instance
-import { doc, getDoc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import type { UserProfile } from '@/types/user'; // Assumes definition provided previously
 
 export const userService = {
@@ -18,6 +18,19 @@ export const userService = {
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Fetch user profile list
+   */
+  async fetchUserProfiles(): Promise<UserProfile[]> {
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      return querySnapshot.docs.map(doc => doc.data() as UserProfile);
+    } catch (error) {
+      console.error("Error fetching user profiles:", error);
       throw error;
     }
   },
@@ -46,4 +59,6 @@ export const userService = {
   async deleteUserProfile(uid: string): Promise<void> {
     await deleteDoc(doc(db, "users", uid));
   }
+
+
 };

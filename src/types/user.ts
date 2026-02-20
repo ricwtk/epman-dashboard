@@ -2,7 +2,6 @@ export interface UserProfile {
   uid: string;
   email: string;
   name: string;
-  role: string;
 
   /**
    * Access Level for Data Administration
