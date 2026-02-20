@@ -35,10 +35,10 @@ export const useAuthStore = defineStore('auth', () => {
     return new Promise((resolve) => {
       onAuthStateChanged(auth, async (currentUser) => {
         user.value = currentUser;
-        console.log(currentUser)
         if (currentUser) {
           // Fetch profile whenever auth state changes to logged in
           userProfile.value = await userService.fetchUserProfile(currentUser.uid);
+          userProfile.value!.uid = currentUser.uid;
           // if (!userProfile.value) {
           //   await userService.createUserProfile(currentUser.uid, currentUser.email || "");
           //   userProfile.value = await userService.fetchUserProfile(currentUser.uid);
@@ -74,49 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // Step 1: send sign-in email link
-  // async function sendLoginLink(email: string): Promise<void> {
-  //   linkSentCountdown.value.linkSent = true
-  //   linkSentCountdown.value.countdown = 60
-  //   linkSentCountdown.value.timer = setInterval(() => {
-  //     linkSentCountdown.value.countdown--
-  //     if (linkSentCountdown.value.countdown <= 0) {
-  //       clearInterval(linkSentCountdown.value.timer as number)
-  //       linkSentCountdown.value.linkSent = false
-  //     }
-  //   }, 1000)
-  //   const actionCodeSettings = {
-  //     url: window.location.origin + import.meta.env.VITE_BASE_URL, // must match Firebase config
-  //     handleCodeInApp: true,
-  //   };
-  //   return sendSignInLinkToEmail(auth, email, actionCodeSettings)
-  //     .then(() => {
-  //       window.localStorage.setItem(FIREBASE_EMAIL_LOCAL_STORAGE_NAME, email);
-  //     })
-  // }
-
-  // Step 2: when user clicks link and opens your site
-  // async function completeSignIn(): Promise<unknown> {
-  //   if (isSignInWithEmailLink(auth, window.location.href)) {
-  //     let email = window.localStorage.getItem(FIREBASE_EMAIL_LOCAL_STORAGE_NAME);
-  //     if (!email) {
-  //       email = window.prompt("Please confirm your email for sign-in");
-  //     }
-  //     console.log(window.location.href)
-  //     return signInWithEmailLink(auth, email!, window.location.href)
-  //     .then((result) => {
-  //       window.localStorage.removeItem(FIREBASE_EMAIL_LOCAL_STORAGE_NAME);
-  //       user.value = result.user;
-  //       console.log(result.user)
-  //       return result.user
-  //     })
-  //   } else {
-  //     return new Promise((resolve, reject) => {
-  //       resolve(null)
-  //     })
-  //   }
-  // }
-
+  // --- NEW: Sign Out Action ---
   const logout = async () => {
     await signOut(auth);
     user.value = null;
@@ -128,6 +86,18 @@ export const useAuthStore = defineStore('auth', () => {
   const resetPassword = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email);
+    } catch (error) {
+      throw error as FirebaseError;
+    }
+  };
+
+  const updateUserProfile = async (profile: Omit<UserProfile, "uid">) => {
+    try {
+      userProfile.value!.name = profile.name;
+      await userService.setUserProfile(
+        userProfile.value!.uid,
+        userProfile.value!
+      );
     } catch (error) {
       throw error as FirebaseError;
     }
@@ -148,6 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
     signUp,
     login,
     logout,
-    resetPassword
+    resetPassword,
+    updateUserProfile
   }
 });

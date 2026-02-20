@@ -48,3 +48,17 @@ export const PO_ATTRIBUTES = [
   "Project Management and Finance",
   "Life-long Learning"
 ];
+
+export const DATALEVEL_OPTIONS = [
+  { title: "Read Only", description: "No edit permission" },
+  { title: "Edit Course", description: "Course content" },
+  { title: "Edit Programme", description: "Programme details" },
+  { title: "Edit School", description: "School parameters" }
+]
+
+export const USERLEVEL_OPTIONS = [
+  { title: "Read Only", description: "No edit permission" },
+  { title: "Edit User", description: "Profile" },
+  { title: "Create User", description: "New user" },
+  { title: "Delete User", description: "Delete user" }
+]

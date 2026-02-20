@@ -3,14 +3,25 @@ import { useAuthStore } from '@/stores/auth';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { FieldGroup, Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
+import { DATALEVEL_OPTIONS, USERLEVEL_OPTIONS } from '@/constants';
+import AccessLevelSelector from '@/components/AccessLevelSelector.vue';
+import { Button } from '@/components/ui/button';
+import { updateProfile } from '@/utils/userHelpers';
 
 const authStore = useAuthStore();
-const name = ref(authStore.userProfile?.name);
-const email = ref(authStore.userProfile?.email);
-const dataLevel = ref(authStore.userProfile?.datalevel);
-const userLevel = ref(authStore.userProfile?.userlevel);
+const name = ref(authStore.userProfile?.name || "");
+const email = ref(authStore.userProfile?.email || "");
+const dataLevel = ref(authStore.userProfile?.datalevel || 1);
+const userLevel = ref(authStore.userProfile?.userlevel || 1);
 
+async function saveProfile() {
+  await authStore.updateUserProfile(
+    await updateProfile(authStore.userProfile!, {
+      name: name.value,
+    })
+  );
+}
 </script>
 
 <template>
@@ -19,7 +30,7 @@ const userLevel = ref(authStore.userProfile?.userlevel);
       Profile
     </template>
     <template #body>
-      <form>
+      <form @submit.prevent="saveProfile">
         <FieldGroup>
           <Field>
             <FieldLabel for="name">Display Name</FieldLabel>
@@ -31,11 +42,26 @@ const userLevel = ref(authStore.userProfile?.userlevel);
           </Field>
           <Field>
             <FieldLabel for="datalevel">Data Access Level</FieldLabel>
+            <AccessLevelSelector
+              v-model="dataLevel"
+              :options="DATALEVEL_OPTIONS"
+              :disabled="true"
+            />
           </Field>
           <Field>
             <FieldLabel for="userlevel">User Access Level</FieldLabel>
+            <AccessLevelSelector
+              v-model="userLevel"
+              :options="USERLEVEL_OPTIONS"
+              :disabled="true"
+            />
           </Field>
         </FieldGroup>
+        <Field>
+          <div class="flex flex-row items-center justify-end">
+            <Button type="submit" variant="default">Save</Button>
+          </div>
+        </Field>
       </form>
     </template>
   </ContentCard>
