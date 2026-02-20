@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { FieldGroup, Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { DATALEVEL_OPTIONS, USERLEVEL_OPTIONS } from '@/constants';
 import AccessLevelSelector from '@/components/AccessLevelSelector.vue';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,10 @@ async function saveProfile() {
     })
   );
 }
+
+const diff = computed(() => {
+  return name.value !== authStore.userProfile?.name
+});
 </script>
 
 <template>
@@ -57,7 +61,7 @@ async function saveProfile() {
             />
           </Field>
         </FieldGroup>
-        <Field>
+        <Field v-if="diff">
           <div class="flex flex-row items-center justify-end">
             <Button type="submit" variant="default">Save</Button>
           </div>
