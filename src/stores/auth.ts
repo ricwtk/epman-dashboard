@@ -35,9 +35,14 @@ export const useAuthStore = defineStore('auth', () => {
     return new Promise((resolve) => {
       onAuthStateChanged(auth, async (currentUser) => {
         user.value = currentUser;
+        console.log(currentUser)
         if (currentUser) {
           // Fetch profile whenever auth state changes to logged in
-          await userService.fetchUserProfile(currentUser.uid);
+          userProfile.value = await userService.fetchUserProfile(currentUser.uid);
+          // if (!userProfile.value) {
+          //   await userService.createUserProfile(currentUser.uid, currentUser.email || "");
+          //   userProfile.value = await userService.fetchUserProfile(currentUser.uid);
+          // }
         } else {
           userProfile.value = null;
         }
@@ -52,6 +57,8 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       user.value = userCredential.user;
+
+      await userService.createUserProfile(user.value.uid, email);
     } catch (error) {
       throw error as FirebaseError;
     }
@@ -128,6 +135,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user,
+    userProfile,
     isReady,
     isAuthenticated,
     canEditCourses,

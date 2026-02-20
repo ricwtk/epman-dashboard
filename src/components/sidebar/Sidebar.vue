@@ -23,13 +23,13 @@ const authStore = useAuthStore();
 </script>
 
 <template>
-  <div class="card-plain flex flex-col gap-2 w-60"
+  <div class="card-plain flex flex-col gap-2 max-w-60"
     :class="[sidebarstatus.collapsed ? 'hidden' : 'visible']"
   >
     <template v-if="authStore.user">
-      <SidebarItem>
+      <SidebarItem @click="navigateToPath('/profile')">
         <template #icon><UserIcon /></template>
-        <template #text>{{ authStore.user.email }}</template>
+        <template #text>{{ authStore.userProfile?.name }}</template>
       </SidebarItem>
       <SidebarItem @click="authStore.logout">
         <template #icon><LogOutIcon /></template>
@@ -57,16 +57,16 @@ const authStore = useAuthStore();
       <template #icon><ChartColumnStackedIcon /></template>
       <template #text>Students</template>
     </SidebarItem>
+    <Separator />
     <SidebarItem>
       <template #icon><UserCogIcon /></template>
-      <template #text>Admin</template>
+      <template #text>User Admin</template>
     </SidebarItem>
     <Separator />
     <SidebarItem>
       <template #icon><InfoIcon /></template>
       <template #text>Guide</template>
     </SidebarItem>
-    <Separator />
     <SidebarItem @click="toggleSidebarText">
       <template #icon>
         <ChevronFirst v-if="sidebarstatus.showText" />

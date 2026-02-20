@@ -45,6 +45,16 @@ export const userService = {
     }, { merge: true });
   },
 
+  async createUserProfile(uid: string, email: string): Promise<void> {
+    await this.setUserProfile(uid, {
+      name: "",
+      email,
+      datalevel: 1,
+      userlevel: 1,
+      createdAt: new Date()
+    });
+  },
+
   /**
    * Updates specific fields (like user access level)
    */
