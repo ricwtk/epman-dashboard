@@ -58,7 +58,7 @@ const authStore = useAuthStore();
       <template #text>Students</template>
     </SidebarItem>
     <Separator />
-    <SidebarItem>
+    <SidebarItem @click="navigateToPath('/user-admin')">
       <template #icon><UserCogIcon /></template>
       <template #text>User Admin</template>
     </SidebarItem>

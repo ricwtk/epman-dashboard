@@ -24,10 +24,12 @@ const toggleEditing = () => {
       </div>
       <div class="grow"></div>
       <div class="card-structure-button">
-        <Button variant="ghost" size="icon" v-if="editable" @click="toggleEditing">
-          <PenIcon v-if="!editing" />
-          <CheckIcon v-else />
-        </Button>
+        <slot name="actions">
+          <Button variant="ghost" size="icon" v-if="editable" @click="toggleEditing">
+            <PenIcon v-if="!editing" />
+            <CheckIcon v-else />
+          </Button>
+        </slot>
       </div>
     </div>
     <div class="card-structure-body">

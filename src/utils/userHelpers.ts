@@ -1,6 +1,6 @@
 import { type UserProfile } from "@/types/user";
 
-export const createNewProfile = async (profile: Omit<Partial<UserProfile>, "uid">): Promise<UserProfile> => {
+export const createNewProfile = async (profile?: Omit<Partial<UserProfile>, "uid">): Promise<UserProfile> => {
   return {
     uid: "",
     name: "",
