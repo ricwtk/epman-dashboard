@@ -62,3 +62,5 @@ export const USERLEVEL_OPTIONS = [
   { title: "Create User", description: "New user" },
   { title: "Delete User", description: "Delete user" }
 ]
+
+export const DEFAULT_PW = 'sunway123';

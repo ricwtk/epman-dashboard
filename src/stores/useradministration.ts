@@ -8,6 +8,7 @@ import diff from 'microdiff';
 export const useUserAdministrationStore = defineStore('user-administration', () => {
   const newUser = ref<UserProfile>(createNewProfile());
   const newUserList = ref<UserProfile[]>([]);
+  const newUserListMessages = ref<string[]>([]);
   const userList = ref<UserProfile[]>([]);
   const originalUserList = ref<UserProfile[]>([]);
   const loading = ref(false);
@@ -49,6 +50,15 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
     }
   }
 
+  async function createNewUsers() {
+    const newProfiles = await userService.batchCreateUserProfiles(newUserList.value);
+    const createdProfiles = newProfiles.results.filter(result => result.status == "success");
+    userList.value.push(...createdProfiles.map(result => result.profile));
+    const uncreatedProfiles = newProfiles.results.filter(result => result.status == "error")
+    newUserList.value = uncreatedProfiles.map(result => result.profile);
+    newUserListMessages.value = uncreatedProfiles.map(result => result.error || "") ;
+  }
+
   return {
     newUser,
     newUserList,
@@ -60,5 +70,6 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
     resetUserList,
     addNewUserToList,
     saveChanges,
+    createNewUsers,
   };
 });
