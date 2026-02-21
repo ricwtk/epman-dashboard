@@ -91,7 +91,7 @@ const createUser = async () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="user in userList" :key="user.id">
+          <TableRow v-for="user in userList" :key="user.uid">
             <TableCell>{{ user.name }}</TableCell>
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
