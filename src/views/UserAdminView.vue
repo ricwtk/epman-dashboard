@@ -4,11 +4,11 @@ import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AccessLevelSelector from '@/components/useradmin/AccessLevelSelector.vue';
-import { ChevronUpIcon, ChevronDownIcon, InfoIcon } from 'lucide-vue-next';
+import { ChevronUpIcon, ChevronDownIcon, InfoIcon, AlertCircleIcon } from 'lucide-vue-next';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
-import UserRow from '@/components/useradmin/UserRow.vue';
+import { UserRow, UserHeadRow } from '@/components/useradmin';
 
 import { ref, onMounted, computed } from 'vue';
 import { DATALEVEL_OPTIONS, USERLEVEL_OPTIONS } from '@/constants';
@@ -27,9 +27,14 @@ const ownProfileIndex = computed(() => {
 })
 
 const showCreateUser = ref(false)
-const createUser = async () => {
-  // TODO: Implement user creation logic
-  // newUser.value = await createNewProfile()
+const newUserError = ref('')
+const queueUserCreation = () => {
+  let errormessage = userAdministrationStore.addNewUserToList();
+  if (errormessage) {
+    newUserError.value = errormessage;
+  } else {
+    newUserError.value = '';
+  }
 };
 
 </script>
@@ -44,11 +49,17 @@ const createUser = async () => {
       </Button>
     </template>
     <template #body>
-      <form @submit.prevent="createUser" v-if="userAdministrationStore.newUser && showCreateUser">
+      <form @submit.prevent="queueUserCreation" v-if="userAdministrationStore.newUser && showCreateUser">
          <FieldGroup>
           <Field>
             <FieldLabel for="email">Email:</FieldLabel>
             <Input type="email" id="email" v-model="userAdministrationStore.newUser.email" required />
+            <Alert v-if="newUserError" variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>
+                {{ newUserError }}
+              </AlertTitle>
+            </Alert>
           </Field>
           <Field>
             <FieldLabel for="name">Name:</FieldLabel>
@@ -70,7 +81,7 @@ const createUser = async () => {
           </Field>
           <Field>
             <div class="flex flex-row justify-end">
-              <Button type="submit" variant="default">Create User</Button>
+              <Button type="submit" variant="default">Queue new user</Button>
             </div>
           </Field>
         </FieldGroup>
@@ -81,6 +92,25 @@ const createUser = async () => {
           <AlertTitle>Expand to show user creation form</AlertTitle>
         </Alert>
       </div>
+
+      <Table class="mt-2">
+        <TableHeader>
+          <UserHeadRow />
+        </TableHeader>
+        <TableBody>
+          <TableRow v-if="userAdministrationStore.newUserList.length === 0">
+            <TableCell colspan="4" class="text-center">No new users</TableCell>
+          </TableRow>
+          <UserRow v-else
+            v-for="user, userIndex in userAdministrationStore.newUserList"
+            :key="user.email"
+            v-model="userAdministrationStore.newUserList[userIndex]!"
+          ></UserRow>
+        </TableBody>
+      </Table>
+      <div v-if="userAdministrationStore.newUserList.length > 0" class="flex justify-end mt-2">
+        <Button variant="default">Add Users</Button>
+      </div>
     </template>
   </ContentCard>
 
@@ -89,12 +119,7 @@ const createUser = async () => {
     <template #body>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead class="text-center">Data Access Level</TableHead>
-            <TableHead class="text-center">User Access Level</TableHead>
-          </TableRow>
+          <UserHeadRow />
         </TableHeader>
         <TableBody>
           <UserRow v-if="userAdministrationStore.changes[ownProfileIndex]"

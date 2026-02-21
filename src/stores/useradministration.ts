@@ -7,6 +7,7 @@ import diff from 'microdiff';
 
 export const useUserAdministrationStore = defineStore('user-administration', () => {
   const newUser = ref<UserProfile>(createNewProfile());
+  const newUserList = ref<UserProfile[]>([]);
   const userList = ref<UserProfile[]>([]);
   const originalUserList = ref<UserProfile[]>([]);
   const loading = ref(false);
@@ -37,14 +38,27 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
     loading.value = false;
   }
 
+  function addNewUserToList() {
+    if (userList.value.map(user => user.email).includes(newUser.value.email)) {
+      return "User with this email already exists";
+    } else if (newUserList.value.map(user => user.email).includes(newUser.value.email)) {
+      return "User with this email already exists in the queue";
+    } else {
+      newUserList.value.push(newUser.value);
+      newUser.value = createNewProfile();
+    }
+  }
+
   return {
     newUser,
+    newUserList,
     userList,
     originalUserList,
     loading,
     changes,
     getUserListFromDb,
     resetUserList,
+    addNewUserToList,
     saveChanges,
   };
 });
