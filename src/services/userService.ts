@@ -78,7 +78,7 @@ export const userService = {
    */
   async batchCreateUserProfiles(userDatas: UserProfile[]): Promise<UserBatchCreateResponse> {
     const adminBatchCreateUser = httpsCallable(functions, 'adminBatchCreateUsers');
-    const response = await adminBatchCreateUser(userDatas.map(user => ({ ...user, password: DEFAULT_PW })));
+    const response = await adminBatchCreateUser({ users: userDatas.map(user => ({ ...user, password: DEFAULT_PW })) });
     return response.data as UserBatchCreateResponse;
   },
 

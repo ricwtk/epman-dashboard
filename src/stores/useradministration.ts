@@ -46,6 +46,7 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
       return "User with this email already exists in the queue";
     } else {
       newUserList.value.push(newUser.value);
+      newUserListMessages.value.push("")
       newUser.value = createNewProfile();
     }
   }
@@ -62,6 +63,7 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
   return {
     newUser,
     newUserList,
+    newUserListMessages,
     userList,
     originalUserList,
     loading,

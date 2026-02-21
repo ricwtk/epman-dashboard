@@ -23,7 +23,7 @@ onMounted(async () => {
 })
 
 const ownProfileIndex = computed(() => {
-  return userAdministrationStore.userList.findIndex(user => user.email === authStore.user!.email)
+  return userAdministrationStore.userList.findIndex(user => user.email === authStore.user?.email)
 })
 
 const showCreateUser = ref(false)
@@ -95,21 +95,40 @@ const queueUserCreation = () => {
 
       <Table class="mt-2">
         <TableHeader>
-          <UserHeadRow />
+          <UserHeadRow :info="{ show: true, header: '' }"/>
         </TableHeader>
         <TableBody>
           <TableRow v-if="userAdministrationStore.newUserList.length === 0">
             <TableCell colspan="4" class="text-center">No new users</TableCell>
           </TableRow>
-          <UserRow v-else
+          <template v-else
             v-for="user, userIndex in userAdministrationStore.newUserList"
             :key="user.email"
-            v-model="userAdministrationStore.newUserList[userIndex]!"
-          ></UserRow>
+          >
+            <UserRow
+              v-model="userAdministrationStore.newUserList[userIndex]!"
+              :info="{
+                show: userAdministrationStore.newUserListMessages.some(message => message !== null),
+                icon: AlertCircleIcon,
+                iconClass: 'text-red-500',
+                title: 'Error',
+                message: userAdministrationStore.newUserListMessages[userIndex]
+            }"></UserRow>
+            <!-- <TableRow v-if="userAdministrationStore.newUserListMessages[userIndex]">
+              <TableCell colspan="4" class="text-center">
+                <Alert variant="destructive" class="border-0">
+                  <AlertCircleIcon />
+                  <AlertTitle>
+                    {{ userAdministrationStore.newUserListMessages[userIndex] }}
+                  </AlertTitle>
+                </Alert>
+              </TableCell>
+            </TableRow> -->
+          </template>
         </TableBody>
       </Table>
       <div v-if="userAdministrationStore.newUserList.length > 0" class="flex justify-end mt-2">
-        <Button variant="default">Add Users</Button>
+        <Button variant="default" @click="userAdministrationStore.createNewUsers">Add Users</Button>
       </div>
     </template>
   </ContentCard>
