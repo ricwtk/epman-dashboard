@@ -5,7 +5,7 @@ import { FieldGroup, Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { computed, ref } from 'vue';
 import { DATALEVEL_OPTIONS, USERLEVEL_OPTIONS } from '@/constants';
-import AccessLevelSelector from '@/components/AccessLevelSelector.vue';
+import AccessLevelSelector from '@/components/useradmin/AccessLevelSelector.vue';
 import { Button } from '@/components/ui/button';
 import { updateProfile } from '@/utils/userHelpers';
 

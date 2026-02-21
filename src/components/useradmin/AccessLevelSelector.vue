@@ -31,6 +31,7 @@ import { Stepper, StepperItem, StepperTrigger, StepperIndicator, StepperSeparato
           :class="{
             'w-4 h-4': props.size === 'small',
             'w-8 h-8': props.size === 'default',
+            'opacity-70': props.disabled
           }"
         >
           <CheckIcon v-if="!(model! < optIndex+1)" :size="props.size === 'small' ? 12 : 16"/>
@@ -51,7 +52,8 @@ import { Stepper, StepperItem, StepperTrigger, StepperIndicator, StepperSeparato
         :class="{
           'top-3 left-[calc(50%+12px+1px)] right-0': props.size === 'small',
           'top-5 left-[calc(50%+16px+4px)] right-0': props.size === 'default',
-          'bg-primary!': model-1 > optIndex
+          'bg-primary!': model-1 > optIndex,
+          'opacity-70': props.disabled
         }"
       />
       <StepperSeparator
@@ -60,15 +62,20 @@ import { Stepper, StepperItem, StepperTrigger, StepperIndicator, StepperSeparato
         :class="{
           'top-3 left-0 right-[calc(50%+12px+1px)]': props.size === 'small',
           'top-5 left-0 right-[calc(50%+16px+4px)]': props.size === 'default',
-          'bg-primary!': model > optIndex
+          'bg-primary!': model > optIndex,
+          'opacity-70': props.disabled
         }"
       />
       <StepperTrigger :disabled="props.disabled">
         <div class="flex flex-col items-center">
           <StepperTitle :class="{
-            'text-xs': props.size === 'small'
+            'text-xs': props.size === 'small',
+            'opacity-80': props.disabled
           }">{{ option.title }}</StepperTitle>
-          <StepperDescription v-if="props.size !== 'small'">{{ option.description }}</StepperDescription>
+          <StepperDescription v-if="props.size !== 'small'"
+            :class="{
+              'opacity-80': props.disabled
+          }">{{ option.description }}</StepperDescription>
         </div>
       </StepperTrigger>
     </StepperItem>

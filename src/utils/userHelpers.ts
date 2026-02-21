@@ -1,6 +1,6 @@
 import { type UserProfile } from "@/types/user";
 
-export const createNewProfile = async (profile?: Omit<Partial<UserProfile>, "uid">): Promise<UserProfile> => {
+export const createNewProfile = (profile?: Omit<Partial<UserProfile>, "uid">): UserProfile => {
   return {
     uid: "",
     name: "",
@@ -12,7 +12,7 @@ export const createNewProfile = async (profile?: Omit<Partial<UserProfile>, "uid
   }
 };
 
-export const updateProfile = async (profile: UserProfile, updates: Omit<Partial<UserProfile>, "uid">): Promise<UserProfile> => {
+export const updateProfile = (profile: UserProfile, updates: Omit<Partial<UserProfile>, "uid">): UserProfile => {
   return {
     ...profile,
     ...updates

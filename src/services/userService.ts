@@ -1,5 +1,14 @@
 import { db } from '@/services/firebase'; // Assumes initialized Firestore instance
-import { doc, getDoc, getDocs, collection, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  setDoc,
+  deleteDoc,
+  updateDoc,
+  writeBatch
+} from 'firebase/firestore';
 import type { UserProfile } from '@/types/user'; // Assumes definition provided previously
 
 export const userService = {
@@ -53,6 +62,18 @@ export const userService = {
       userlevel: 1,
       createdAt: new Date()
     });
+  },
+
+  /**
+   * Updates multiple user profiles in Firestore
+   */
+  async updateUserProfiles(profiles: UserProfile[]): Promise<void> {
+    const batch = writeBatch(db);
+    profiles.forEach(profile => {
+      let { uid, ...details } = profile;
+      batch.set(doc(db, "users", uid), details, { merge: true });
+    });
+    await batch.commit();
   },
 
   /**
