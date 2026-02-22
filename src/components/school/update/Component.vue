@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import ResetButton from '@/components/ResetButton.vue';
 import { PlusIcon, MinusIcon, RotateCcwIcon } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -35,10 +36,13 @@ const resetDiff = () => {
 };
 
 const addItem = () => {
-  school.value.components![props.component].push({
+  school.value.components ??= {}
+  school.value.components[props.component] ??= []
+
+  school.value.components[props.component].push({
     attribute: '',
     descriptor: ''
-  });
+  })
 }
 
 const removeItem = (index: number) => {
@@ -50,13 +54,7 @@ const removeItem = (index: number) => {
   <div class="flex flex-col gap-4">
     <div class="font-semibold flex flex-row items-center gap-1">
       {{ title }}
-      <Button v-if="overallDiff"
-        variant="ghost"
-        class="reset-button"
-        @click="resetDiff"
-      >
-        <RotateCcwIcon />
-      </Button>
+      <ResetButton v-if="overallDiff" @reset="resetDiff" />
     </div>
     <Table>
       <TableHeader>
@@ -71,7 +69,7 @@ const removeItem = (index: number) => {
         <TableRow
           v-for="(item, index) in school.components![component]"
           :key="index"
-          :class="diffs[index] ? 'bg-yellow-100' : ''"
+          :class="diffs[index] ? 'bg-amber-100 hover:bg-amber-200!' : ''"
         >
           <TableCell>
             <Button variant="destructive" @click="removeItem(Number(index))">
