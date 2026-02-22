@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import ResetButton from '@/components/ResetButton.vue'
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,6 @@ import {
 import { Button } from '@/components/ui/button'
 import Summary from './update/Summary.vue'
 import Component from './update/Component.vue'
-import { RotateCcwIcon } from 'lucide-vue-next';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -52,13 +52,7 @@ const resetSchool = () => { editingSchoolStore.resetSchool(); }
           </TabsList>
         </div>
         <div>
-          <Button v-if="diff"
-            variant="ghost"
-            class="reset-button"
-            @click="resetSchool"
-          >
-            <RotateCcwIcon />
-          </Button>
+          <ResetButton v-if="diff" @reset="resetSchool" />
         </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">
