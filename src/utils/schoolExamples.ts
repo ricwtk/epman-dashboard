@@ -2,6 +2,7 @@ import type { School } from "@/types/school";
 
 export const schools: School[] = [
   {
+    id: "SEN-2026-01",
     code: "SEN",
     name: "School of Engineering",
     revision: "2026-01",
