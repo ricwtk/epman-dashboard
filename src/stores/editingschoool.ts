@@ -8,6 +8,7 @@ import diff from 'microdiff';
 export const useEditingSchoolStore = defineStore('editing-school', () => {
   const school: Ref<School> = ref(createNewSchool())
   const originalSchool: Ref<School> = ref(createNewSchool())
+  const selectedTab: Ref<string> = ref('summary')
 
   function resetSchool(): void {
     school.value = structuredClone(toRaw(originalSchool.value))
@@ -33,5 +34,5 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
     school.value = structuredClone(sch)
   }
 
-  return { school, resetSchool, loadSchool, checkDiff, resetDiff }
+  return { selectedTab, school, resetSchool, loadSchool, checkDiff, resetDiff }
 })

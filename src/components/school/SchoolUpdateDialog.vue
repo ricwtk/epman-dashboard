@@ -41,7 +41,7 @@ const resetSchool = () => { editingSchoolStore.resetSchool(); }
       <DialogTitle>School Details Update</DialogTitle>
       <DialogDescription>Update school level details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden">
+    <Tabs default-value="summary" class="overflow-hidden" v-model="editingSchoolStore.selectedTab">
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>

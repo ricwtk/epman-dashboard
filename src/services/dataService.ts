@@ -12,6 +12,18 @@ async function fetchDoc<T>(collectionName: string, id: string): Promise<T | null
   return snapshot.exists() ? (snapshot.data() as T) : null;
 }
 
+// Generic helper to fetch a document by code
+async function fetchDocsByCode<T>(collectionName: string, codeString: string): Promise<T[]> {
+  const colRef = collection(db, collectionName); // 1. Reference the collection
+  const q = query(colRef, where("code", "==", codeString)); // 2. Create a query against the 'code' field
+  const querySnapshot = await getDocs(q); // 3. Execute the query
+  // 4. Map the results into an array
+  return querySnapshot.docs.map(doc => ({
+    ...(doc.data() as T),
+    id: doc.id // Optional: include the document ID if needed
+  }));
+}
+
 // Generic helper to fetch a collection
 async function fetchCollection<T>(collectionName: string): Promise<T[]> {
   const snapshot = await getDocs(collection(db, collectionName));
@@ -50,8 +62,9 @@ export const dataService = {
     return fetchCollection<School>("schools");
   },
 
-  async getSchool(code: string): Promise<School | null> {
-    return fetchDoc<School>("schools", code);
+  async getSchool(code: string): Promise<School[]> {
+    // return fetchDoc<School>("schools", code);
+    return fetchDocsByCode<School>("schools", code);
   },
 
   async saveSchool(school: School): Promise<void> {

@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, toRaw } from 'vue';
 import NavIndicator from '@/components/NavIndicator.vue';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 import SchoolSummary from '@/components/school/SchoolSummary.vue';
 import ComponentDisplay from '@/components/school/ComponentDisplay.vue';
@@ -14,17 +15,19 @@ const viewingSchoolStore = useViewingSchoolStore();
 
 onMounted(() => {
   viewingSchoolStore.loadSchoolByCode(props.code);
+  console.log(viewingSchoolStore.schoolRevisions);
 });
 
 import { useEditingSchoolStore } from "@/stores/editingschoool";
 const editingSchoolStore = useEditingSchoolStore();
 
 const editing = ref(false);
-const updateEditing = (ev: boolean, ) => {
+const updateEditing = (ev: boolean, tab?: string) => {
   if (ev) {
     if (editingSchoolStore.school.code !== viewingSchoolStore.school.code) {
       editingSchoolStore.loadSchool(toRaw(viewingSchoolStore.school));
     }
+    editingSchoolStore.selectedTab = tab || 'summary';
   }
   editing.value = ev;
 };
@@ -40,7 +43,18 @@ const updateEditing = (ev: boolean, ) => {
   <template v-if="viewingSchoolStore.school">
     <div class="card-plain px-4 text-muted-foreground text-sm">
       {{ viewingSchoolStore.school.code }} {{ viewingSchoolStore.school.name }}
-      <Badge>{{ viewingSchoolStore.school.revision }}</Badge>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Badge>{{ viewingSchoolStore.school.revision }}</Badge>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent class="text-xs">
+          <DropdownMenuGroup>
+            <DropdownMenuItem v-for="rev in viewingSchoolStore.schoolRevisions.map(sch => sch.revision)" @click="viewingSchoolStore.loadSchoolRevision(rev)">
+              {{ rev }}
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
     <SchoolSummary
       :school="viewingSchoolStore.school"
@@ -52,21 +66,21 @@ const updateEditing = (ev: boolean, ) => {
       shortlabel="WK"
       :items="viewingSchoolStore.school.components?.wks || []"
       :editing="editing"
-      @update:editing="updateEditing"
+      @update:editing="(ev) => updateEditing(ev, 'wk')"
     />
     <ComponentDisplay
       title="Washington Accord Problem Identification & Solving (WP)"
       shortlabel="WP"
       :items="viewingSchoolStore.school.components?.wps || []"
       :editing="editing"
-      @update:editing="updateEditing"
+      @update:editing="(ev) => updateEditing(ev, 'wp')"
     />
     <ComponentDisplay
       title="Complex Engineering Activities (EA)"
       shortlabel="EA"
       :items="viewingSchoolStore.school.components?.eas || []"
       :editing="editing"
-      @update:editing="updateEditing"
+      @update:editing="(ev) => updateEditing(ev, 'ea')"
     />
     <SchoolUpdateDialog v-model:isOpen="editing" />
   </template>
