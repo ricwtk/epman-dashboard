@@ -37,10 +37,10 @@ const authStore = useAuthStore();
       </SidebarItem>
     </template>
     <Separator />
-    <SidebarItem @click="navigateToPath('/')">
+    <!-- <SidebarItem @click="navigateToPath('/')">
       <template #icon><LandmarkIcon /></template>
       <template #text>Faculties</template>
-    </SidebarItem>
+    </SidebarItem> -->
     <SidebarItem @click="navigateToPath('/school')">
       <template #icon><SchoolIcon /></template>
       <template #text>Schools</template>
