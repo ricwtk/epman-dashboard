@@ -10,6 +10,6 @@ export function getEditingProgrammeAndStore() {
 
 export function getEditingStructureAndStore() {
   const editingStructureStore = useEditingStructureStore();
-  const { structure, structureWithCourseInfo, structureBySemesters } = storeToRefs(editingStructureStore);
-  return { structure, structureWithCourseInfo, structureBySemesters, editingStructureStore };
+  const { structure } = storeToRefs(editingStructureStore);
+  return { structure, editingStructureStore };
 }
