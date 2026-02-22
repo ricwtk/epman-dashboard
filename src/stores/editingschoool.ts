@@ -1,17 +1,25 @@
-import { ref, type Ref, toRaw } from 'vue';
+import { ref, toRaw } from 'vue';
 import type { School } from "@/types/school";
 import { createNewSchool } from "@/utils/schoolHelpers";
 import { defineStore } from "pinia";
 import { get, set } from 'lodash-es';
 import diff from 'microdiff';
+import { formatRevision, formatId } from '@/utils/common';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
+import { dataService } from '@/services/dataService';
 
 export const useEditingSchoolStore = defineStore('editing-school', () => {
-  const school: Ref<School> = ref(createNewSchool())
-  const originalSchool: Ref<School> = ref(createNewSchool())
-  const selectedTab: Ref<string> = ref('summary')
+  const school = ref<School>(structuredClone(createNewSchool()))
+  const originalSchool = ref<School>(structuredClone(createNewSchool()))
+  const selectedTab = ref<string>('summary')
 
   function resetSchool(): void {
     school.value = structuredClone(toRaw(originalSchool.value))
+  }
+
+  function commitSchool(): void {
+    originalSchool.value = structuredClone(toRaw(school.value));
   }
 
   function resetDiff(pathArray: string[]): void {
@@ -53,5 +61,21 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
     school.value = structuredClone(sch)
   }
 
-  return { selectedTab, school, resetSchool, loadSchool, checkDiff, resetDiff }
+  async function saveSchool(): Promise<void> {
+    school.value.parentRevision = school.value.revision
+    school.value.revision = formatRevision()
+    school.value.committed = {
+      on: new Date(),
+      by: authStore.user?.email || 'unknown'
+    }
+    school.value.id = formatId(school.value);
+    try {
+      await dataService.saveSchool(school.value);
+      commitSchool();
+    } catch (error) {
+      console.error('Error saving school:', error);
+    }
+  }
+
+  return { selectedTab, school, resetSchool, commitSchool, loadSchool, saveSchool, checkDiff, resetDiff }
 })

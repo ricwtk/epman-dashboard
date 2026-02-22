@@ -131,3 +131,12 @@ export function formatRevision(): string {
   const second = date.getSeconds().toString().padStart(2, '0');
   return `${year}.${month}.${day}.${hour}.${minute}.${second}`;
 }
+
+interface FormatIdInput {
+  code: string;
+  revision: string;
+}
+
+export function formatId<T extends FormatIdInput>(item: T): string {
+  return `${item.code}-${item.revision}`
+}

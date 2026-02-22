@@ -32,6 +32,7 @@ import { getEditingSchoolAndStore } from "@/composables/school";
 const { editingSchoolStore } = getEditingSchoolAndStore();
 const diff = computed(() => editingSchoolStore.checkDiff([]))
 const resetSchool = () => { editingSchoolStore.resetSchool(); }
+const saveSchool = () => { editingSchoolStore.saveSchool(); }
 </script>
 
 <template>
@@ -80,10 +81,10 @@ const resetSchool = () => { editingSchoolStore.resetSchool(); }
       </div>
     </Tabs>
     <div class="justify-end flex flex-row grow gap-1">
-      <Button variant="destructive">Commit</Button>
+      <!-- <Button variant="destructive">Commit</Button> -->
       <div class="grow"></div>
-      <Button variant="default">Save draft</Button>
-      <Button variant="ghost">Cancel</Button>
+       <Button variant="default" @click="saveSchool">Save</Button>
+      <Button variant="ghost" @click="toggleDialog">Cancel</Button>
     </div>
   </DialogContent>
 </Dialog>

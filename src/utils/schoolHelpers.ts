@@ -1,5 +1,6 @@
 import type { School } from '@/types/school';
 import { schools } from './schoolExamples';
+import { formatId } from './common';
 
 // using schoolExamples.ts
 export function getSchoolList(): { code: string, name: string }[] {
@@ -31,6 +32,6 @@ export function createNewSchool(overrides?: Partial<School>): School {
     components: {},
     ...overrides,
   };
-  newSchool.id = `${newSchool.code}-${newSchool.revision}`;
+  newSchool.id = formatId(newSchool);
   return newSchool;
 }
