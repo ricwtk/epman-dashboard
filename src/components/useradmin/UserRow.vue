@@ -4,7 +4,6 @@ import { DATALEVEL_OPTIONS, USERLEVEL_OPTIONS } from '@/constants';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import AccessLevelSelector from '@/components/useradmin/AccessLevelSelector.vue';
-import type { Component } from 'vue';
 
 const user = defineModel<UserProfile>({
   required: true,
@@ -25,13 +24,6 @@ interface Props {
     datalevel?: boolean,
     userlevel?: boolean
   }
-  info?: {
-    show?: boolean,
-    icon?: Component,
-    iconClass?: string,
-    title?: string,
-    message?: string
-  }
 }
 const props = withDefaults(defineProps<Props>(), {
   changes: false,
@@ -40,11 +32,6 @@ const props = withDefaults(defineProps<Props>(), {
     email: false,
     datalevel: false,
     userlevel: false
-  }),
-  info: () => ({
-    show: false,
-    title: '',
-    message: ''
   })
 })
 </script>
@@ -53,9 +40,7 @@ const props = withDefaults(defineProps<Props>(), {
   <TableRow
     :class="{ 'bg-amber-100 hover:bg-amber-200': props.changes }"
   >
-    <TableCell v-if="props.info.show">
-      <component :is="props.info.icon" :class="props.info.iconClass" v-if="props.info.message"/>
-    </TableCell>
+    <slot name="prefix"></slot>
     <TableCell v-if="props.disabled.name">
       {{ user.name }}
     </TableCell>
@@ -79,5 +64,6 @@ const props = withDefaults(defineProps<Props>(), {
         :disabled="props.disabled.userlevel"
       />
     </TableCell>
+    <slot name="postfix"></slot>
   </TableRow>
 </template>

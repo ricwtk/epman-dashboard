@@ -4,11 +4,12 @@ import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AccessLevelSelector from '@/components/useradmin/AccessLevelSelector.vue';
-import { ChevronUpIcon, ChevronDownIcon, InfoIcon, AlertCircleIcon } from 'lucide-vue-next';
+import { ChevronUpIcon, ChevronDownIcon, InfoIcon, AlertCircleIcon, XIcon } from 'lucide-vue-next';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
 import { UserRow, UserHeadRow } from '@/components/useradmin';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
 import { ref, onMounted, computed } from 'vue';
 import { DATALEVEL_OPTIONS, USERLEVEL_OPTIONS } from '@/constants';
@@ -95,7 +96,11 @@ const queueUserCreation = () => {
 
       <Table class="mt-2">
         <TableHeader>
-          <UserHeadRow :info="{ show: true, header: '' }"/>
+          <UserHeadRow>
+            <template #prefix>
+              <TableHead v-if="userAdministrationStore.newUserListMessages.some(message => message !== null)"></TableHead>
+            </template>
+          </UserHeadRow>
         </TableHeader>
         <TableBody>
           <TableRow v-if="userAdministrationStore.newUserList.length === 0">
@@ -105,25 +110,30 @@ const queueUserCreation = () => {
             v-for="user, userIndex in userAdministrationStore.newUserList"
             :key="user.email"
           >
-            <UserRow
-              v-model="userAdministrationStore.newUserList[userIndex]!"
-              :info="{
-                show: userAdministrationStore.newUserListMessages.some(message => message !== null),
-                icon: AlertCircleIcon,
-                iconClass: 'text-red-500',
-                title: 'Error',
-                message: userAdministrationStore.newUserListMessages[userIndex]
-            }"></UserRow>
-            <!-- <TableRow v-if="userAdministrationStore.newUserListMessages[userIndex]">
-              <TableCell colspan="4" class="text-center">
-                <Alert variant="destructive" class="border-0">
-                  <AlertCircleIcon />
-                  <AlertTitle>
-                    {{ userAdministrationStore.newUserListMessages[userIndex] }}
-                  </AlertTitle>
-                </Alert>
-              </TableCell>
-            </TableRow> -->
+            <UserRow v-model="userAdministrationStore.newUserList[userIndex]!">
+              <template #prefix>
+                <TableCell v-if="userAdministrationStore.newUserListMessages.some(message => message !== null)">
+                  <HoverCard>
+                    <HoverCardTrigger as-child>
+                      <AlertCircleIcon class="text-red-500" v-if="userAdministrationStore.newUserListMessages[userIndex]"/>
+                    </HoverCardTrigger>
+                    <HoverCardContent class="p-0">
+                      <Alert variant="destructive" class="border-0">
+                        <AlertCircleIcon/>
+                        <AlertTitle>{{ userAdministrationStore.newUserListMessages[userIndex] }}</AlertTitle>
+                      </Alert>
+                    </HoverCardContent>
+                  </HoverCard>
+                </TableCell>
+              </template>
+              <template #postfix>
+                <TableCell>
+                  <Button variant="destructive" size="icon" @click="userAdministrationStore.removeNewUserFromList(userIndex)">
+                    <XIcon/>
+                  </Button>
+                </TableCell>
+              </template>
+            </UserRow>
           </template>
         </TableBody>
       </Table>

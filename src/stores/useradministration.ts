@@ -51,6 +51,11 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
     }
   }
 
+  function removeNewUserFromList(userIndex: number) {
+    newUserList.value.splice(userIndex, 1);
+    newUserListMessages.value.splice(userIndex, 1);
+  }
+
   async function createNewUsers() {
     const newProfiles = await userService.batchCreateUserProfiles(newUserList.value);
     const createdProfiles = newProfiles.results.filter(result => result.status == "success");
@@ -71,6 +76,7 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
     getUserListFromDb,
     resetUserList,
     addNewUserToList,
+    removeNewUserFromList,
     saveChanges,
     createNewUsers,
   };
