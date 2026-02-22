@@ -55,7 +55,7 @@ export const dataService = {
   },
 
   async saveSchool(school: School): Promise<void> {
-    await setDoc(doc(db, "schools", school.code), school);
+    await setDoc(doc(db, "schools", school.id), school);
   },
 
   // --- Structures ---
