@@ -33,8 +33,8 @@ const updateEditing = (ev: boolean, ) => {
 
 <template>
   <NavIndicator :items="[
-    { label: 'School', path: '/schools' },
-    { label: 'School View', path: '/schools/:id' }
+    { label: 'School', path: '/school' },
+    { label: viewingSchoolStore.school.name, path: `/school/${viewingSchoolStore.school.code}` }
   ]"/>
 
   <template v-if="viewingSchoolStore.school">
