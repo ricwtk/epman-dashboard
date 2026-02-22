@@ -65,6 +65,20 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
     newUserListMessages.value = uncreatedProfiles.map(result => result.error || "") ;
   }
 
+  async function deleteUser(userIndex: number) {
+    if (userIndex < 0 || userIndex >= userList.value.length) return;
+    const user = userList.value[userIndex];
+    try {
+      const response = await userService.deleteUser(user!.uid);
+      if (response.success) {
+        userList.value.splice(userIndex, 1);
+        originalUserList.value.splice(userIndex, 1);
+      }
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    }
+  }
+
   return {
     newUser,
     newUserList,
@@ -79,5 +93,6 @@ export const useUserAdministrationStore = defineStore('user-administration', () 
     removeNewUserFromList,
     saveChanges,
     createNewUsers,
+    deleteUser,
   };
 });

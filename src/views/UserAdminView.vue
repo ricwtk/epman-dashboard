@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import ContentCard from '@/components/contentcard/ContentCard.vue';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldGroup, FieldLabel, FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AccessLevelSelector from '@/components/useradmin/AccessLevelSelector.vue';
-import { ChevronUpIcon, ChevronDownIcon, InfoIcon, AlertCircleIcon, XIcon } from 'lucide-vue-next';
+import { ChevronUpIcon, ChevronDownIcon, InfoIcon, AlertCircleIcon, XIcon, TrashIcon } from 'lucide-vue-next';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table';
 import { Spinner } from '@/components/ui/spinner';
@@ -55,12 +55,7 @@ const queueUserCreation = () => {
           <Field>
             <FieldLabel for="email">Email:</FieldLabel>
             <Input type="email" id="email" v-model="userAdministrationStore.newUser.email" required />
-            <Alert v-if="newUserError" variant="destructive">
-              <AlertCircleIcon />
-              <AlertTitle>
-                {{ newUserError }}
-              </AlertTitle>
-            </Alert>
+            <FieldError v-if="newUserError">{{ newUserError }}</FieldError>
           </Field>
           <Field>
             <FieldLabel for="name">Name:</FieldLabel>
@@ -148,7 +143,11 @@ const queueUserCreation = () => {
     <template #body>
       <Table>
         <TableHeader>
-          <UserHeadRow />
+          <UserHeadRow>
+            <template #postfix>
+              <TableCell v-if="authStore.canDeleteUsers"></TableCell>
+            </template>
+          </UserHeadRow>
         </TableHeader>
         <TableBody>
           <UserRow v-if="userAdministrationStore.changes[ownProfileIndex]"
@@ -160,7 +159,11 @@ const queueUserCreation = () => {
               datalevel: true,
               userlevel: true
             }"
-          />
+          >
+            <template #postfix>
+              <TableCell v-if="authStore.canDeleteUsers"></TableCell>
+            </template>
+          </UserRow>
           <template v-for="user, userIndex in userAdministrationStore.userList" :key="user.uid">
             <UserRow
                v-if="userIndex !== ownProfileIndex"
@@ -172,7 +175,15 @@ const queueUserCreation = () => {
                 datalevel: !authStore.canEditUsers,
                 userlevel: !authStore.canEditUsers
               }"
-            />
+            >
+              <template #postfix>
+                <TableCell v-if="authStore.canDeleteUsers">
+                  <Button @click="userAdministrationStore.deleteUser(userIndex)" variant="destructive">
+                    <TrashIcon />
+                  </Button>
+                </TableCell>
+              </template>
+            </UserRow>
           </template>
         </TableBody>
       </Table>
