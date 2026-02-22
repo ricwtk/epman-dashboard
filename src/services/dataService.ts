@@ -1,6 +1,6 @@
 // src/services/dataService.ts
 import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc, setDoc, query, where, type DocumentData } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, setDoc, query, where } from "firebase/firestore";
 import type { Course } from "@/types/course";
 import type { Programme, ProgrammeStructure } from "@/types/programme";
 import type { School } from "@/types/school";

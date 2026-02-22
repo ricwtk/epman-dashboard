@@ -1,4 +1,5 @@
 export interface School {
+  id: string;
   code: string;
   name: string;
   programmes: string[];

@@ -17,7 +17,8 @@ export function getSchoolByProgrammeCode(programmeCode: string): School | null {
 }
 
 export function createNewSchool(overrides?: Partial<School>): School {
-  return {
+  const newSchool = {
+    id: "",
     name: 'New School',
     code: 'NS',
     revision: "",
@@ -30,4 +31,6 @@ export function createNewSchool(overrides?: Partial<School>): School {
     components: {},
     ...overrides,
   };
+  newSchool.id = `${newSchool.code}-${newSchool.revision}`;
+  return newSchool;
 }
