@@ -31,6 +31,12 @@ const updateEditing = (ev: boolean, tab?: string) => {
   }
   editing.value = ev;
 };
+watch(editing, () => {
+  if (!editing.value && editingSchoolStore.updated) {
+    viewingSchoolStore.loadSchoolByCode(props.code);
+    editingSchoolStore.updated = false;
+  }
+})
 
 </script>
 

@@ -13,6 +13,7 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
   const school = ref<School>(structuredClone(createNewSchool()))
   const originalSchool = ref<School>(structuredClone(createNewSchool()))
   const selectedTab = ref<string>('summary')
+  const updated = ref(false)
 
   function resetSchool(): void {
     school.value = structuredClone(toRaw(originalSchool.value))
@@ -72,10 +73,11 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
     try {
       await dataService.saveSchool(school.value);
       commitSchool();
+      updated.value = true;
     } catch (error) {
       console.error('Error saving school:', error);
     }
   }
 
-  return { selectedTab, school, resetSchool, commitSchool, loadSchool, saveSchool, checkDiff, resetDiff }
+  return { selectedTab, school, resetSchool, commitSchool, loadSchool, saveSchool, checkDiff, resetDiff, updated }
 })
