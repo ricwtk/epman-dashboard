@@ -54,7 +54,7 @@ export const dataService = {
   },
 
   async saveProgramme(programme: Programme): Promise<void> {
-    await setDoc(doc(db, "programmes", programme.code), programme);
+    await setDoc(doc(db, "programmes", programme.id), programme);
   },
 
   // --- Schools ---

@@ -4,6 +4,7 @@ import type {
   Programme
 } from "@/types/programme"
 import { programmes } from "@/utils/programmeExamples"
+import { formatId } from './common';
 
 // using programmeExamples.ts
 export function getProgrammeList(): { code: string, name: string }[] {
@@ -38,15 +39,20 @@ export const createNewPo = (overrides?: Partial<Po>): Po => ({
   ...overrides,
 });
 
-export const createNewProgramme = (overrides?: Partial<Programme>): Programme => ({
-  code: "",
-  name: "",
-  revision: "",
-  parentRevision: "",
-  poList: [],
-  committed: {
-    on: null,
-    by: ""
-  },
-  ...overrides,
-});
+export const createNewProgramme = (overrides?: Partial<Programme>): Programme => {
+  const newProgramme = {
+    id: "",
+    code: "",
+    name: "",
+    revision: "",
+    parentRevision: "",
+    poList: [],
+    committed: {
+      on: null,
+      by: ""
+    },
+    ...overrides,
+  }
+  newProgramme.id = formatId(newProgramme);
+  return newProgramme;
+};

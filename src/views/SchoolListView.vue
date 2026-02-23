@@ -4,11 +4,7 @@ import { getSchoolList, createNewSchool } from '@/utils/schoolHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-import { PlusIcon } from 'lucide-vue-next';
+import CreateNewPopover from '@/components/CreateNewPopover.vue';
 
 import { navigateToSchool } from '@/utils/navigationHelpers';
 import { formatRevision } from '@/utils/common';
@@ -32,21 +28,10 @@ onMounted(async () => {
   await updateSchoolList();
 });
 
-const newSchoolName = ref('');
-const newSchoolCode = ref('');
-const newSchoolError = ref('');
-watch(newSchoolCode, (oldValue, newValue) => {
-  if (schools.value.map((school) => school.code.toUpperCase()).includes(oldValue.toUpperCase())) {
-    newSchoolError.value = 'School code already exists';
-  } else {
-    newSchoolError.value = '';
-  }
-});
-
-const addNewSchool = async () => {
+const addNewSchool = async (newName: string, newCode: string) => {
   const newSchoolParameters = {
-    name: newSchoolName.value,
-    code: newSchoolCode.value.toUpperCase(),
+    name: newName,
+    code: newCode.toUpperCase(),
     revision: formatRevision(),
     committed: {
       on: new Date(),
@@ -91,58 +76,17 @@ const addNewSchool = async () => {
           {{ school.code }} {{ school.name }}
         </Button>
       </template>
-      <Popover v-if="authStore.canEditSchools">
-        <PopoverTrigger as-child>
-          <Button
-            variant="outline"
-            size="icon"
-          >
-            <PlusIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent class="w-80">
-          <div class="grid gap-4">
-            <div class="space-y-2">
-              <h4 class="font-medium leading-none">
-                New School
-              </h4>
-              <p class="text-sm text-muted-foreground">
-                Create new school
-              </p>
-            </div>
-            <div class="grid gap-2">
-              <div class="grid grid-cols-3 items-center gap-4">
-                <Label for="name">Name</Label>
-                <Input
-                  id="name"
-                  class="col-span-2 h-8"
-                  v-model="newSchoolName"
-                />
-              </div>
-              <div class="grid grid-cols-3 items-center gap-4">
-                <Label for="code">Code</Label>
-                <Input :variant="newSchoolError !== '' ? 'error' : 'default'"
-                  id="code"
-                  class="col-span-2 h-8 uppercase"
-                  v-model="newSchoolCode"
-                />
-              </div>
-              <div class="grid grid-cols-3 items-center gap-4" v-if="newSchoolError !== ''">
-                <div></div>
-                <div class="col-span-2 text-sm text-red-500">
-                  {{ newSchoolError }}
-                </div>
-              </div>
-
-              <Button @click="addNewSchool"
-                :disabled="newSchoolError !== '' || newSchoolName === '' || newSchoolCode === ''"
-              >
-                  <PlusIcon/>Create School
-              </Button>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+      <CreateNewPopover v-if="authStore.canEditSchools"
+        :currentList="schools.map(school => school.code)"
+        @create="(name:string, code:string) => addNewSchool(name, code)"
+      >
+        <template #title>
+          New School
+        </template>
+        <template #description>
+          Create new school
+        </template>
+      </CreateNewPopover>
     </div>
     </template>
   </ContentCard>

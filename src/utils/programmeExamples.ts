@@ -29,6 +29,7 @@ const getRandomPEO = (): number => Math.floor(Math.random() * 3) + 1;
 // --- Programme Definitions ---
 
 export const mechanicalEngineering: Programme = {
+  id: "BMEC-2024-V1",
   code: "BMEC",
   name: "Bachelor of Mechanical Engineering with Honours",
   revision: "2024-V1",
@@ -49,6 +50,7 @@ export const mechanicalEngineering: Programme = {
 };
 
 export const electronicEngineering: Programme = {
+  id: "BEEE-2024-V1",
   code: "BEEE",
   name: "Bachelor of Electronic and Electrical Engineering with Honours",
   revision: "2024-V1",
@@ -69,6 +71,7 @@ export const electronicEngineering: Programme = {
 };
 
 export const mechatronicEngineering: Programme = {
+  id: "BMRE-2024-V1",
   code: "BMRE",
   name: "Bachelor of Mechatronic Engineering (Robotics) with Honours",
   revision: "2024-V1",
@@ -89,6 +92,7 @@ export const mechatronicEngineering: Programme = {
 };
 
 export const chemicalEngineering: Programme = {
+  id: "BCHE-2024-V1",
   code: "BCHE",
   name: "Bachelor of Chemical Engineering with Honours",
   revision: "2024-V1",
@@ -109,6 +113,7 @@ export const chemicalEngineering: Programme = {
 };
 
 export const civilEngineering: Programme = {
+  id: "BCIV-2024-V1",
   code: "BCIV",
   name: "Bachelor of Civil Engineering with Honours",
   revision: "2024-V1",

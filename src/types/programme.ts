@@ -26,6 +26,7 @@ export interface Po {
 }
 
 export interface Programme {
+  id: string;
   code: string;
   name: string;
   revision: string;
