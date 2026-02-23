@@ -7,6 +7,9 @@ import SchoolSummary from '@/components/school/SchoolSummary.vue';
 import ComponentDisplay from '@/components/school/ComponentDisplay.vue';
 import SchoolUpdateDialog from '@/components/school/SchoolUpdateDialog.vue';
 
+import { useAuthStore } from "@/stores/auth";
+const authStore = useAuthStore();
+
 const props = defineProps<{ code: string }>();
 
 import { useViewingSchoolStore } from "@/stores/viewingschoool";
@@ -57,14 +60,16 @@ const deleteRevision = () => {
         @selected="(rev) => viewingSchoolStore.loadSchoolRevision(rev)"
       />
       <div class="grow"></div>
-      <RevisionDeleteButton @delete="deleteRevision"/>
+      <RevisionDeleteButton @delete="deleteRevision" v-if="authStore.canEditSchools"/>
     </div>
     <SchoolSummary
+      :editable="authStore.canEditSchools"
       :school="viewingSchoolStore.school"
       :editing="editing"
       @update:editing="updateEditing"
     />
     <ComponentDisplay
+      :editable="authStore.canEditSchools"
       title="Washington Accord Knowledge & Attribute Profile (WK)"
       shortlabel="WK"
       :items="viewingSchoolStore.school.components?.wks || []"
@@ -72,6 +77,7 @@ const deleteRevision = () => {
       @update:editing="(ev) => updateEditing(ev, 'wk')"
     />
     <ComponentDisplay
+      :editable="authStore.canEditSchools"
       title="Washington Accord Problem Identification & Solving (WP)"
       shortlabel="WP"
       :items="viewingSchoolStore.school.components?.wps || []"
@@ -79,6 +85,7 @@ const deleteRevision = () => {
       @update:editing="(ev) => updateEditing(ev, 'wp')"
     />
     <ComponentDisplay
+      :editable="authStore.canEditSchools"
       title="Complex Engineering Activities (EA)"
       shortlabel="EA"
       :items="viewingSchoolStore.school.components?.eas || []"
