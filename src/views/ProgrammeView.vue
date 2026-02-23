@@ -49,7 +49,6 @@ const deleteRevision = () => {
 
 <template>
   <NavIndicator :items="[
-    { label: 'Home', path: '/' },
     { label: 'Programme', path: '/programme' },
     { label: viewingProgrammeStore.programme.name, path: `/programme/${viewingProgrammeStore.programme.code}` }
   ]" />

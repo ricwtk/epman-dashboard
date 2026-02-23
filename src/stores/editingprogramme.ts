@@ -4,6 +4,11 @@ import { createNewProgramme } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
 import { get, set } from 'lodash-es';
 import diff from 'microdiff';
+import { formatRevision, formatId } from '@/utils/common';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
+import { dataService } from '@/services/dataService';
+
 import { getSchoolByProgrammeCode } from "@/utils/schoolHelpers";
 import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
 
@@ -23,6 +28,10 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
 
   function resetProgramme(): void {
     programme.value = structuredClone(toRaw(originalProgramme.value))
+  }
+
+  function commitProgramme(): void {
+    originalProgramme.value = structuredClone(toRaw(programme.value));
   }
 
   function resetDiff(pathArray: string[]): void {
@@ -69,5 +78,22 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     programme.value = structuredClone(prog)
   }
 
-  return { selectedTab, school, programme, structureLabels, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff, updated }
+  async function saveProgramme(): Promise<void> {
+    programme.value.parentRevision = programme.value.revision
+    programme.value.revision = formatRevision()
+    programme.value.committed = {
+      on: new Date(),
+      by: authStore.user?.email || 'unknown'
+    }
+    programme.value.id = formatId(programme.value);
+    try {
+      await dataService.saveProgramme(programme.value);
+      commitProgramme();
+      updated.value = true;
+    } catch (error) {
+      console.error('Error saving programme:', error);
+    }
+  }
+
+  return { selectedTab, school, programme, structureLabels, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff, updated, commitProgramme, saveProgramme }
 })

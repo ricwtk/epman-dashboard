@@ -14,11 +14,11 @@ import {
   TabsContent
 } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import ResetButton from '@/components/ResetButton.vue';
 import Summary from './update/Summary.vue'
 import Po from './update/Po.vue'
 import PoMapping from './update/PoMapping.vue'
 import Structure from './update/Structure.vue'
-import { RotateCcwIcon } from 'lucide-vue-next';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -34,6 +34,7 @@ import { getEditingProgrammeAndStore } from "@/composables/programme";
 const { editingProgrammeStore } = getEditingProgrammeAndStore();
 const diff = computed(() => editingProgrammeStore.checkDiff([]))
 const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
+const saveProgramme = () => { editingProgrammeStore.saveProgramme(); }
 </script>
 
 <template>
@@ -43,7 +44,7 @@ const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
       <DialogTitle>Programme Details Update</DialogTitle>
       <DialogDescription>Update programme details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden">
+    <Tabs default-value="summary" class="overflow-hidden" v-model="editingProgrammeStore.selectedTab">
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>
@@ -55,13 +56,7 @@ const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
           </TabsList>
         </div>
         <div>
-          <Button v-if="diff"
-            variant="ghost"
-            class="reset-button"
-            @click="resetProgramme"
-          >
-            <RotateCcwIcon />
-          </Button>
+          <ResetButton v-if="diff" @reset="resetProgramme" />
         </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">
@@ -83,10 +78,10 @@ const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
       </div>
     </Tabs>
     <div class="justify-end flex flex-row grow gap-1">
-      <Button variant="destructive">Commit</Button>
+      <!-- <Button variant="destructive">Commit</Button> -->
       <div class="grow"></div>
-      <Button variant="default">Save draft</Button>
-      <Button variant="ghost">Cancel</Button>
+      <Button variant="default" @click="saveProgramme">Save</Button>
+      <Button variant="ghost" @click="toggleDialog">Cancel</Button>
     </div>
   </DialogContent>
 </Dialog>
