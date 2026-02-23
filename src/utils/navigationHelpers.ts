@@ -15,3 +15,7 @@ export function navigateToProgramme(programmeCode: string) {
 export function navigateToSchool(schoolCode: string) {
   navigateToPath(`/school/${schoolCode}`);
 }
+
+export function navigateToParent() {
+  router.go(-1);
+}

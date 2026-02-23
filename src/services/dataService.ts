@@ -1,6 +1,6 @@
 // src/services/dataService.ts
 import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc, setDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where } from "firebase/firestore";
 import type { Course } from "@/types/course";
 import type { Programme, ProgrammeStructure } from "@/types/programme";
 import type { School } from "@/types/school";
@@ -87,5 +87,15 @@ export const dataService = {
     // Structures might need a composite ID or specific naming convention
     const id = `${structure.programme}_${structure.label}`;
     await setDoc(doc(db, "structures", id), structure);
+  },
+
+  async deleteItem(collectionName: string, docId: string) {
+    try {
+      const docRef = doc(db, collectionName, docId);
+      await deleteDoc(docRef);
+    } catch (error) {
+      console.error(`Error deleting from ${collectionName}:`, error);
+      throw error;
+    }
   }
 };

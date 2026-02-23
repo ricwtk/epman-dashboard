@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, toRaw } from 'vue';
 import NavIndicator from '@/components/NavIndicator.vue';
-import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { RevisionDropdown, RevisionDeleteButton } from '@/components/revision';
 
 import SchoolSummary from '@/components/school/SchoolSummary.vue';
 import ComponentDisplay from '@/components/school/ComponentDisplay.vue';
@@ -38,6 +37,9 @@ watch(editing, () => {
   }
 })
 
+const deleteRevision = () => {
+  viewingSchoolStore.deleteRevision();
+}
 </script>
 
 <template>
@@ -47,20 +49,15 @@ watch(editing, () => {
   ]"/>
 
   <template v-if="viewingSchoolStore.school">
-    <div class="card-plain px-4 text-muted-foreground text-sm">
+    <div class="card-plain px-4 text-muted-foreground text-sm flex flex-row justify-start items-center gap-2">
       {{ viewingSchoolStore.school.code }} {{ viewingSchoolStore.school.name }}
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Badge>{{ viewingSchoolStore.school.revision }}</Badge>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent class="text-xs">
-          <DropdownMenuGroup>
-            <DropdownMenuItem v-for="rev in viewingSchoolStore.schoolRevisions.map(sch => sch.revision)" @click="viewingSchoolStore.loadSchoolRevision(rev)">
-              {{ rev }}
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <RevisionDropdown
+        :current="viewingSchoolStore.school.revision"
+        :options="viewingSchoolStore.schoolRevisions.map(sch => sch.revision)"
+        @selected="(rev) => viewingSchoolStore.loadSchoolRevision(rev)"
+      />
+      <div class="grow"></div>
+      <RevisionDeleteButton @delete="deleteRevision"/>
     </div>
     <SchoolSummary
       :school="viewingSchoolStore.school"
