@@ -10,6 +10,8 @@ import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
 export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const programme: Ref<Programme> = ref(createNewProgramme())
   const originalProgramme: Ref<Programme> = ref(createNewProgramme())
+  const selectedTab = ref<string>('summary')
+  const updated = ref(false)
 
   const structureLabels = computed(() => {
     return getStructureLabelsByProgramme(programme.value.code);
@@ -67,5 +69,5 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     programme.value = structuredClone(prog)
   }
 
-  return { school, programme, structureLabels, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff }
+  return { selectedTab, school, programme, structureLabels, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff, updated }
 })

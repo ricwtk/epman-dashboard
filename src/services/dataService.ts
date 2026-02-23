@@ -49,8 +49,9 @@ export const dataService = {
     return fetchCollection<Programme>("programmes");
   },
 
-  async getProgramme(code: string): Promise<Programme | null> {
-    return fetchDoc<Programme>("programmes", code);
+  async getProgramme(code: string): Promise<Programme[]> {
+    // return fetchDoc<Programme>("programmes", code);
+    return fetchDocsByCode<Programme>("programmes", code);
   },
 
   async saveProgramme(programme: Programme): Promise<void> {

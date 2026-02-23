@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref, toRaw } from 'vue';
+import { onMounted, ref, toRaw, watch } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import NavIndicator from '@/components/NavIndicator.vue';
+import { RevisionDropdown, RevisionDeleteButton } from '@/components/revision';
 
 import ProgrammeSummary from '@/components/programme/ProgrammeSummary.vue';
 import ProgrammePo from '@/components/programme/ProgrammePo.vue';
@@ -9,24 +10,41 @@ import PoMapping from '@/components/programme/PoMapping.vue';
 import ProgrammeUpdateDialog from '@/components/programme/ProgrammeUpdateDialog.vue';
 import ProgrammeStructure from '@/components/programme/ProgrammeStructure.vue';
 
+import { useAuthStore } from "@/stores/auth";
+const authStore = useAuthStore();
+
 import { useViewingProgrammeStore } from '@/stores/viewingprogramme';
 const viewingProgrammeStore = useViewingProgrammeStore();
 
 const props = defineProps<{ code: string }>();
-onMounted(() => { viewingProgrammeStore.loadProgrammeByCode(props.code!); });
+onMounted(() => {
+  viewingProgrammeStore.loadProgrammeByCode(props.code);
+  console.log(viewingProgrammeStore.programmeRevisions)
+});
 
 import { useEditingProgrammeStore } from "@/stores/editingprogramme";
 const editingProgrammeStore = useEditingProgrammeStore();
 
 const editing = ref(false);
-const updateEditing = (ev: boolean, ) => {
+const updateEditing = (ev: boolean, tab?: string) => {
   if (ev) {
     if (editingProgrammeStore.programme.code !== viewingProgrammeStore.programme.code) {
       editingProgrammeStore.loadProgramme(toRaw(viewingProgrammeStore.programme));
     }
+    editingProgrammeStore.selectedTab = tab || 'summary';
   }
   editing.value = ev;
 };
+watch(editing, () => {
+  if (!editing.value && editingProgrammeStore.updated) {
+    viewingProgrammeStore.loadProgrammeByCode(props.code);
+    editingProgrammeStore.updated = false;
+  }
+})
+
+const deleteRevision = () => {
+  viewingProgrammeStore.deleteRevision();
+}
 </script>
 
 <template>
@@ -37,14 +55,40 @@ const updateEditing = (ev: boolean, ) => {
   ]" />
 
   <template v-if="viewingProgrammeStore.programme">
-    <div class="card-plain px-4 text-muted-foreground text-sm">
+    <div class="card-plain px-4 text-muted-foreground text-sm flex flex-row justify-start items-center gap-2">
       {{ viewingProgrammeStore.programme.code }} {{ viewingProgrammeStore.programme.name }}
-      <Badge>{{ viewingProgrammeStore.programme.revision }}</Badge>
+      <RevisionDropdown
+        :current="viewingProgrammeStore.programme.revision"
+        :options="viewingProgrammeStore.programmeRevisions.map(prog => prog.revision)"
+        @selected="(rev) => viewingProgrammeStore.loadProgrammeRevision(rev)"
+      />
+      <div class="grow"></div>
+      <RevisionDeleteButton @delete="deleteRevision" v-if="authStore.canEditProgrammes"/>
     </div>
-    <ProgrammeSummary :programme="viewingProgrammeStore.programme" :editing="editing" @update:editing="updateEditing" />
-    <ProgrammePo :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
-    <PoMapping :poList="viewingProgrammeStore.programme.poList" :editing="editing" @update:editing="updateEditing" />
+    <ProgrammeSummary
+      :editable="authStore.canEditProgrammes"
+      :programme="viewingProgrammeStore.programme"
+      :editing="editing"
+      @update:editing="(ev) => updateEditing(ev, 'summary')"
+    />
+    <ProgrammePo
+      :editable="authStore.canEditProgrammes"
+      :poList="viewingProgrammeStore.programme.poList"
+      :editing="editing"
+      @update:editing="(ev) => updateEditing(ev, 'po')"
+    />
+    <PoMapping
+      :editable="authStore.canEditProgrammes"
+      :poList="viewingProgrammeStore.programme.poList"
+      :editing="editing"
+      @update:editing="(ev) => updateEditing(ev, 'exambased')"
+    />
+    <ProgrammeStructure
+      :editable="authStore.canEditProgrammes"
+      :programme="viewingProgrammeStore.programme.code"
+      :editing="editing"
+      @update:editing="(ev) => updateEditing(ev, 'structure')"
+    />
     <ProgrammeUpdateDialog v-model:isOpen="editing" />
-    <ProgrammeStructure :programme="viewingProgrammeStore.programme.code" :editing="editing" @update:editing="updateEditing" />
   </template>
 </template>
