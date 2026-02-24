@@ -4,6 +4,7 @@ import NavIndicator from '@/components/NavIndicator.vue';
 import { RevisionDropdown, RevisionDeleteButton } from '@/components/revision';
 
 import SchoolSummary from '@/components/school/SchoolSummary.vue';
+import SchoolListOfProgramme from '@/components/school/SchoolListOfProgramme.vue';
 import ComponentDisplay from '@/components/school/ComponentDisplay.vue';
 import SchoolUpdateDialog from '@/components/school/SchoolUpdateDialog.vue';
 
@@ -67,6 +68,12 @@ const deleteRevision = () => {
       :school="viewingSchoolStore.school"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
+    />
+    <SchoolListOfProgramme
+      :editable="authStore.canEditSchools"
+      :school="viewingSchoolStore.school"
+      :editing="editing"
+      @update:editing="(ev) => updateEditing(ev, 'programmes')"
     />
     <ComponentDisplay
       :editable="authStore.canEditSchools"
