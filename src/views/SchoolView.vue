@@ -16,7 +16,7 @@ const props = defineProps<{ code: string }>();
 import { useViewingSchoolStore } from "@/stores/viewingschoool";
 const viewingSchoolStore = useViewingSchoolStore();
 
-onMounted(() => {
+onMounted(async () => {
   viewingSchoolStore.loadSchoolByCode(props.code);
   console.log(viewingSchoolStore.schoolRevisions);
 });

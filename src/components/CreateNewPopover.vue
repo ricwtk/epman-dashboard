@@ -73,7 +73,7 @@ const createNew = () => {
           <div class="grid grid-cols-3 items-center gap-4" v-if="newError !== ''">
             <div></div>
             <div class="col-span-2 text-sm text-red-500">
-              {{ newError }}
+              {{ newError }} <slot name="error" :name="newName" :code="newCode"></slot>
             </div>
           </div>
 

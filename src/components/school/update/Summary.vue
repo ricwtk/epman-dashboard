@@ -1,10 +1,23 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { getEditingSchoolAndStore } from '@/composables/school';
 const { school, editingSchoolStore } = getEditingSchoolAndStore();
 
+import { formatRevision } from '@/utils/common';
+import { dataService, type MappedProgramme } from '@/services/dataService';
+import { createNewProgramme } from '@/utils/programmeHelpers';
+import { navigateToProgrammeExternal } from '@/utils/navigationHelpers';
+
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
+import { Button } from '@/components/ui/button';
+import { SquareArrowOutUpRightIcon, XIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
+import CreateNewPopover from '@/components/CreateNewPopover.vue';
+
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
 
 const checkDiff = (fields: string[]) => {
   return editingSchoolStore.checkDiff(fields);
@@ -12,6 +25,53 @@ const checkDiff = (fields: string[]) => {
 const resetDiff = (fields: string[]) => {
   editingSchoolStore.resetDiff(fields);
 };
+
+const allProgrammes = ref<MappedProgramme[]>([]);
+const updateProgrammes = async () => {
+  allProgrammes.value = await dataService.getProgrammesMappedBySchool();
+};
+onMounted(async () => {
+  await updateProgrammes();
+});
+
+const addNewProgramme = async (newName: string, newCode: string) => {
+  const existingProgramme = allProgrammes.value.find(p => p.code == newCode)
+  if (!existingProgramme) {
+    const newProgrammeParameters = {
+      name: newName,
+      code: newCode.toUpperCase(),
+      revision: formatRevision(),
+      committed: {
+        on: new Date(),
+        by: authStore.user?.email || 'unknown'
+      }
+    };
+    const newProgramme = createNewProgramme(newProgrammeParameters);
+    await dataService.saveProgramme(newProgramme);
+    await updateProgrammes();
+  }
+  school.value.programmes.push(newCode);
+}
+
+const findProgramme = (code: string): MappedProgramme | null => {
+  console.log(allProgrammes.value)
+  return allProgrammes.value.find(p => p.code === code) || null;
+}
+
+const additionalError = (code: string) => {
+  const existingProgramme = allProgrammes.value.find(p => p.code === code);
+  if (existingProgramme && existingProgramme.school) {
+    return `${existingProgramme.code} exists in ${existingProgramme.school.code}`;
+  }
+  return '';
+}
+
+const removeProgramme = (code: string) => {
+  const index = school.value.programmes.indexOf(code);
+  if (index !== -1) {
+    school.value.programmes.splice(index, 1);
+  }
+}
 </script>
 
 <template>
@@ -31,6 +91,38 @@ const resetDiff = (fields: string[]) => {
           <Input id="name" placeholder="School Name" v-model="school.name"/>
           <ResetButton v-if="checkDiff(['name'])" @reset="resetDiff(['name'])" />
         </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <Label>Programme List</Label>
+      <div class="flex flex-row flex-wrap gap-2">
+        <ResetButton v-if="checkDiff(['programmes'])" @reset="resetDiff(['programmes'])" />
+        <!-- <div v-for="programme in 10" :key="programme" class="flex flex-row justify-center"> -->
+        <div v-for="programme in school.programmes" :key="programme" class="flex flex-row justify-center">
+          <ButtonGroup class="gap-0!">
+            <ButtonGroupText class="max-w-50">
+              <span class="truncate" :title="findProgramme(programme)?.name">{{ programme }} {{ findProgramme(programme)?.name }}</span>
+            </ButtonGroupText>
+            <Button variant="outline" size="icon" @click="navigateToProgrammeExternal(programme)"><SquareArrowOutUpRightIcon /></Button>
+            <Button variant="outline" size="icon" @click="removeProgramme(programme)"><XIcon /></Button>
+          </ButtonGroup>
+        </div>
+
+        <CreateNewPopover v-if="authStore.canEditProgrammes"
+          :currentList="allProgrammes.filter(p => p.school).map(p => p.code)"
+          @create="(name:string, code:string) => addNewProgramme(name, code)"
+        >
+          <template #title>
+            New Programme
+          </template>
+          <template #description>
+            Create new programme
+          </template>
+          <template v-slot:error="{name, code}">
+            {{ additionalError(code) }}
+          </template>
+        </CreateNewPopover>
       </div>
     </div>
   </div>

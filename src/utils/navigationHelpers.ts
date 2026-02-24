@@ -19,3 +19,8 @@ export function navigateToSchool(schoolCode: string) {
 export function navigateToParent() {
   router.go(-1);
 }
+
+export function navigateToProgrammeExternal(programmeCode: string) {
+  const url = router.resolve({ path: `/programme/${programmeCode}` }).href;
+  window.open(url, '_blank');
+}

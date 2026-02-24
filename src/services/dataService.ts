@@ -1,6 +1,6 @@
 // src/services/dataService.ts
 import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where, orderBy } from "firebase/firestore";
 import type { Course } from "@/types/course";
 import type { Programme, ProgrammeStructure } from "@/types/programme";
 import type { School } from "@/types/school";
@@ -28,6 +28,15 @@ async function fetchDocsByCode<T>(collectionName: string, codeString: string): P
 async function fetchCollection<T>(collectionName: string): Promise<T[]> {
   const snapshot = await getDocs(collection(db, collectionName));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+}
+
+export interface MappedProgramme {
+  name: string;
+  code: string;
+  school: {
+    name: string;
+    code: string;
+  } | null;
 }
 
 export const dataService = {
@@ -58,6 +67,13 @@ export const dataService = {
     await setDoc(doc(db, "programmes", programme.id), programme);
   },
 
+  async getNameOfProgrammes(codes: string[]): Promise<Map<string, string>> {
+    const programmes = await this.getProgrammes();
+    const programmenames = new Map<string, string>();
+    programmes.filter(p => codes.includes(p.code)).forEach(p => programmenames.set(p.code, p.name));
+    return programmenames;
+  },
+
   // --- Schools ---
   async getSchools(): Promise<School[]> {
     return fetchCollection<School>("schools");
@@ -70,6 +86,71 @@ export const dataService = {
 
   async saveSchool(school: School): Promise<void> {
     await setDoc(doc(db, "schools", school.id), school);
+  },
+
+  // Programmes with schools
+  async getProgrammesMappedBySchool(): Promise<MappedProgramme[]> {
+    try {
+      // 1. Fetch sorted collections
+      const progQuery = query(collection(db, 'programmes'), orderBy('revision', 'desc'));
+      const schoolQuery = query(collection(db, 'schools'), orderBy('revision', 'desc'));
+
+      const [progSnap, schoolSnap] = await Promise.all([
+        getDocs(progQuery),
+        getDocs(schoolQuery)
+      ]);
+
+      // 2. Create a Map of which Programme Code belongs to which School
+      // Key: Programme Code, Value: School Object {name, code}
+      const progToSchoolMap = new Map<string, { name: string; code: string }>();
+      const processedSchools = new Set<string>();
+
+      schoolSnap.forEach(doc => {
+        const schoolData = doc.data();
+        const schoolCode = schoolData.code;
+
+        if (processedSchools.has(schoolCode)) return;
+        processedSchools.add(schoolCode);
+
+        // Using your array of strings for programmes in the school doc
+        if (Array.isArray(schoolData.programmes)) {
+          schoolData.programmes.forEach((progCode: string) => {
+            // Only map if not already mapped (since we sorted by newest school first)
+            if (!progToSchoolMap.has(progCode)) {
+              progToSchoolMap.set(progCode, {
+                name: schoolData.name || 'Unknown School',
+                code: schoolData.code
+              });
+            }
+          });
+        }
+      });
+
+      // 3. Build the final list starting from the Programmes collection
+      const finalMapping: MappedProgramme[] = [];
+      const processedCodes = new Set<string>();
+
+      progSnap.forEach(doc => {
+        const progData = doc.data();
+        const progCode = progData.code;
+
+        // Skip if we've already processed this code (for multi-doc revisions)
+        if (!progCode || processedCodes.has(progCode)) return;
+        processedCodes.add(progCode);
+
+        finalMapping.push({
+          code: progCode,
+          name: progData.name || 'Unnamed Programme',
+          // Look up the school in our map; if not found, it remains null
+          school: progToSchoolMap.get(progCode) || null
+        });
+      });
+
+      return finalMapping;
+    } catch (error) {
+      console.error("Error fetching sorted data:", error);
+      throw error;
+    }
   },
 
   // --- Structures ---

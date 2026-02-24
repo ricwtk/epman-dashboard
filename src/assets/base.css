@@ -229,9 +229,9 @@
   .card-plain {
     @apply rounded-md m-2 p-2 bg-card text-card-foreground border border-border shadow-sm;
   }
-  button {
-    @apply !rounded-sm;
-  }
+  /*button {
+    @apply rounded-sm;
+  }*/
   .content-item-title {
     @apply text-xs font-light text-gray-500 mb-0.5;
   }
