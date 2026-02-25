@@ -1,4 +1,5 @@
 import { ref, type Ref, toRaw, computed } from 'vue';
+import { computedAsync } from '@vueuse/core';
 import type { Programme } from "@/types/programme";
 import { createNewProgramme } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
@@ -9,7 +10,6 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 import { dataService } from '@/services/dataService';
 
-import { getSchoolByProgrammeCode } from "@/utils/schoolHelpers";
 import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
 
 export const useEditingProgrammeStore = defineStore('editing-programme', () => {
@@ -22,8 +22,8 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     return getStructureLabelsByProgramme(programme.value.code);
   })
 
-  const school = computed(() => {
-    return getSchoolByProgrammeCode(programme.value.code);
+  const school = computedAsync(async () => {
+    return await dataService.getSchoolByProgrammeCode(programme.value.code);
   });
 
   function resetProgramme(): void {

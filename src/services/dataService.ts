@@ -88,6 +88,34 @@ export const dataService = {
     await setDoc(doc(db, "schools", school.id), school);
   },
 
+  /**
+    * Identifies if a programme is currently part of any school's latest revision.
+    * @param programmeCode - The unique code of the programme to find.
+    */
+  async getSchoolByProgrammeCode(programmeCode: string): Promise<School | null> {
+    try {
+      const q = query(collection(db, 'schools'), orderBy('revision', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const processedSchoolIds = new Set<string>();
+      for (const doc of querySnapshot.docs) {
+        const schoolId = doc.id;
+        if (processedSchoolIds.has(schoolId)) continue;
+        processedSchoolIds.add(schoolId);
+
+        const data = doc.data();
+        const programmes = data.programmes || [];
+
+        if (Array.isArray(programmes) && programmes.includes(programmeCode)) {
+          return data as School;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error("Error finding parent school from latest revisions:", error);
+      throw error;
+    }
+  },
+
   // Programmes with schools
   async getProgrammesMappedBySchool(): Promise<MappedProgramme[]> {
     try {
