@@ -19,6 +19,7 @@ import CreateLabelPopover from '@/components/CreateLabelPopover.vue';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { formatRevision } from '@/utils/common';
 import { createNewStructure } from '@/utils/structureHelpers';
+import { Button } from '@/components/ui/button';
 
 import { dataService } from '@/services/dataService';
 import { useAuthStore } from '@/stores/auth';
@@ -90,6 +91,18 @@ const addNewStructure = async (newLabel: string) => {
   }
   // editingStructureStore.createStructure(programme.value.code, newLabel);
 };
+
+const deleteRevision = async () => {
+  try {
+    console.log(editingStructureStore.structure.id);
+    const { updatedStructureLabel, updatedRevisionIndex } = await editingProgrammeStore.deleteStructure(editingStructureStore.structure);
+
+    // await dataService.deleteStructure(selectedStructure.value);
+  } catch (error) {
+    console.error('Error deleting structure:', error);
+  }
+};
+
 </script>
 
 <template>
@@ -140,6 +153,7 @@ const addNewStructure = async (newLabel: string) => {
               </SelectContent>
             </Select>
           </div>
+          <Button variant="destructive" @click="deleteRevision">Delete revision</Button>
         </template>
       </StructureGrid>
 

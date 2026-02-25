@@ -27,8 +27,6 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
   }
 
   function getDiff() {
-    console.log(structure.value)
-    console.log(originalStructure.value)
     return diff(originalStructure.value, structure.value)
     // return diff(structure.value, originalStructure.value)
   }

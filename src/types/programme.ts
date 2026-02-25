@@ -43,7 +43,8 @@ export interface ProgrammeStructure {
   id: string;
   programme: string;
   label: string; // 'default' | 'direct entry' | student name
-  structure: string[][]; // array of array of course codes
+  // structure: { [semesterKey: string]: string[] };
+  structure: string[][];
   committed: {
     on: Date | null;
     by: string;

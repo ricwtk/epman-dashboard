@@ -1,6 +1,6 @@
 import { ref, type Ref, toRaw, computed } from 'vue';
 import { computedAsync } from '@vueuse/core';
-import type { Programme } from "@/types/programme";
+import type { Programme, ProgrammeStructure } from "@/types/programme";
 import { createNewProgramme } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
 import { get, set, has, unset } from 'lodash-es';
@@ -133,5 +133,30 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     }
   }
 
-  return { selectedTab, school, programme, structures, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff, updated, commitProgramme, saveProgramme }
+  async function deleteStructure(structToDelete: ProgrammeStructure) {
+    const structureId = structToDelete.id;
+    const structureLabel = structToDelete.label;
+    await dataService.deleteItem("structures", structureId);
+    const indexToDelete = structures.value![structureLabel]!.findIndex(x => x.id === structureId);
+    if (indexToDelete !== -1) {
+      structures.value![structureLabel]!.splice(indexToDelete, 1);
+    }
+    let updatedStructureLabel = ""
+    let updatedRevisionIndex = -1
+    if (structures.value![structureLabel]!.length === 0) {
+      delete structures.value![structureLabel];
+    } else {
+      updatedStructureLabel = structureLabel
+      if (indexToDelete !== -1) {
+        if (structures.value![structureLabel]![indexToDelete]) {
+          updatedRevisionIndex = indexToDelete
+        } else {
+          updatedRevisionIndex = indexToDelete-1
+        }
+      }
+    }
+    return { updatedStructureLabel, updatedRevisionIndex }
+  }
+
+  return { selectedTab, school, programme, structures, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff, updated, commitProgramme, saveProgramme, deleteStructure }
 })
