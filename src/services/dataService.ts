@@ -194,9 +194,7 @@ export const dataService = {
   },
 
   async saveStructure(structure: ProgrammeStructure): Promise<void> {
-    // Structures might need a composite ID or specific naming convention
-    const id = `${structure.programme}_${structure.label}`;
-    await setDoc(doc(db, "structures", id), structure);
+    await setDoc(doc(db, "structures", structure.id), structure);
   },
 
   async deleteItem(collectionName: string, docId: string) {

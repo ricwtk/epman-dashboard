@@ -1,6 +1,8 @@
 import { type ProgrammeStructure } from "@/types/programme";
 import { structures } from "./structureExamples";
 import { getCourseInfoByCode } from "./courseHelpers";
+import { BetweenVerticalStart } from "lucide-vue-next";
+import { formatStructureId } from "./common";
 
 // using structureExamples
 export const getStructureByProgrammeAndLabel = (
@@ -102,7 +104,8 @@ export const convertStructureToTable = (
 export const createNewStructure = (
   overrides?: Partial<ProgrammeStructure>
 ): ProgrammeStructure => {
-  return {
+  const newStructure = {
+    id: "",
     programme: "",
     label: "",
     structure: [],
@@ -114,4 +117,6 @@ export const createNewStructure = (
     parentRevision: "",
     ...overrides
   };
+  newStructure.id = formatStructureId(newStructure);
+  return newStructure;
 };

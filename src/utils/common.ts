@@ -1,7 +1,7 @@
 import diff from 'microdiff';
 import { get, set, cloneDeep } from 'lodash-es'
 import type { Course } from '@/types/course';
-import type { Programme } from '@/types/programme';
+import type { Programme, ProgrammeStructure } from '@/types/programme';
 
 function isPrimitive(val: unknown): val is string | number | boolean | null | undefined {
   return val === null || (typeof val !== 'object' && typeof val !== 'function');
@@ -139,4 +139,14 @@ interface FormatIdInput {
 
 export function formatId<T extends FormatIdInput>(item: T): string {
   return `${item.code}-${item.revision}`
+}
+
+interface FormatStructureIdInput {
+  programme: string;
+  label: string;
+  revision: string;
+}
+
+export function formatStructureId<T extends FormatStructureIdInput>(item: T): string {
+  return `${item.programme}-${item.label}-${item.revision}`
 }

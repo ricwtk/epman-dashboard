@@ -18,8 +18,9 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
 
-  const structureLabels = computed(() => {
-    return getStructureLabelsByProgramme(programme.value.code);
+  const structures = computedAsync(async () => {
+    // return getStructureLabelsByProgramme(programme.value.code);
+    return await dataService.getStructuresByProgramme(programme.value.code);
   })
 
   const school = computedAsync(async () => {
@@ -132,5 +133,5 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     }
   }
 
-  return { selectedTab, school, programme, structureLabels, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff, updated, commitProgramme, saveProgramme }
+  return { selectedTab, school, programme, structures, resetProgramme, loadProgramme, checkDiff, resetDiff, checkMappingDiff, resetMappingDiff, updated, commitProgramme, saveProgramme }
 })
