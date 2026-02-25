@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import ResetButton from '@/components/ResetButton.vue';
 import Summary from './update/Summary.vue'
+import Peo from './update/Peo.vue'
 import Po from './update/Po.vue'
 import PoMapping from './update/PoMapping.vue'
 import Structure from './update/Structure.vue'
@@ -49,6 +50,7 @@ const saveProgramme = () => { editingProgrammeStore.saveProgramme(); }
         <div class="overflow-auto">
           <TabsList>
             <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="peo">PEO</TabsTrigger>
             <TabsTrigger value="po">PO</TabsTrigger>
             <TabsTrigger value="exambased">Exam Based</TabsTrigger>
             <TabsTrigger value="projectbased">Project Based</TabsTrigger>
@@ -62,6 +64,9 @@ const saveProgramme = () => { editingProgrammeStore.saveProgramme(); }
       <div class="overflow-auto h-[calc(100vh-300px)]">
         <TabsContent value="summary" class="w-full">
            <Summary />
+        </TabsContent>
+        <TabsContent value="peo">
+          <Peo />
         </TabsContent>
         <TabsContent value="po">
           <Po />

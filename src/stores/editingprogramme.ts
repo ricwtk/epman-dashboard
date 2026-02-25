@@ -42,11 +42,30 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   function checkDiff(pathArray: string[]): boolean {
     if (!pathArray.length)
       return diff(programme.value, originalProgramme.value).length > 0;
-    const original = get(originalProgramme.value, pathArray)
-    const current = get(programme.value, pathArray)
-    if (original && current) {
-      return diff(original, current).length > 0 || original.length !== current.length;
-    } else return true;
+
+    const original = get(originalProgramme.value, pathArray);
+    const current = get(programme.value, pathArray);
+
+    // If both are arrays
+    if (Array.isArray(original) && Array.isArray(current)) {
+      return (
+        diff(original, current).length > 0 ||
+        original.length !== current.length
+      );
+    }
+
+    // If both are objects
+    if (
+      original !== null &&
+      current !== null &&
+      typeof original === 'object' &&
+      typeof current === 'object'
+    ) {
+      return diff(original, current).length > 0;
+    }
+
+    // Primitive comparison (string, number, boolean, null, undefined)
+    return original !== current;
   }
 
   function checkMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): boolean {
