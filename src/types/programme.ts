@@ -31,6 +31,7 @@ export interface Programme {
   name: string;
   revision: string;
   parentRevision: string;
+  peoList: string[];
   poList: Po[];
   committed: {
     on: Date | null;

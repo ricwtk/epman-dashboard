@@ -46,6 +46,7 @@ export const createNewProgramme = (overrides?: Partial<Programme>): Programme =>
     name: "",
     revision: "",
     parentRevision: "",
+    peoList: [],
     poList: [],
     committed: {
       on: null,

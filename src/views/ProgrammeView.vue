@@ -5,6 +5,7 @@ import NavIndicator from '@/components/NavIndicator.vue';
 import { RevisionDropdown, RevisionDeleteButton } from '@/components/revision';
 
 import ProgrammeSummary from '@/components/programme/ProgrammeSummary.vue';
+import ProgrammePeo from '@/components/programme/ProgrammePeo.vue';
 import ProgrammePo from '@/components/programme/ProgrammePo.vue';
 import PoMapping from '@/components/programme/PoMapping.vue';
 import ProgrammeUpdateDialog from '@/components/programme/ProgrammeUpdateDialog.vue';
@@ -69,6 +70,12 @@ const deleteRevision = () => {
       :programme="viewingProgrammeStore.programme"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
+    />
+    <ProgrammePeo
+      :editable="authStore.canEditProgrammes"
+      :peoList="viewingProgrammeStore.programme.peoList"
+      :editing="editing"
+      @update:editing="(ev) => updateEditing(ev, 'peo')"
     />
     <ProgrammePo
       :editable="authStore.canEditProgrammes"
