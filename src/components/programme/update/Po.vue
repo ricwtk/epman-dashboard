@@ -13,7 +13,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusIcon, MinusIcon, RotateCcwIcon } from 'lucide-vue-next';
+import { PlusIcon, MinusIcon } from 'lucide-vue-next';
+import ResetButton from '@/components/ResetButton.vue';
+import VerticalText from '@/components/VerticalText.vue';
+import { Checkbox } from '@/components/ui/checkbox';
 
 import { createNewPo } from '@/utils/programmeHelpers';
 
@@ -37,34 +40,46 @@ const addItem = () => {
 const removeItem = (index: number) => {
   programme.value.poList.splice(index, 1);
 }
+
+const resetItem = (index: number) => {
+  editingProgrammeStore.resetDiff(["poList", String(index)]);
+}
+
+const togglePeo = (poIndex: number, peoIndex: number) => {
+  if (programme.value.poList[poIndex]) {
+    programme.value.poList[poIndex].mapping.peo = peoIndex + 1;
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
     <div class="font-semibold flex flex-row items-center gap-1">
       Programme Outcomes Definition
-      <Button v-if="overallDiff"
-        variant="ghost"
-        class="reset-button"
-        @click="resetDiff"
-      >
-        <RotateCcwIcon />
-      </Button>
+      <ResetButton :disabled="!overallDiff" @reset="resetDiff" />
     </div>
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead></TableHead>
-          <TableHead class="w-0 text-center">#</TableHead>
-          <TableHead>Attribute</TableHead>
-          <TableHead>Descriptor</TableHead>
+          <TableHead class="w-0"></TableHead>
+          <TableHead class="w-0 text-center align-bottom">#</TableHead>
+          <TableHead class="align-bottom">Attribute</TableHead>
+          <TableHead class="align-bottom">Descriptor</TableHead>
+          <TableHead class="w-0 text-center" v-if="programme.peoList.length == 0">No PEO defined</TableHead>
+          <TableHead class="w-0 text-center align-bottom" v-else
+            v-for="(item, index) in programme.peoList"
+            :key="index"
+          >
+            <VerticalText :label="`PEO${Number(index) + 1}`" :content="item.slice(0,10)+(item.length > 10 ? '...' : '')"/>
+          </TableHead>
+          <TableHead class="w-0"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         <TableRow
           v-for="(item, index) in programme.poList"
           :key="index"
-          :class="diffs[index] ? 'bg-yellow-100' : ''"
+          :class="diffs[index] ? 'bg-amber-100 hover:bg-amber-200' : ''"
         >
           <TableCell>
             <Button variant="destructive" @click="removeItem(Number(index))">
@@ -78,9 +93,23 @@ const removeItem = (index: number) => {
           <TableCell>
             <Textarea v-model="item.descriptor"></Textarea>
           </TableCell>
+          <TableCell class="w-0" v-if="programme.peoList.length == 0"></TableCell>
+          <TableCell class="w-0 text-center align-middle" v-else
+            v-for="(peo, peoIndex) in programme.peoList"
+            :key="peoIndex"
+          >
+            <Checkbox
+              :id="`po-${index}-peo-${peoIndex}`"
+              :modelValue="item.mapping.peo == peoIndex + 1"
+              @update:modelValue="togglePeo(index, peoIndex)"
+            />
+          </TableCell>
+          <TableCell class="w-0">
+            <ResetButton :disabled="!diffs[index]" @click="resetItem(index)" />
+          </TableCell>
         </TableRow>
         <TableRow>
-          <TableCell colspan="4">
+          <TableCell :colspan="4 + (programme.peoList.length == 0 ? 1 : programme.peoList.length)">
             <Button variant="default" class="w-full" @click="addItem">
               <PlusIcon />
               Add PO

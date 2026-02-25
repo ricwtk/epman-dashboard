@@ -2,7 +2,7 @@ import { ref, type Ref, toRaw, computed } from 'vue';
 import type { Programme } from "@/types/programme";
 import { createNewProgramme } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
-import { get, set } from 'lodash-es';
+import { get, set, has, unset } from 'lodash-es';
 import diff from 'microdiff';
 import { formatRevision, formatId } from '@/utils/common';
 import { useAuthStore } from '@/stores/auth';
@@ -35,8 +35,26 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   }
 
   function resetDiff(pathArray: string[]): void {
-    const original = get(originalProgramme.value, pathArray)
-    set(programme.value, pathArray, original)
+    const existsInOriginal = has(originalProgramme.value, pathArray);
+    if (!existsInOriginal) {
+      const parentPath = pathArray.slice(0, -1);
+      const key = pathArray[pathArray.length - 1];
+
+      const parent = get(programme.value, parentPath);
+
+      if (key) {
+        if (Array.isArray(parent) && !isNaN(Number(key))) {
+          parent.splice(Number(key), 1);
+        } else {
+          delete parent[key];
+        }
+      }
+
+      return;
+    }
+    // Field exists → reset to original value
+    const original = get(originalProgramme.value, pathArray);
+    set(programme.value, pathArray, original);
   }
 
   function checkDiff(pathArray: string[]): boolean {

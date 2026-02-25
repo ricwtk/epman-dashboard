@@ -2,6 +2,10 @@
 import { Button } from '@/components/ui/button';
 import { RotateCcwIcon } from 'lucide-vue-next';
 
+defineProps<{
+  disabled?: boolean;
+}>();
+
 defineEmits<{
   (e: 'reset'): void;
 }>();
@@ -13,6 +17,7 @@ defineEmits<{
     size="icon-sm"
     class="reset-button"
     @click="$emit('reset')"
+    :disabled="disabled"
   >
     <RotateCcwIcon />
   </Button>
@@ -28,5 +33,8 @@ defineEmits<{
 }
 .reset-button:active {
   @apply text-destructive/60;
+}
+.reset-button:disabled {
+  @apply text-muted;
 }
 </style>
