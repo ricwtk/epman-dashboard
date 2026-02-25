@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusIcon, MinusIcon, RotateCcwIcon } from 'lucide-vue-next';
+import { PlusIcon, MinusIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
 
 const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
@@ -21,7 +21,7 @@ const overallDiff = computed(() => {
   return editingProgrammeStore.checkDiff(["peoList"]);
 });
 const diffs = computed(() => {
-  return programme.value.poList.map((_: any, index: number) =>
+  return programme.value.peoList.map((_: any, index: number) =>
     editingProgrammeStore.checkDiff(["peoList", String(index)])
   );
 });
@@ -36,13 +36,17 @@ const addItem = () => {
 const removeItem = (index: number) => {
   programme.value.peoList.splice(index, 1);
 }
+
+const resetItem = (index: number) => {
+  editingProgrammeStore.resetDiff(["peoList", String(index)]);
+}
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
     <div class="font-semibold flex flex-row items-center gap-1">
       Programme Education Outcomes Definition
-      <ResetButton v-if="overallDiff" @reset="resetDiff" />
+      <ResetButton :disabled="!overallDiff" @reset="resetDiff" />
     </div>
     <Table>
       <TableHeader>
@@ -50,13 +54,14 @@ const removeItem = (index: number) => {
           <TableHead class="w-0 text-center"></TableHead>
           <TableHead class="w-0 text-center">#</TableHead>
           <TableHead>Descriptor</TableHead>
+          <TableHead class="w-0"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         <TableRow
           v-for="(item, index) in programme.peoList"
           :key="index"
-          :class="diffs[index] ? 'bg-yellow-100' : ''"
+          :class="diffs[index] ? 'bg-amber-100 hover:bg-amber-200' : ''"
         >
           <TableCell>
             <Button variant="destructive" @click="removeItem(Number(index))">
@@ -65,7 +70,10 @@ const removeItem = (index: number) => {
           </TableCell>
           <TableCell class="text-center">{{ `PEO${Number(index) + 1}` }}</TableCell>
           <TableCell>
-            <Input v-model="programme.peoList[index]"></Input>
+            <Textarea v-model="programme.peoList[index]"></Textarea>
+          </TableCell>
+          <TableCell>
+            <ResetButton :disabled="!diffs[index]" @reset="resetItem(index)" />
           </TableCell>
         </TableRow>
         <TableRow>
