@@ -39,6 +39,10 @@ export interface MappedProgramme {
   } | null;
 }
 
+export interface GroupedStructures {
+  [label: string]: ProgrammeStructure[];
+}
+
 export const dataService = {
   // --- Courses ---
   async getCourses(): Promise<Course[]> {
@@ -187,10 +191,37 @@ export const dataService = {
   },
 
   // Get structures for a specific programme
-  async getStructuresByProgramme(programmeCode: string): Promise<ProgrammeStructure[]> {
-    const q = query(collection(db, "structures"), where("programme", "==", programmeCode));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data() as ProgrammeStructure);
+  async getStructuresByProgramme(programmeCode: string): Promise<GroupedStructures> {
+    try {
+      const q = query(
+        collection(db, "structures"),
+        where("programme", "==", programmeCode),
+        orderBy("revision", 'desc') // Database already sorts descending
+      );
+
+      const snapshot = await getDocs(q);
+
+      // 1. Get the raw data
+      const allStructures = snapshot.docs.map(doc => doc.data() as ProgrammeStructure);
+
+      // 2. Group by label using reduce
+      const grouped = allStructures.reduce((acc: GroupedStructures, structure) => {
+        const label = structure.label || 'Unlabeled';
+
+        if (!acc[label]) {
+          acc[label] = [];
+        }
+
+        acc[label].push(structure);
+        return acc;
+      }, {});
+
+      console.log(grouped);
+      return grouped;
+    } catch (error) {
+      console.error("Error fetching grouped structures:", error);
+      throw error;
+    }
   },
 
   async saveStructure(structure: ProgrammeStructure): Promise<void> {

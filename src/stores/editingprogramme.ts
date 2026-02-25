@@ -8,7 +8,7 @@ import diff from 'microdiff';
 import { formatRevision, formatId } from '@/utils/common';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
-import { dataService } from '@/services/dataService';
+import { dataService, type GroupedStructures } from '@/services/dataService';
 
 import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
 
@@ -18,7 +18,7 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
 
-  const structures = computedAsync(async () => {
+  const structures: Ref<GroupedStructures | undefined> = computedAsync(async () => {
     // return getStructureLabelsByProgramme(programme.value.code);
     return await dataService.getStructuresByProgramme(programme.value.code);
   })

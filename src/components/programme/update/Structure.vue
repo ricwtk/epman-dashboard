@@ -45,12 +45,32 @@ watch(structureDisplayMode, (newMode) => {
 });
 
 const selectedStructureLabel = ref<string | null>(null);
-const labels = computed(() => editingProgrammeStore.structures?.map((structure) => structure.label) || []);
+const labels = computed(() => Object.keys(editingProgrammeStore.structures ?? {}));
 watch(selectedStructureLabel, (newLabel) => {
   if (newLabel) {
-    editingStructureStore.loadStructure(programme.value.code, newLabel);
+    selectedRevision.value = editingProgrammeStore.structures?.[newLabel]?.[0]?.revision ?? null;
+    // editingStructureStore.loadStructure(programme.value.code, newLabel);
   }
 });
+
+const selectedRevision = ref<string | null>(null);
+const revisionsOfSelectedLabel = computed(() => {
+  if (selectedStructureLabel.value) {
+    return editingProgrammeStore.structures?.[selectedStructureLabel.value]?.map(srec => srec.revision ?? '');
+  }
+  return [];
+});
+watch(selectedRevision, (newRevision) => {
+  if (newRevision) {
+    // editingStructureStore.loadStructure(programme.value.code, selectedStructureLabel.value, newRevision);
+    console.log(selectedStructureLabel.value, selectedRevision.value)
+    if (selectedStructureLabel.value && selectedRevision.value) {
+      const sRevision = editingProgrammeStore.structures?.[selectedStructureLabel.value]?.find(srec => srec.revision === newRevision)
+      if (sRevision) editingStructureStore.copyStructureFrom(sRevision);
+    }
+  }
+});
+
 const addNewStructure = async (newLabel: string) => {
   const newStructureParameters = {
     programme: programme.value.code,
@@ -100,9 +120,25 @@ const addNewStructure = async (newLabel: string) => {
 
       <StructureGrid v-model="structure.structure" :editable="true">
         <template #header>
-          <div class="flex flex-col gap-1 grow">
+          <div class="flex flex-col gap-1">
             <Label for="label">Label</Label>
-            <Input id="label" placeholder="Label for Programme Structure" v-model="structure.label"/>
+            <Input id="label" placeholder="Label for Programme Structure" v-model="structure.label" disabled/>
+          </div>
+          <div class="flex flex-col gap-1 grow">
+            <Label for="revision">Revision</Label>
+            <Select id="revision" v-model="selectedRevision">
+              <SelectTrigger class="w-full">
+                <SelectValue placeholder="Select a revision" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem
+                    v-for="srev in revisionsOfSelectedLabel"
+                    :value="srev"
+                  >{{ srev }}</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </template>
       </StructureGrid>

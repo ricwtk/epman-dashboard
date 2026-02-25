@@ -39,5 +39,10 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
     structure.value = structuredClone(progstruct)
   }
 
-  return { structure, originalStructure, resetStructure, resetDiff, checkDiff, getDiff, loadStructure }
+  function copyStructureFrom(struc: ProgrammeStructure): void {
+    originalStructure.value = structuredClone(toRaw(struc))
+    structure.value = structuredClone(toRaw(struc))
+  }
+
+  return { structure, originalStructure, resetStructure, resetDiff, checkDiff, getDiff, loadStructure, copyStructureFrom }
 })
