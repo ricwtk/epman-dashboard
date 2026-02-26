@@ -89,7 +89,6 @@ const addNewStructure = async (newLabel: string) => {
   } catch (error) {
     console.error('Error saving structure:', error);
   }
-  // editingStructureStore.createStructure(programme.value.code, newLabel);
 };
 
 const deleteRevision = async () => {

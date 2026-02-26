@@ -150,3 +150,7 @@ interface FormatStructureIdInput {
 export function formatStructureId<T extends FormatStructureIdInput>(item: T): string {
   return `${item.programme}-${item.label}-${item.revision}`
 }
+
+export function zeroPad(num: number, length = 2): string {
+  return String(num).padStart(length, '0')
+}

@@ -20,14 +20,17 @@ watch(structureDisplayMode, (newMode) => {
 });
 
 import { getCourseInfoInStructure } from "@/utils/structureHelpers"
-const structureArray = defineModel<string[][]>({ default: [[]] })
-const structureArrayWithCourseInfo = computed(() => getCourseInfoInStructure(structureArray.value))
+// const structureArray = defineModel<string[][]>({ default: [[]] })
+// const structureArrayWithCourseInfo = computed(() => getCourseInfoInStructure(structureArray.value))
+const structureObject = ref<{ [semesterKey: string]: string[] }>({});
+const structureObjectWithCourseInfo = computed(() => getCourseInfoInStructure(structureObject.value))
+const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
 
 const col_n = computed(() =>
   structureDisplayMode.value ?
     structureDisplayMode.value == "by year" ?
-      Math.ceil(structureArray.value.length / NUMBER_OF_SEMESTER_PER_YEAR)
-      : structureArray.value.length
+      Math.ceil(semesterKeys.value.length / NUMBER_OF_SEMESTER_PER_YEAR)
+      : semesterKeys.value.length
     : 0
 )
 const row_n = computed(() =>
@@ -51,14 +54,15 @@ const row_header = computed(() =>
       : ""
     : ""
 )
-const sem_indices = computed(() => {
+const sem_keys = computed(() => {
   if (!structureDisplayMode.value) return []
   else {
     let all_sem = []
     for (let r = 0; r < row_n.value; r++) {
       let one_row = []
       for (let c = 0; c < col_n.value; c++) {
-        one_row.push(c * row_n.value + r)
+        const idx = c * row_n.value + r
+        one_row.push(semesterKeys.value[idx] ?? '')
       }
       all_sem.push(one_row)
     }
@@ -66,8 +70,8 @@ const sem_indices = computed(() => {
   }
 })
 
-const onDragStart = (event: DragEvent, semIndex: number, courseIndex: number) => {
-  event.dataTransfer!.setData('application/json', JSON.stringify({sem: semIndex, course: courseIndex}));
+const onDragStart = (event: DragEvent, semKey: string, courseIndex: number) => {
+  event.dataTransfer!.setData('application/json', JSON.stringify({sem: semKey, course: courseIndex}));
   event.dataTransfer!.effectAllowed = 'move';
 };
 
@@ -79,12 +83,12 @@ const onDragOver = (event: DragEvent) => {
   event.preventDefault();
 };
 
-const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: string|null) => {
+const onDrop = (event: DragEvent, semKey: string, courseIndex: number, zone: string|null) => {
   const originalPosition = JSON.parse(event.dataTransfer!.getData('application/json'))
-  const newPosition = { sem: semIndex, course: courseIndex, place: zone}
+  const newPosition = { sem: semKey, course: courseIndex, place: zone}
 
   // 1. Remove item
-  const [item] = structureArray.value[originalPosition.sem]!.splice(originalPosition.course, 1)
+  const [item] = structureObject.value[originalPosition.sem]!.splice(originalPosition.course, 1)
 
   // 2. Fix indices if removal affects destination
   if (originalPosition.sem === newPosition.sem
@@ -94,10 +98,29 @@ const onDrop = (event: DragEvent, semIndex: number, courseIndex: number, zone: s
   if (newPosition.place === 'bottom') { newPosition.course += 1 }
 
   // Clamp column index
-  newPosition.course = Math.max(0, Math.min(newPosition.course, structureArray.value[newPosition.sem]!.length))
+  newPosition.course = Math.max(0, Math.min(newPosition.course, structureObject.value[newPosition.sem]!.length))
 
   // 3. Insert item
-  structureArray.value[newPosition.sem]!.splice(newPosition.course, 0, item || "")
+  structureObject.value[newPosition.sem]!.splice(newPosition.course, 0, item || "")
+};
+
+import { zeroPad } from '@/utils/common';
+const addSemester = (asSemNumber = -1) => {
+  if (asSemNumber <= 0) {
+    const newSemesterKey = `Semester ${zeroPad(semesterKeys.value.length + 1)}`
+    structureObject.value[newSemesterKey] = []
+  } else {
+    if (asSemNumber <= semesterKeys.value.length) {
+      for (let i = semesterKeys.value.length; i >= asSemNumber; i--) {
+        const newSemesterKey = `Semester ${zeroPad(i + 1)}`
+        const oldSemesterKey = `Semester ${zeroPad(i)}`
+        structureObject.value[newSemesterKey] = structureObject.value[oldSemesterKey] || []
+        delete structureObject.value[oldSemesterKey]
+      }
+    }
+    const newSemesterKey = `Semester ${zeroPad(asSemNumber)}`
+    structureObject.value[newSemesterKey] = []
+  }
 };
 
 import {
@@ -140,7 +163,7 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
         </SelectContent>
       </Select>
     </div>
-    <Table v-if="structureArray && structureArray.length > 0">
+    <Table v-if="structureObject && semesterKeys.length > 0">
       <TableHeader>
         <TableRow>
           <TableHead v-if="row_header!==''"></TableHead>
@@ -152,14 +175,14 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="row, row_index in sem_indices">
+        <TableRow v-for="row, row_index in sem_keys">
           <TableHead v-if="row_header!==''">{{ `${row_header} ${row_index+1}` }}</TableHead>
-          <TableCell v-for="sem_index, col_index in row"
+          <TableCell v-for="sem_key, col_index in row"
             class="text-center align-top"
           >
             <Table>
               <TableBody>
-                <TableRow v-for="course, course_index in structureArrayWithCourseInfo[sem_index]">
+                <TableRow v-for="course, course_index in structureObjectWithCourseInfo[sem_key!]">
                   <TableCell class="py-0 min-w-50">
                     <ContextMenu>
                       <ContextMenuTrigger>
@@ -168,8 +191,8 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
                           :code="course.code"
                           :name="course.name"
                           :credits="course.credits"
-                          @drag-start="(event: DragEvent) => onDragStart(event, sem_index, course_index)"
-                          @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_index, course_index, zone)"
+                          @drag-start="(event: DragEvent) => onDragStart(event, sem_key, course_index)"
+                          @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, course_index, zone)"
                         />
                       </ContextMenuTrigger>
                       <ContextMenuContent class="w-fit">
@@ -188,7 +211,11 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
                 </TableRow>
                 <TableRow v-if="editable">
                   <TableCell>
-                    <Button size="sm" class="w-full bg-muted text-muted-foreground"><PlusIcon/></Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      class="w-full"
+                    ><PlusIcon/></Button>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -197,5 +224,11 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
         </TableRow>
       </TableBody>
     </Table>
+
+    <Button v-else
+      v-if="editable"
+      variant="secondary"
+      @click="addSemester"
+    >Add Semester</Button>
   </div>
 </template>

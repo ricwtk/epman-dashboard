@@ -39,16 +39,25 @@ export const getStructureLabelsByProgramme = (
     .map((item) => item.label);
 };
 
+
+export interface CourseInfo {
+  code: string;
+  name: string;
+  credits: number;
+}
 /**
  * Retrieves all course information associated with a specific Structure.
- * @param structure - The structure array with course codes.
+ * @param structure - The structure object with semester as key and course codes as list.
  * @returns The structure array with course information.
  */
 export const getCourseInfoInStructure = (
-  structure: string[][],
-): { code: string, name: string, credits: number }[][] => {
-  return structure.map((sem) =>
-    sem.map((course) => getCourseInfoByCode(course))
+  structure: { [semesterKey: string]: string[] },
+): { [semesterKey: string]: CourseInfo[] } => {
+  return Object.fromEntries(
+    Object.entries(structure).map(([semesterKey, courses]) => [
+      semesterKey,
+      courses.map((course) => getCourseInfoByCode(course)),
+    ])
   );
 };
 
