@@ -85,7 +85,7 @@ const addNewStructure = async (newLabel: string) => {
   const newStructure = createNewStructure(newStructureParameters);
   try {
     await dataService.saveStructure(newStructure);
-    // await updateProgrammeList();
+    editingProgrammeStore.structureTrigger++
   } catch (error) {
     console.error('Error saving structure:', error);
   }
@@ -95,9 +95,15 @@ const addNewStructure = async (newLabel: string) => {
 const deleteRevision = async () => {
   try {
     console.log(editingStructureStore.structure.id);
-    const { updatedStructureLabel, updatedRevisionIndex } = await editingProgrammeStore.deleteStructure(editingStructureStore.structure);
-
-    // await dataService.deleteStructure(selectedStructure.value);
+    const { updatedStructureLabel, updatedRevision } = await editingProgrammeStore.deleteStructure(editingStructureStore.structure);
+    editingProgrammeStore.structureTrigger++
+    if (updatedStructureLabel) {
+      selectedStructureLabel.value = updatedStructureLabel;
+      selectedRevision.value = updatedRevision;
+    } else {
+      selectedRevision.value = null;
+      selectedStructureLabel.value = null;
+    }
   } catch (error) {
     console.error('Error deleting structure:', error);
   }
