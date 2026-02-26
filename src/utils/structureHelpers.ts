@@ -1,4 +1,5 @@
 import { type ProgrammeStructure } from "@/types/programme";
+import { type CourseInfo } from "@/types/course";
 import { structures } from "./structureExamples";
 import { getCourseInfoByCode } from "./courseHelpers";
 import { BetweenVerticalStart } from "lucide-vue-next";
@@ -39,12 +40,6 @@ export const getStructureLabelsByProgramme = (
     .map((item) => item.label);
 };
 
-
-export interface CourseInfo {
-  code: string;
-  name: string;
-  credits: number;
-}
 /**
  * Retrieves all course information associated with a specific Structure.
  * @param structure - The structure object with semester as key and course codes as list.
@@ -117,7 +112,7 @@ export const createNewStructure = (
     id: "",
     programme: "",
     label: "",
-    structure: [],
+    structure: {},
     committed: {
       on: null, // Automatically sets current time
       by: ""

@@ -71,3 +71,9 @@ export interface Course {
   revision: string;
   parentRevision: string;
 }
+
+export interface CourseInfo {
+  code: string;
+  name: string;
+  credits: number;
+}

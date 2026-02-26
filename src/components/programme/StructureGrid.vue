@@ -143,6 +143,7 @@ import CourseListItem from '@/components/programme/CourseListItem.vue';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, XIcon, PenIcon } from 'lucide-vue-next'
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
+import AddCoursePopover from './update/AddCoursePopover.vue';
 </script>
 
 <template>
@@ -211,11 +212,14 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
                 </TableRow>
                 <TableRow v-if="editable">
                   <TableCell>
-                    <Button
+                    <!-- <Button
                       size="sm"
                       variant="secondary"
                       class="w-full"
-                    ><PlusIcon/></Button>
+                    ><PlusIcon/></Button> -->
+                    <AddCoursePopover
+                      :structure="structureObject"
+                    />
                   </TableCell>
                 </TableRow>
               </TableBody>
