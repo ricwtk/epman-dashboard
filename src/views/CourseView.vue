@@ -53,7 +53,7 @@ const deleteRevision = () => {
   ]"/>
 
   <template v-if="viewingCourseStore.course">
-    <div class="card-plain px-4 text-muted-foreground text-sm">
+    <div class="card-plain px-4 text-muted-foreground text-sm flex flex-row justify-start items-center gap-2">
       {{ viewingCourseStore.course.code }} {{ viewingCourseStore.course.name }}
       <RevisionDropdown
         :current="viewingCourseStore.course.revision"
@@ -86,7 +86,7 @@ const deleteRevision = () => {
       :editable="authStore.canEditCourses"
       :course="viewingCourseStore.course"
       :editing="editing"
-      @update:editing="(ev) => updateEditing(ev, 'outcomes')"
+      @update:editing="(ev) => updateEditing(ev, 'assessments')"
     />
     <CoursePlan
       :editable="authStore.canEditCourses"
