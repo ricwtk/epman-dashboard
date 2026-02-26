@@ -1,16 +1,45 @@
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from 'vue';
-import { getCourseList } from '@/utils/courseHelpers';
+import { getCourseList, createNewCourse } from '@/utils/courseHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
+import CreateNewPopover from '@/components/CreateNewPopover.vue';
+
 import { navigateToCourse } from '@/utils/navigationHelpers';
+import { formatRevision, getSortedUniqueLatestPartial } from '@/utils/common';
+import { dataService } from '@/services/dataService';
+
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
 
 const courses: Ref<{ code: string, name: string }[]> = ref([]);
-onMounted(() => {
-  courses.value = getCourseList();
-  courses.value.sort((a, b) => a.code.localeCompare(b.code));
+async function updateCourseList() {
+  courses.value = getSortedUniqueLatestPartial(await dataService.getCourses(), ["code", "name"]);
+}
+onMounted(async () => {
+  // courses.value = getCourseList();
+  await updateCourseList();
 });
+
+const addNewCourse = async (newName: string, newCode: string) => {
+  const newCourseParameters = {
+    name: newName,
+    code: newCode.toUpperCase(),
+    revision: formatRevision(),
+    committed: {
+      on: new Date(),
+      by: authStore.user?.email || 'unknown'
+    }
+  };
+  const newCourse = createNewCourse(newCourseParameters);
+  try {
+    await dataService.saveCourse(newCourse);
+    await updateCourseList();
+  } catch (error) {
+    console.error('Error saving course:', error);
+  }
+}
 </script>
 
 <template>
@@ -41,6 +70,17 @@ onMounted(() => {
             {{ course.code }} {{ course.name }}
           </Button>
         </template>
+        <CreateNewPopover v-if="authStore.canEditCourses"
+          :currentList="courses.map(course => course.code)"
+          @create="(name:string, code:string) => addNewCourse(name, code)"
+        >
+          <template #title>
+            New Course
+          </template>
+          <template #description>
+            Create new course
+          </template>
+        </CreateNewPopover>
       </div>
     </template>
   </ContentCard>

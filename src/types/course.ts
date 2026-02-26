@@ -47,6 +47,7 @@ export interface Reference {
 }
 
 export interface Course {
+  id: string;
   code: string;
   name: string;
   prerequisites: string[];

@@ -14,17 +14,17 @@ export const getStructureByProgrammeAndLabel = (
 };
 
 // using structureExamples
-export const getProgrammesByCourse = (
-  courseCode: string
-): Partial<ProgrammeStructure>[] => {
-  return structures.filter(item =>
-    item.structure.some(sem => sem.includes(courseCode))
-  ).map(item => ({
-    programme: item.programme,
-    structureLabel: item.label,
-    structureRevision: item.revision
-  }));
-};
+// export const getProgrammesByCourse = (
+//   courseCode: string
+// ): Partial<ProgrammeStructure>[] => {
+//   return structures.filter(item =>
+//     item.structure.some(sem => sem.includes(courseCode))
+//   ).map(item => ({
+//     programme: item.programme,
+//     structureLabel: item.label,
+//     structureRevision: item.revision
+//   }));
+// };
 
 // using structureExamples
 /**

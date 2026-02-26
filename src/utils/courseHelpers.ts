@@ -1,3 +1,4 @@
+import { formatId } from "./common";
 import { courses } from "./courseExamples";
 import type {
   Course,
@@ -66,7 +67,8 @@ export const getCreditHours = (totalHours: number) => Math.round(totalHours / 40
 
 // default objects creation
 export const createNewCourse = (overrides?: Partial<Course>): Course => {
-  const defaultCourse: Course = {
+  const newCourse: Course = {
+    id: "",
     code: "",
     name: "",
     prerequisites: [],
@@ -89,10 +91,11 @@ export const createNewCourse = (overrides?: Partial<Course>): Course => {
       by: ""
     },
     revision: "1.0.0",
-    parentRevision: ""
+    parentRevision: "",
+    ...overrides
   };
-
-  return { ...defaultCourse, ...overrides };
+  newCourse.id = formatId(newCourse);
+  return newCourse;
 };
 
 export const createPlan = (description?: string, overrides?: Partial<Allocation>): Plan => ({

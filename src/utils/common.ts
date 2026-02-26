@@ -154,3 +154,33 @@ export function formatStructureId<T extends FormatStructureIdInput>(item: T): st
 export function zeroPad(num: number, length = 2): string {
   return String(num).padStart(length, '0')
 }
+
+export function getSortedUniqueLatestPartial<
+  T extends { code: string, revision: string },
+  K extends keyof T
+  >(items: T[], keys: K[]): Pick<T, K | "code">[] {
+  // ensure "code" is included in keys
+  const finalKeys = keys.includes("code" as K) ? keys : [...keys, "code" as K];
+  // sort items by revision in descending order
+  const latestFirst = [...items].sort((a, b) => b.revision.localeCompare(a.revision));
+  // keep only the latest revision for each code
+  const seen = new Set<string>();
+  const latestUnique: T[] = [];
+  for (const item of latestFirst) {
+    const code = item.code.toUpperCase();
+    if (!seen.has(code)) {
+      seen.add(code);
+      latestUnique.push(item);
+    }
+  }
+  // extract partial information
+  const partial = latestUnique.map(item => {
+    const result = {} as Pick<T, K | "code">;
+    for (const key of finalKeys) { result[key] = item[key]; }
+    return result;
+  });
+  // sort partial information by code in ascending order
+  partial.sort((a, b) => String(a.code).localeCompare(String(b.code)) );
+
+  return partial
+}

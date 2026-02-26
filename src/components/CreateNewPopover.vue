@@ -55,14 +55,6 @@ const createNew = () => {
         </div>
         <form class="grid gap-2">
           <div class="grid grid-cols-3 items-center gap-4">
-            <Label for="name">Name</Label>
-            <Input
-              id="name"
-              class="col-span-2 h-8"
-              v-model="newName"
-            />
-          </div>
-          <div class="grid grid-cols-3 items-center gap-4">
             <Label for="code">Code</Label>
             <Input :variant="newError !== '' ? 'error' : 'default'"
               id="code"
@@ -75,6 +67,15 @@ const createNew = () => {
             <div class="col-span-2 text-sm text-red-500">
               {{ newError }} <slot name="error" :name="newName" :code="newCode"></slot>
             </div>
+          </div>
+
+          <div class="grid grid-cols-3 items-center gap-4">
+            <Label for="name">Name</Label>
+            <Input
+              id="name"
+              class="col-span-2 h-8"
+              v-model="newName"
+            />
           </div>
 
           <Button @click="createNew"
