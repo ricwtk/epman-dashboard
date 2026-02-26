@@ -49,8 +49,9 @@ export const dataService = {
     return fetchCollection<Course>("courses");
   },
 
-  async getCourse(code: string): Promise<Course | null> {
-    return fetchDoc<Course>("courses", code);
+  async getCourse(code: string): Promise<Course[]> {
+    // return fetchDoc<Course>("courses", code);
+    return fetchDocsByCode<Course>("courses", code);
   },
 
   async saveCourse(course: Course): Promise<void> {

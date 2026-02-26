@@ -13,6 +13,8 @@ import {
 export const useEditingCourseStore = defineStore('editing-course', () => {
   const course: Ref<Course> = ref(createNewCourse())
   const originalCourse: Ref<Course> = ref(createNewCourse())
+  const selectedTab = ref<string>('summary')
+  const updated = ref(false)
 
   function resetCourse(): void {
     course.value = structuredClone(toRaw(originalCourse.value))
@@ -116,6 +118,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
 
   return {
     course, resetCourse, loadCourse,
+    selectedTab, updated,
     checkDiff, resetDiff,
     updateMapping,
     updateCourse,
