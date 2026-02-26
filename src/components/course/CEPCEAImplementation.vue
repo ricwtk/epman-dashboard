@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table';
 import BadgeList from '@/components/BadgeList.vue';
 import { CheckIcon, MinusIcon } from 'lucide-vue-next';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 defineProps<{ course: Course; editing: boolean }>();
 
@@ -66,7 +67,15 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
       CEP and CEA Implementation
     </template>
     <template #body>
-      <Table>
+      <EmptyComponent v-if="course.assessments.length === 0">
+        <template #title>
+          No Assessments
+        </template>
+        <template #description>
+          Define assessments to display mapping
+        </template>
+      </EmptyComponent>
+      <Table v-else>
         <TableHeader>
           <TableRow>
             <TableHead class="text-center" rowspan="2">CO</TableHead>

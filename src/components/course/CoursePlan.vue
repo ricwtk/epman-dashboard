@@ -10,6 +10,7 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const props = defineProps<{ course: Course; editing: boolean }>();
 defineEmits(['update:editing']);
@@ -32,7 +33,15 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
       Teaching Plan
     </template>
     <template #body>
-      <Table>
+      <EmptyComponent v-if="course.teachingPlan.length === 0">
+        <template #title>
+          No Teaching Plan
+        </template>
+        <template #description>
+          Define topics to display plan
+        </template>
+      </EmptyComponent>
+      <Table v-else>
         <TableHeader>
           <TableRow>
             <TableHead rowspan="2" class="">Topics</TableHead>

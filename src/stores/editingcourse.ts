@@ -116,6 +116,10 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     }
   }
 
+  async function saveCourse(): Promise<void> {
+
+  }
+
   return {
     course, resetCourse, loadCourse,
     selectedTab, updated,
@@ -125,6 +129,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     addTopic, removeTopic,
     addAssessment, deleteAssessment,
     addBreakdown, deleteBreakdown,
-    addReference, deleteReference, moveReferenceUp, moveReferenceDown
+    addReference, deleteReference, moveReferenceUp, moveReferenceDown,
+    saveCourse
   }
 })

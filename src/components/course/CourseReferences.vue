@@ -8,6 +8,7 @@ import {
   TableRow,
   TableCell
 } from '@/components/ui/table';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const props = defineProps<{ references: Reference[]; editing: boolean; editable?: boolean }>();
 const emit = defineEmits(['update:editing']);
@@ -22,7 +23,15 @@ const additionalReferences = computed(() => props.references.filter(reference =>
       Main Reference
     </template>
     <template #body>
-      <Table>
+      <EmptyComponent v-if="mainReferences.length === 0">
+        <template #title>
+          No Main References
+        </template>
+        <template #description>
+          Define references to display list
+        </template>
+      </EmptyComponent>
+      <Table v-else>
         <TableBody>
           <TableRow v-for="(reference, index) in mainReferences" :key="index">
             <TableCell>{{ reference.description }}</TableCell>
@@ -37,6 +46,14 @@ const additionalReferences = computed(() => props.references.filter(reference =>
       Additional References
     </template>
     <template #body>
+      <EmptyComponent v-if="additionalReferences.length === 0">
+        <template #title>
+          No Additional References
+        </template>
+        <template #description>
+          Define references to display list
+        </template>
+      </EmptyComponent>
       <Table>
         <TableBody>
           <TableRow v-for="(reference, index) in additionalReferences" :key="index">

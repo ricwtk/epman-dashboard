@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const props = defineProps<{
-  assessments: Assessment[] | undefined;
+  assessments: Assessment[];
   coCount: number;
   editing: boolean;
 }>();
@@ -18,7 +19,7 @@ const props = defineProps<{
 defineEmits(['update:editing']);
 
 const anybreakdown = computed(() => {
-  return props.assessments?.some(assessment => assessment.breakdown.length > 0);
+  return props.assessments.some(assessment => assessment.breakdown.length > 0);
 });
 
 const showBreakdown = ref(false);
@@ -34,7 +35,15 @@ const toggleBreakdown = () => {
       Assessments
     </template>
     <template #body>
-      <div v-if="assessments">
+      <EmptyComponent v-if="assessments.length === 0">
+        <template #title>
+          No Assessments
+        </template>
+        <template #description>
+          Define assessments to display mapping
+        </template>
+      </EmptyComponent>
+      <div v-else>
         <AssessmentMainTable :assessments="assessments" :coCount="coCount"/>
         <div v-if="anybreakdown" class="mt-1">
           <div class="flex flex-row items-center">

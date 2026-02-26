@@ -35,6 +35,7 @@ import { getEditingCourseAndStore } from "@/composables/course";
 const { editingCourseStore } = getEditingCourseAndStore();
 const diff = computed(() => editingCourseStore.checkDiff([]))
 const resetCourse = () => { editingCourseStore.resetCourse(); }
+const saveCours = () => { editingCourseStore.saveCourse(); }
 </script>
 
 <template>
@@ -44,7 +45,7 @@ const resetCourse = () => { editingCourseStore.resetCourse(); }
       <DialogTitle>Course Details Update</DialogTitle>
       <DialogDescription>Update course details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden">
+    <Tabs default-value="summary" class="overflow-hidden" v-model="editingCourseStore.selectedTab">
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>
@@ -56,12 +57,7 @@ const resetCourse = () => { editingCourseStore.resetCourse(); }
           </TabsList>
         </div>
         <div>
-          <ResetButton
-            v-if="diff"
-            @click="resetCourse"
-          >
-            Reset
-          </ResetButton>
+          <ResetButton v-if="diff" @click="resetCourse" />
         </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">

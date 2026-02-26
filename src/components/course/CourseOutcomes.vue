@@ -11,6 +11,7 @@ import {
   TableCell
 } from '@/components/ui/table';
 import { CheckIcon, MinusIcon } from "lucide-vue-next";
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 defineProps<{
   cos: Co[] | [];
@@ -26,7 +27,15 @@ defineEmits(['update:editing']);
       Course Outcomes
     </template>
     <template #body>
-      <Table>
+      <EmptyComponent v-if="cos.length === 0">
+        <template #title>
+          No Course Outcomes
+        </template>
+        <template #description>
+          Define course outcomes to display mapping
+        </template>
+      </EmptyComponent>
+      <Table v-else>
         <TableHeader>
           <TableRow>
             <TableHead class="text-center">#</TableHead>
