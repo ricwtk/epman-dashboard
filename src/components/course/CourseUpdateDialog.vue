@@ -35,7 +35,7 @@ import { getEditingCourseAndStore } from "@/composables/course";
 const { editingCourseStore } = getEditingCourseAndStore();
 const diff = computed(() => editingCourseStore.checkDiff([]))
 const resetCourse = () => { editingCourseStore.resetCourse(); }
-const saveCours = () => { editingCourseStore.saveCourse(); }
+const saveCourse = () => { editingCourseStore.saveCourse(); }
 </script>
 
 <template>
@@ -79,10 +79,10 @@ const saveCours = () => { editingCourseStore.saveCourse(); }
       </div>
     </Tabs>
     <div class="justify-end flex flex-row grow gap-1">
-      <Button variant="destructive">Commit</Button>
+      <!-- <Button variant="destructive">Commit</Button> -->
       <div class="grow"></div>
-      <Button variant="default">Save draft</Button>
-      <Button variant="ghost">Cancel</Button>
+      <Button variant="default" @click="saveCourse">Save</Button>
+      <Button variant="ghost" @click="toggleDialog">Cancel</Button>
     </div>
   </DialogContent>
 </Dialog>

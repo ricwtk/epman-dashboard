@@ -36,33 +36,51 @@ const resetDiff = (key: string) => {
   <div class="w-full flex flex-col gap-2">
     <div class="flex flex-col sm:flex-row gap-2">
       <div class="flex flex-col gap-1 grow">
-        <Label for="code" class="h-8">Code <ResetButton v-if="diffs.code" @reset="resetDiff('code')" /></Label>
+        <Label for="code">
+          Code
+          <ResetButton :disabled="!diffs.code" @reset="resetDiff('code')" />
+        </Label>
         <Input disabled id="code" placeholder="Course Code" v-model="course.code"/>
       </div>
 
       <div class="flex flex-col gap-1 grow">
-        <Label for="name" class="h-8">Name <ResetButton v-if="diffs.name" @reset="resetDiff('name')" /></Label>
+        <Label for="name">
+          Name
+          <ResetButton :disabled="!diffs.name" @reset="resetDiff('name')" />
+        </Label>
         <Input disabled id="name" placeholder="Course Name" v-model="course.name"/>
       </div>
     </div>
     <div class="flex flex-col sm:flex-row gap-2">
       <div class="flex flex-col gap-1 grow">
-        <Label for="year" class="h-8">Year <ResetButton v-if="diffs.year" @reset="resetDiff('year')" /></Label>
+        <Label for="year">
+          Year
+          <ResetButton :disabled="!diffs.year" @reset="resetDiff('year')" />
+        </Label>
         <Input id="year" type="number" placeholder="Offering Year" v-model="course.year"/>
       </div>
 
       <div class="flex flex-col gap-1 grow">
-        <Label for="semester" class="h-8">Semester <ResetButton v-if="diffs.semester" @reset="resetDiff('semester')" /></Label>
+        <Label for="semester">
+          Semester
+          <ResetButton :disabled="!diffs.semester" @reset="resetDiff('semester')" />
+        </Label>
         <Input id="semester" type="number" placeholder="Offering Semester" v-model="course.semester"/>
       </div>
     </div>
     <div class="flex flex-col gap-1 grow">
-      <Label for="synopsis" class="h-8">Synopsis <ResetButton v-if="diffs.synopsis" @reset="resetDiff('synopsis')" /></Label>
+      <Label for="synopsis">
+        Synopsis
+        <ResetButton :disabled="!diffs.synopsis" @reset="resetDiff('synopsis')" />
+      </Label>
       <Textarea id="synopsis" placeholder="Course Synopsis" v-model="course.synopsis"/>
     </div>
     <div class="flex flex-wrap gap-2">
       <div class="flex flex-col gap-1 grow min-w-75">
-        <Label for="prerequisites" class="h-8">Prerequisites <ResetButton v-if="diffs.prerequisites" @reset="resetDiff('prerequisites')" /></Label>
+        <Label for="prerequisites">
+          Prerequisites
+          <ResetButton :disabled="!diffs.prerequisites" @reset="resetDiff('prerequisites')" />
+        </Label>
         <MultiSelect
           input-id="prerequisites"
           label="Select Prerequisites"
@@ -72,7 +90,10 @@ const resetDiff = (key: string) => {
         />
       </div>
       <div class="flex flex-col gap-1 grow min-w-75">
-        <Label for="transferable" class="h-8">Transferable Skills <ResetButton v-if="diffs.transferableSkills" @reset="resetDiff('transferableSkills')" /></Label>
+        <Label for="transferable">
+          Transferable Skills
+          <ResetButton :disabled="!diffs.transferableSkills" @reset="resetDiff('transferableSkills')" />
+        </Label>
         <MultiSelect
           input-id="transferable"
           label="Select Transferable Skills"
@@ -82,7 +103,10 @@ const resetDiff = (key: string) => {
         />
       </div>
       <div class="flex flex-col gap-1 grow min-w-75">
-        <Label for="delivery" class="h-8">Delivery Methods <ResetButton v-if="diffs.deliveryMethods" @reset="resetDiff('deliveryMethods')" /></Label>
+        <Label for="delivery">
+          Delivery Methods
+          <ResetButton :disabled="!diffs.deliveryMethods" @reset="resetDiff('deliveryMethods')" />
+        </Label>
         <MultiSelect
           input-id="delivery"
           label="Select Delivery Method"
