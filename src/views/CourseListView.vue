@@ -18,7 +18,6 @@ async function updateCourseList() {
   courses.value = getSortedUniqueLatestPartial(await dataService.getCourses(), ["code", "name"]);
 }
 onMounted(async () => {
-  // courses.value = getCourseList();
   await updateCourseList();
 });
 

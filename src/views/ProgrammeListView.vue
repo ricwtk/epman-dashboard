@@ -7,7 +7,7 @@ import NavIndicator from '@/components/NavIndicator.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
 
 import { navigateToProgramme } from '@/utils/navigationHelpers';
-import { formatRevision } from '@/utils/common';
+import { formatRevision, getSortedUniqueLatestPartial } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 
 import { useAuthStore } from '@/stores/auth';
@@ -15,14 +15,7 @@ const authStore = useAuthStore();
 
 const programmes: Ref<{ code: string, name: string }[]> = ref([]);
 async function updateProgrammeList() {
-  // programmes.value = getProgrammeList();
-  programmes.value = await dataService.getProgrammes();
-  // get unique programmes with same codes
-  programmes.value = Array.from(new Set(programmes.value.map((programme) => programme.code.toUpperCase()))).map((code) => {
-    const programme = programmes.value.find((programme) => programme.code.toUpperCase() === code);
-    return { code, name: programme?.name || '' };
-  });
-  programmes.value.sort((a, b) => a.code.localeCompare(b.code));
+  programmes.value = getSortedUniqueLatestPartial(await dataService.getProgrammes(), ["code", "name"]);
 }
 onMounted(async () => {
   await updateProgrammeList();

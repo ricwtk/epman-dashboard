@@ -7,7 +7,7 @@ import NavIndicator from '@/components/NavIndicator.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
 
 import { navigateToSchool } from '@/utils/navigationHelpers';
-import { formatRevision } from '@/utils/common';
+import { formatRevision, getSortedUniqueLatestPartial } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 
 import { useAuthStore } from '@/stores/auth';
@@ -15,14 +15,7 @@ const authStore = useAuthStore();
 
 const schools = ref<{ code: string, name: string }[]>([]);
 async function updateSchoolList() {
-  // schools.value = getSchoolList();
-  schools.value = await dataService.getSchools();
-  // get unique schools with same codes
-  schools.value = Array.from(new Set(schools.value.map((school) => school.code.toUpperCase()))).map((code) => {
-    const school = schools.value.find((school) => school.code.toUpperCase() === code);
-    return { code, name: school?.name || '' };
-  });
-  schools.value.sort((a, b) => a.code.localeCompare(b.code));
+  schools.value = getSortedUniqueLatestPartial(await dataService.getSchools(), ["code", "name"]);
 }
 onMounted(async () => {
   await updateSchoolList();
