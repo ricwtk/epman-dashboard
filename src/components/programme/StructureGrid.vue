@@ -176,7 +176,7 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
       </TableHeader>
       <TableBody>
         <TableRow v-for="row, row_index in sem_keys">
-          <TableHead v-if="row_header!==''">{{ `${row_header} ${row_index+1}` }}</TableHead>
+          <TableHead v-if="row_header!==''" class="w-0">{{ `${row_header} ${row_index+1}` }}</TableHead>
           <TableCell v-for="sem_key, col_index in row"
             class="text-center align-top"
           >
