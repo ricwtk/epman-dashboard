@@ -26,6 +26,13 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   const originalCourse = ref<Course>(createNewCourse())
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
+  const selectedProgramme = ref<Programme | null>(null)
+  const selectedSchool = computed<School | null>(() => {
+    if (!selectedProgramme.value) return null;
+    const schoolCode = courseUsage.value?.programmes[selectedProgramme.value.code]?.school;
+    return schoolCode ? courseUsage.value?.schools[schoolCode] || null : null;
+  });
+
   const courseUsage = computedAsync<{
     programmes: ProgrammesWithCourse,
     schools: SchoolsByCode
@@ -192,7 +199,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
 
   return {
     course, resetCourse, loadCourse,
-    courseUsage,
+    courseUsage, selectedProgramme, selectedSchool,
     selectedTab, updated,
     checkDiff, resetDiff,
     updateMapping,

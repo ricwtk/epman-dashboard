@@ -89,6 +89,50 @@ const eaOptions = [
   "Familiarity"
 ]
 
+const emptyComponent = computed<{
+  show: boolean, title: string, description: string
+}>(() => {
+  if (!course.value.cos) return {
+    show: true,
+    title: 'Course object not ready',
+    description: 'Wait for the course object to be ready'
+  }
+  else if (course.value.cos.length === 0) {
+    return {
+      show: true,
+      title: 'No Course Outcomes',
+      description: 'Define course outcomes to display mapping matrices'
+    }
+  }
+  else if (Object.keys(editingCourseStore.courseUsage.programmes).length === 0) {
+    return {
+      show: true,
+      title: 'Course not assigned to any programme',
+      description: 'Add course to the structure of a programme to display mapping matrices'
+    }
+  }
+  else if (!editingCourseStore.selectedProgramme.value) {
+    return {
+      show: true,
+      title: 'No Programme Selected',
+      description: 'Select a programme to display mapping matrices'
+    }
+  }
+  else if (editingCourseStore.selectedProgramme.value && !editingCourseStore.selectedSchool.value) {
+    return {
+      show: true,
+      title: 'Programme not assigned to any school',
+      description: `Course is assigned to ${editingCourseStore.selectedProgramme.value.name} but ${editingCourseStore.selectedProgramme.value.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
+    }
+  }
+  else {
+    return {
+      show: false,
+      title: '',
+      description: ''
+    }
+  }
+})
 </script>
 
 <template>
@@ -152,12 +196,12 @@ const eaOptions = [
 
     <Button variant="default" @click="editingCourseStore.addCo"><PlusIcon /></Button>
 
-    <EmptyComponent v-if="course.cos.length === 0">
+    <EmptyComponent v-if="emptyComponent.show">
       <template #title>
-        No Course Outcomes
+        {{emptyComponent.title}}
       </template>
       <template #description>
-        Define course outcomes to display mapping matrices
+        {{emptyComponent.description}}
       </template>
     </EmptyComponent>
 
