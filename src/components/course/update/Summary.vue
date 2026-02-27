@@ -48,7 +48,7 @@ const resetDiff = (key: string) => {
           Name
           <ResetButton :disabled="!diffs.name" @reset="resetDiff('name')" />
         </Label>
-        <Input disabled id="name" placeholder="Course Name" v-model="course.name"/>
+        <Input id="name" placeholder="Course Name" v-model="course.name"/>
       </div>
     </div>
     <div class="flex flex-col sm:flex-row gap-2">

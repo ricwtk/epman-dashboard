@@ -9,15 +9,23 @@ import {
   createAssessment,
   createBreakdown,
 } from '@/utils/courseHelpers'
+import { formatRevision, formatId } from '@/utils/common';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
+import { dataService } from '@/services/dataService';
 
 export const useEditingCourseStore = defineStore('editing-course', () => {
-  const course: Ref<Course> = ref(createNewCourse())
-  const originalCourse: Ref<Course> = ref(createNewCourse())
+  const course = ref<Course>(createNewCourse())
+  const originalCourse = ref<Course>(createNewCourse())
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
 
   function resetCourse(): void {
     course.value = structuredClone(toRaw(originalCourse.value))
+  }
+
+  function commitCourse(): void {
+    originalCourse.value = structuredClone(toRaw(course.value));
   }
 
   function resetDiff(pathArray: string[]): void {
@@ -117,7 +125,20 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   }
 
   async function saveCourse(): Promise<void> {
-
+    course.value.parentRevision = course.value.revision
+    course.value.revision = formatRevision()
+    course.value.committed = {
+      on: new Date(),
+      by: authStore.user?.email || 'unknown'
+    }
+    course.value.id = formatId(course.value);
+    try {
+      await dataService.saveCourse(course.value);
+      commitCourse();
+      updated.value = true;
+    } catch (error) {
+      console.error('Error saving course:', error);
+    }
   }
 
   return {
