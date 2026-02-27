@@ -43,6 +43,14 @@ export interface GroupedStructures {
   [label: string]: ProgrammeStructure[];
 }
 
+export interface ProgrammesWithSchool {
+  [progKey: string]: School | {};
+}
+
+export interface SchoolsByCode {
+  [schoolKey: string]: School;
+}
+
 export interface ProgrammesWithCourse{
   [progKey: string]: {
     school: string;
@@ -135,6 +143,40 @@ export const dataService = {
         }
       }
       return null;
+    } catch (error) {
+      console.error("Error finding parent school from latest revisions:", error);
+      throw error;
+    }
+  },
+
+  async getSchoolOfProgrammes(programmeCodes: string[]): Promise<ProgrammesWithSchool> {
+    try {
+      const schoolQuery = query(collection(db, 'schools'), orderBy('revision', 'desc'));
+      const schoolSnap = await getDocs(schoolQuery);
+      const processedSchoolCodes = new Set<string>();
+      const programmesWithSchool: ProgrammesWithSchool = {};
+
+      programmeCodes.forEach(code => {
+        programmesWithSchool[code] = {};
+      });
+
+      for (const doc of schoolSnap.docs) {
+        const schoolData = doc.data() as School;
+        const schoolCode = schoolData.code;
+
+        if (processedSchoolCodes.has(schoolCode)) continue;
+
+        const programmes = schoolData.programmes || [];
+
+        if (Array.isArray(programmes)) {
+          programmeCodes.forEach(code => {
+            if (programmes.includes(code)) {
+              programmesWithSchool[code] = schoolData;
+            }
+          });
+        }
+      }
+      return programmesWithSchool;
     } catch (error) {
       console.error("Error finding parent school from latest revisions:", error);
       throw error;
@@ -249,7 +291,7 @@ export const dataService = {
     await setDoc(doc(db, "structures", structure.id), structure);
   },
 
-  async findCourseInAllProgrammes(courseCode: string): Promise<{programmes: ProgrammesWithCourse, schools: MappedProgramme[]}> {
+  async traceCourseUsageAcrossProgrammes(courseCode: string): Promise<{programmes: ProgrammesWithCourse, schools: SchoolsByCode}> {
     try {
       // 1. Fetch all structures that contain this course
       // We don't filter by "programme" because we want to search everywhere
@@ -283,15 +325,16 @@ export const dataService = {
       });
 
       // 3. Map back to School info
-      const progToSchoolMap = await this.getProgrammesMappedBySchool();
-      const schools: MappedProgramme[] = [];
+      const progToSchoolMap = await this.getSchoolOfProgrammes(Object.keys(programmes));
+      const schools: SchoolsByCode = {};
 
-      for (const pCode in programmes) {
-        const schoolInfo = progToSchoolMap.find(p => p.code === pCode);
-        if (!schoolInfo) continue ;
-        schools.push(schoolInfo)
-        programmes[pCode]!.school = schoolInfo.code
-      }
+      Object.keys(progToSchoolMap).forEach(pCode => {
+        const school = progToSchoolMap[pCode] as School;
+        programmes[pCode]!.school = school.code
+        if (!Object.keys(schools).includes(school.code)) {
+          schools[school.code] = school;
+        }
+      })
 
       return { programmes, schools };
 

@@ -16,23 +16,21 @@ import { formatRevision, formatId } from '@/utils/common';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 import { dataService } from '@/services/dataService';
+import type { SchoolsByCode, ProgrammesWithCourse } from '@/services/dataService';
 import { createNewProgramme } from '@/utils/programmeHelpers';
 import { createNewSchool } from '@/utils/schoolHelpers';
+import { computedAsync } from '@vueuse/core';
 
 export const useEditingCourseStore = defineStore('editing-course', () => {
   const course = ref<Course>(createNewCourse())
   const originalCourse = ref<Course>(createNewCourse())
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
-
-  const programmes = computed<Programme[]>(() => {
-    return [createNewProgramme()] // placeholder
-    // get programmes that contain this course
-  })
-
-  const schools = computed<School[]>(() => {
-    return [createNewSchool()] //placeholder
-    // get the schools that contain the programmes that contain this course
+  const courseUsage = computedAsync<{
+    programmes: ProgrammesWithCourse,
+    schools: SchoolsByCode
+  }>(async () => {
+    return await dataService.traceCourseUsageAcrossProgrammes(course.value.code)
   })
 
   function resetCourse(): void {
@@ -162,6 +160,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
 
   return {
     course, resetCourse, loadCourse,
+    courseUsage,
     selectedTab, updated,
     checkDiff, resetDiff,
     updateMapping,
