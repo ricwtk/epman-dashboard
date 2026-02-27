@@ -89,6 +89,18 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     course.value.cos.push(createCo())
   }
 
+  function removeCo(index: number): void {
+    course.value.cos.splice(index, 1)
+  }
+
+  function moveCoUp(index: number): void {
+    moveUp('cos', index);
+  }
+
+  function moveCoDown(index: number): void {
+    moveDown('cos', index);
+  }
+
   function addAssessment(): void {
     course.value.assessments.push(createAssessment())
   }
@@ -126,19 +138,21 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   }
 
   function moveReferenceUp(index: number): void {
-    if (index > 0) {
-      const reference = course.value.references[index]!;
-      course.value.references.splice(index, 1);
-      course.value.references.splice(index - 1, 0, reference);
-    }
+    moveUp('references', index);
+    // if (index > 0) {
+    //   const reference = course.value.references[index]!;
+    //   course.value.references.splice(index, 1);
+    //   course.value.references.splice(index - 1, 0, reference);
+    // }
   }
 
   function moveReferenceDown(index: number): void {
-    if (index < course.value.references.length - 1) {
-      const reference = course.value.references[index]!;
-      course.value.references.splice(index, 1);
-      course.value.references.splice(index + 1, 0, reference);
-    }
+    moveDown('references', index);
+    // if (index < course.value.references.length - 1) {
+    //   const reference = course.value.references[index]!;
+    //   course.value.references.splice(index, 1);
+    //   course.value.references.splice(index + 1, 0, reference);
+    // }
   }
 
   async function saveCourse(): Promise<void> {
@@ -158,6 +172,24 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     }
   }
 
+  function moveUp(keyOfList: keyof Course, index: number): void {
+    if (Array.isArray(course.value[keyOfList])) {
+      if (index > 0) {
+        const item = course.value[keyOfList].splice(index, 1)[0];
+        course.value[keyOfList].splice(index - 1, 0, item);
+      }
+    }
+  }
+
+  function moveDown(keyOfList: keyof Course, index: number): void {
+    if (Array.isArray(course.value[keyOfList])) {
+      if (index < course.value[keyOfList].length - 1) {
+        const item = course.value[keyOfList].splice(index, 1)[0];
+        course.value[keyOfList].splice(index + 1, 0, item);
+      }
+    }
+  }
+
   return {
     course, resetCourse, loadCourse,
     courseUsage,
@@ -165,7 +197,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     checkDiff, resetDiff,
     updateMapping,
     updateCourse,
-    addCo,
+    addCo, removeCo, moveCoUp, moveCoDown,
     addTopic, removeTopic,
     addAssessment, deleteAssessment,
     addBreakdown, deleteBreakdown,

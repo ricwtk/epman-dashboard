@@ -108,7 +108,7 @@ const eaOptions = [
       <TableBody>
         <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex">
           <TableCell class="w-14 text-center">
-            <Button variant="destructive" @click="console.log(`Deleting outcome ${coIndex}`)"><MinusIcon /></Button>
+            <Button variant="destructive" @click="editingCourseStore.removeCo(coIndex)"><MinusIcon /></Button>
           </TableCell>
           <TableCell class="">{{ coIndex + 1 }}</TableCell>
           <TableCell class="">
@@ -137,12 +137,12 @@ const eaOptions = [
               <Button
                 variant="secondary"
                 :disabled="coIndex === 0"
-                @click="console.log(`Move up ${coIndex}`)"
+                @click="editingCourseStore.moveCoUp(coIndex)"
               ><ChevronUpIcon /></Button>
               <Button
                 variant="secondary"
                 :disabled="coIndex === course.cos.length - 1"
-                @click="console.log(`Move down ${coIndex}`)"
+                @click="editingCourseStore.moveCoDown(coIndex)"
               ><ChevronDownIcon /></Button>
             </div>
           </TableCell>
