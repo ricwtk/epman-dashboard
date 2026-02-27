@@ -1,9 +1,12 @@
-import { ref, type Ref, toRaw } from 'vue';
+import { ref, computed, toRaw } from 'vue';
 import type { Course } from "@/types/course";
+import type { Programme } from "@/types/programme";
+import type { School } from "@/types/school";
 import { createNewCourse } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
 import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon, updateMapping as updateMappingCommon } from '@/utils/common.ts'
 import {
+  createCo,
   createPlan,
   createReference,
   createAssessment,
@@ -13,12 +16,24 @@ import { formatRevision, formatId } from '@/utils/common';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 import { dataService } from '@/services/dataService';
+import { createNewProgramme } from '@/utils/programmeHelpers';
+import { createNewSchool } from '@/utils/schoolHelpers';
 
 export const useEditingCourseStore = defineStore('editing-course', () => {
   const course = ref<Course>(createNewCourse())
   const originalCourse = ref<Course>(createNewCourse())
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
+
+  const programmes = computed<Programme[]>(() => {
+    return [createNewProgramme()] // placeholder
+    // get programmes that contain this course
+  })
+
+  const schools = computed<School[]>(() => {
+    return [createNewSchool()] //placeholder
+    // get the schools that contain the programmes that contain this course
+  })
 
   function resetCourse(): void {
     course.value = structuredClone(toRaw(originalCourse.value))
@@ -70,6 +85,10 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   }
 
   function updateCourse(course: Course): void {
+  }
+
+  function addCo(): void {
+    course.value.cos.push(createCo())
   }
 
   function addAssessment(): void {
@@ -147,6 +166,7 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
     checkDiff, resetDiff,
     updateMapping,
     updateCourse,
+    addCo,
     addTopic, removeTopic,
     addAssessment, deleteAssessment,
     addBreakdown, deleteBreakdown,

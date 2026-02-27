@@ -2,6 +2,7 @@ import { formatId } from "./common";
 import { courses } from "./courseExamples";
 import type {
   Course,
+  Co,
   Allocation,
   Plan,
   Assessment,
@@ -97,6 +98,17 @@ export const createNewCourse = (overrides?: Partial<Course>): Course => {
   newCourse.id = formatId(newCourse);
   return newCourse;
 };
+
+export const createCo = (overrides?: Partial<Co>): Co => ({
+  description: "",
+  bloomtax: ['', 0],
+  pos: [],
+  wks: [],
+  wps: [],
+  eas: [],
+  sdg: false,
+  ...overrides
+});
 
 export const createPlan = (description?: string, overrides?: Partial<Allocation>): Plan => ({
   description: description || '',

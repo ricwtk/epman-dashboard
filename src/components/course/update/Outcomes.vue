@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { type Co } from '@/types/course'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import MultiSelect from '@/components/multiselectwithfilter/MultiSelect.vue'
-import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import VerticalText from '@/components/VerticalText.vue'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
-import ResetButton from '@/components/ResetButton.vue'
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 import { BLOOM_TAXONOMY, PO_ATTRIBUTES } from '@/constants'
 
@@ -93,12 +89,6 @@ const eaOptions = [
   "Familiarity"
 ]
 
-const truncateWithEllipsis = (text: string) => {
-  let maxLength = 20;
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 3) + '...';
-}
-
 </script>
 
 <template>
@@ -107,12 +97,12 @@ const truncateWithEllipsis = (text: string) => {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead></TableHead>
-          <TableHead class="">#</TableHead>
+          <TableHead class="w-0"></TableHead>
+          <TableHead class="w-0">#</TableHead>
           <TableHead class="">Description</TableHead>
-          <TableHead class="text-center">Bloom Taxonomy</TableHead>
-          <TableHead class="text-center">SDG</TableHead>
-          <TableHead></TableHead>
+          <TableHead class="w-0 text-center">Bloom Taxonomy</TableHead>
+          <TableHead class="w-0 text-center">SDG</TableHead>
+          <TableHead class="w-0"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -160,125 +150,136 @@ const truncateWithEllipsis = (text: string) => {
       </TableBody>
     </Table>
 
-    <Button variant="default"><PlusIcon /></Button>
+    <Button variant="default" @click="editingCourseStore.addCo"><PlusIcon /></Button>
 
-    <div class="font-semibold">CO to Programme Outcome (PO) Mapping</div>
+    <EmptyComponent v-if="course.cos.length === 0">
+      <template #title>
+        No Course Outcomes
+      </template>
+      <template #description>
+        Define course outcomes to display mapping matrices
+      </template>
+    </EmptyComponent>
 
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead class="align-bottom text-center w-0">CO</TableHead>
-          <TableHead class="align-bottom text-center"
-            v-for="(po, poIndex) in PO_ATTRIBUTES"
-            :key="poIndex"
-          >
-            <VerticalText :label="`PO${poIndex + 1}`" :content="po" />
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
-          <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell v-for="(po, poIndex) in PO_ATTRIBUTES" :key="poIndex">
-            <Checkbox
-              :modelValue="co.pos.includes(poIndex + 1)"
-              :id="`co${coIndex + 1}po${poIndex + 1}`"
-              @update:modelValue="(checked) => handleMappingChange(coIndex, 'po', poIndex, Boolean(checked))"
-            />
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <template v-else>
+      <div class="font-semibold">CO to Programme Outcome (PO) Mapping</div>
 
-    <div class="font-semibold">CO to Knowledge Profile (WK) Mapping</div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="align-bottom text-center w-0">CO</TableHead>
+            <TableHead class="align-bottom text-center"
+              v-for="(po, poIndex) in PO_ATTRIBUTES"
+              :key="poIndex"
+            >
+              <VerticalText :label="`PO${poIndex + 1}`" :content="po" />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+            <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
+            <TableCell v-for="(po, poIndex) in PO_ATTRIBUTES" :key="poIndex">
+              <Checkbox
+                :modelValue="co.pos.includes(poIndex + 1)"
+                :id="`co${coIndex + 1}po${poIndex + 1}`"
+                @update:modelValue="(checked) => handleMappingChange(coIndex, 'po', poIndex, Boolean(checked))"
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
 
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead class="align-bottom text-center w-0">CO</TableHead>
-          <TableHead class="align-bottom text-center w-0">PO</TableHead>
-          <TableHead class="align-bottom text-center"
-            v-for="(wk, wkIndex) in wkOptions"
-            :key="wkIndex"
-          >
-            <VerticalText :label="`WK${wkIndex + 1}`" :content="wk" />
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
-          <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
-          <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex">
-            <Checkbox
-              :modelValue="co.wks.includes(wkIndex + 1)"
-              :id="`co${coIndex + 1}wk${wkIndex + 1}`"
-              @update:modelValue="(checked) => handleMappingChange(coIndex, 'wk', wkIndex, Boolean(checked))"
-            />
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+      <div class="font-semibold">CO to Knowledge Profile (WK) Mapping</div>
 
-    <div class="font-semibold">CO to Complex Engineering Problem (WP) Mapping</div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="align-bottom text-center w-0">CO</TableHead>
+            <TableHead class="align-bottom text-center w-0">PO</TableHead>
+            <TableHead class="align-bottom text-center"
+              v-for="(wk, wkIndex) in wkOptions"
+              :key="wkIndex"
+            >
+              <VerticalText :label="`WK${wkIndex + 1}`" :content="wk" />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+            <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
+            <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
+            <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex">
+              <Checkbox
+                :modelValue="co.wks.includes(wkIndex + 1)"
+                :id="`co${coIndex + 1}wk${wkIndex + 1}`"
+                @update:modelValue="(checked) => handleMappingChange(coIndex, 'wk', wkIndex, Boolean(checked))"
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
 
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead class="align-bottom text-center w-0">CO</TableHead>
-          <TableHead class="align-bottom text-center w-0">PO</TableHead>
-          <TableHead class="align-bottom text-center"
-            v-for="(wp, wpIndex) in wpOptions"
-            :key="wpIndex"
-          >
-            <VerticalText :label="`WP${wpIndex + 1}`" :content="wp" />
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
-          <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
-          <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex">
-            <Checkbox
-            :modelValue="co.wps.includes(wpIndex + 1)"
-            :id="`co${coIndex + 1}wp${wpIndex + 1}`"
-            @update:modelValue="(checked) => handleMappingChange(coIndex, 'wp', wpIndex, Boolean(checked))"
-            />
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+      <div class="font-semibold">CO to Complex Engineering Problem (WP) Mapping</div>
 
-    <div class="font-semibold">CO to Complex Engineering Activities (EA) Mapping</div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="align-bottom text-center w-0">CO</TableHead>
+            <TableHead class="align-bottom text-center w-0">PO</TableHead>
+            <TableHead class="align-bottom text-center"
+              v-for="(wp, wpIndex) in wpOptions"
+              :key="wpIndex"
+            >
+              <VerticalText :label="`WP${wpIndex + 1}`" :content="wp" />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+            <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
+            <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
+            <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex">
+              <Checkbox
+              :modelValue="co.wps.includes(wpIndex + 1)"
+              :id="`co${coIndex + 1}wp${wpIndex + 1}`"
+              @update:modelValue="(checked) => handleMappingChange(coIndex, 'wp', wpIndex, Boolean(checked))"
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
 
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead class="align-bottom text-center w-0">CO</TableHead>
-          <TableHead class="align-bottom text-center w-0">PO</TableHead>
-          <TableHead class="align-bottom text-center"
-            v-for="(ea, eaIndex) in eaOptions"
-            :key="eaIndex"
-          >
-            <VerticalText :label="`EA${eaIndex + 1}`" :content="ea" />
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
-          <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-          <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
-          <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex">
-            <Checkbox
-            :modelValue="co.eas.includes(eaIndex + 1)"
-            :id="`co${coIndex + 1}ea${eaIndex + 1}`"
-            @update:modelValue="(checked) => handleMappingChange(coIndex, 'ea', eaIndex, Boolean(checked))"
-            />
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+      <div class="font-semibold">CO to Complex Engineering Activities (EA) Mapping</div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="align-bottom text-center w-0">CO</TableHead>
+            <TableHead class="align-bottom text-center w-0">PO</TableHead>
+            <TableHead class="align-bottom text-center"
+              v-for="(ea, eaIndex) in eaOptions"
+              :key="eaIndex"
+            >
+              <VerticalText :label="`EA${eaIndex + 1}`" :content="ea" />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+            <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
+            <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
+            <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex">
+              <Checkbox
+              :modelValue="co.eas.includes(eaIndex + 1)"
+              :id="`co${coIndex + 1}ea${eaIndex + 1}`"
+              @update:modelValue="(checked) => handleMappingChange(coIndex, 'ea', eaIndex, Boolean(checked))"
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </template>
 
     <!-- <div
       v-for="(co, coIndex) in colist"

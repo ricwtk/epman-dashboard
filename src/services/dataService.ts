@@ -43,6 +43,26 @@ export interface GroupedStructures {
   [label: string]: ProgrammeStructure[];
 }
 
+export interface ProgrammesWithCourse{
+  [progKey: string]: {
+    school: string;
+    structures: {
+      [structKey: string]: string
+    }
+  }
+}
+
+export interface CourseAssignment {
+  programme: {
+    name: string;
+    code: string;
+  };
+  school: {
+    name: string;
+    code: string;
+  } | null;
+}
+
 export const dataService = {
   // --- Courses ---
   async getCourses(): Promise<Course[]> {
@@ -229,6 +249,62 @@ export const dataService = {
     await setDoc(doc(db, "structures", structure.id), structure);
   },
 
+  async findCourseInAllProgrammes(courseCode: string): Promise<{programmes: ProgrammesWithCourse, schools: MappedProgramme[]}> {
+    try {
+      // 1. Fetch all structures that contain this course
+      // We don't filter by "programme" because we want to search everywhere
+      const q = query(collection(db, "structures"), orderBy("revision", "desc"));
+      const structureSnap = await getDocs(q);
+
+      // Identify unique programme codes that use this course in their LATEST revision with the structure label
+      const programmes: ProgrammesWithCourse = {};
+      const seenPairs = new Set<string>();
+
+      structureSnap.forEach(doc => {
+        const data = doc.data();
+        const pCode = data.programme;
+        const label = data.label || '';
+        const pairKey = `${pCode}|${label}`;
+
+        // Skip older revisions
+        if (seenPairs.has(pairKey)) return;
+        seenPairs.add(pairKey);
+
+        // 2. Find which semester contains the course
+        // 'structure' is the Map: { "01": ["MATH1", "CS101"], "02": [...] }
+        const semesterEntries = Object.entries(data.structure || {});
+        for (const [semKey, courses] of semesterEntries) {
+          if (Array.isArray(courses) && courses.includes(courseCode)) {
+            if (!programmes[pCode]) programmes[pCode] = { school: "", structures: {} };
+            programmes[pCode].structures[label] = semKey; // Store the semester key (e.g., "01")
+            break; // Stop searching this specific structure once found
+          }
+        }
+      });
+
+      // 3. Map back to School info
+      const progToSchoolMap = await this.getProgrammesMappedBySchool();
+      const schools: MappedProgramme[] = [];
+
+      for (const pCode in programmes) {
+        const schoolInfo = progToSchoolMap.find(p => p.code === pCode);
+        if (!schoolInfo) continue ;
+        schools.push(schoolInfo)
+        programmes[pCode]!.school = schoolInfo.code
+      }
+
+      return { programmes, schools };
+
+    } catch (error) {
+      console.error("Error tracing course assignments:", error);
+      throw error;
+    }
+  },
+  /*
+    Delete an item from a collection.
+    @param collectionName - The name of the collection.
+    @param docId - The ID of the document to delete.
+  */
   async deleteItem(collectionName: string, docId: string) {
     try {
       const docRef = doc(db, collectionName, docId);
