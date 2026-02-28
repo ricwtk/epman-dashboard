@@ -53,21 +53,21 @@ const referenceTypes = [
 </script>
 
 <template>
-  <div class="flex flex-col gap-1">
-    <div class="font-semibold flex flex-row items-center gap-1 h-9">
-      References
-      <ResetButton v-if="diffs" @reset="resetDiff()" />
-    </div>
+  <div class="font-semibold flex flex-row items-center gap-1 h-9">
+    References
+    <ResetButton :disabled="!diffs" @reset="resetDiff()" />
+  </div>
 
-    <EmptyComponent v-if="course.references.length === 0">
-      <template #title>
-        No references available
-      </template>
-      <template #description>
-        Click the '+' button to add a reference
-      </template>
-    </EmptyComponent>
-    <Table v-else>
+  <EmptyComponent v-if="course.references.length === 0">
+    <template #title>
+      No references available
+    </template>
+    <template #description>
+      <Button variant="default" @click="addReference"><PlusIcon /> Click to add a reference</Button>
+    </template>
+  </EmptyComponent>
+  <template v-else>
+    <Table>
       <TableHeader>
         <TableRow>
           <TableHead class="w-0"></TableHead>
@@ -120,6 +120,6 @@ const referenceTypes = [
       </TableBody>
     </Table>
 
-    <Button variant="default" @click="addReference"><PlusIcon /></Button>
-  </div>
+    <Button variant="default" class="w-full text-xs" size="sm" @click="addReference"><PlusIcon />Add Reference</Button>
+  </template>
 </template>

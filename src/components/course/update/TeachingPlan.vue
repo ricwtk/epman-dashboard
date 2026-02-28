@@ -18,6 +18,7 @@ import { SLT_CATEGORIES } from "@/constants"
 import { PlusIcon, MinusIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 
 import ResetButton from '@/components/ResetButton.vue';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 import { getEditingCourseAndStore } from '@/composables/course'
 const { course, editingCourseStore } = getEditingCourseAndStore()
@@ -61,9 +62,20 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
 <template>
   <div class="font-semibold flex flex-row items-center gap-1 h-9">
     Teaching Plan
-    <ResetButton v-if="diffs" @reset="resetDiff()" />
+    <ResetButton :disabled="!diffs" @reset="resetDiff()" />
   </div>
-  <Table>
+  <template v-if="course.teachingPlan.length === 0">
+    <EmptyComponent>
+      <template #title>
+        No teaching plan available
+      </template>
+      <template #description>
+        <Button variant="default" @click="addTopic"><PlusIcon /> Click to add a topic</Button>
+      </template>
+    </EmptyComponent>
+  </template>
+
+  <Table v-else>
     <TableHeader>
       <TableRow>
         <TableHead class="w-0" rowspan="3"></TableHead>
@@ -127,7 +139,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
       <TableRow>
         <TableCell></TableCell>
         <TableCell colspan="2">
-          <Button variant="default" class="w-full" @click="addTopic"><PlusIcon /></Button>
+          <Button variant="default" class="w-full text-xs" size="sm" @click="addTopic"><PlusIcon />Add Topic</Button>
         </TableCell>
       </TableRow>
 

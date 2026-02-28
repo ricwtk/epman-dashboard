@@ -29,6 +29,8 @@ const updateBloomTaxonomy = (coIndex: number, newBloomTaxonomy: string) => {
   }
 }
 
+const addCo = () => editingCourseStore.addCo();
+
 const handleMappingChange = (coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', mappingIndex: number, checked: boolean) => {
   const co = course.value.cos[coIndex]
   if (co) {
@@ -144,8 +146,21 @@ const emptyComponent = computed<{
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <div class="font-semibold">CO Definition</div>
+  <div class="font-semibold flex flex-row items-center gap-1 h-9">
+    CO Definition
+    <ResetButton :disabled="true" @reset="resetDiff()" />
+  </div>
+
+  <EmptyComponent v-if="course.cos.length == 0">
+    <template #title>
+      No course outcomes available
+    </template>
+    <template #description>
+      <Button variant="default" @click="addCo"><PlusIcon /> Click to add a course outcome</Button>
+    </template>
+  </EmptyComponent>
+
+  <template v-else>
     <Table>
       <TableHeader>
         <TableRow>
@@ -202,7 +217,7 @@ const emptyComponent = computed<{
       </TableBody>
     </Table>
 
-    <Button variant="default" @click="editingCourseStore.addCo"><PlusIcon /></Button>
+    <Button variant="default" class="w-full text-xs" size="sm" @click="addCo"><PlusIcon />Add Course Outcome</Button>
 
     <EmptyComponent v-if="emptyComponent.show">
       <template #title>
@@ -332,76 +347,5 @@ const emptyComponent = computed<{
         </TableBody>
       </Table>
     </template>
-
-    <!-- <div
-      v-for="(co, coIndex) in colist"
-      :key="coIndex"
-      class="flex flex-col gap-3"
-    >
-      <div class="flex flex-col gap-1 grow">
-        <Label :for="'desc' + coIndex">{{ `CO${coIndex + 1}` }}</Label>
-        <Textarea :id="'desc' + coIndex" :value="co.description" />
-      </div>
-
-      <div class="flex flex-row gap-3 items-center">
-        <Checkbox :default-value="false" :id="`sdg${coIndex}`"/>
-        <Label :for="`sdg${coIndex}`">SDG</Label>
-      </div>
-
-      <div class="flex flex-wrap gap-3">
-        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
-          <Label :for="`po${coIndex}`">PO</Label>
-          <MultiSelect
-            :input-id="`po${coIndex}`"
-            label="Select PO"
-            :options="[1,2,3,4,5,6,7,8,9].map((x) => `PO${x}`)"
-            :selected="co.pos.map((x) => `PO${x}`)"
-            emptymessage="No POs"
-          />
-        </div>
-        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
-          <Label :for="`wa${coIndex}`">WA</Label>
-          <MultiSelect
-            :input-id="`wa${coIndex}`"
-            label="Select WA"
-            :options="[1,2,3,4,5,6,7,8,9].map((x) => `WA${x}`)"
-            :selected="co.was.map((x) => `WA${x}`)"
-            emptymessage="No WAs"
-          />
-        </div>
-        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
-          <Label :for="`wk${coIndex}`">WK</Label>
-          <MultiSelect
-            :input-id="`wk${coIndex}`"
-            label="Select WK"
-            :options="[1,2,3,4,5,6,7,8,9].map((x) => `WK${x}`)"
-            :selected="co.wks.map((x) => `WK${x}`)"
-            emptymessage="No WKs"
-          />
-        </div>
-        <div class="flex flex-col gap-1 flex-1 shrink-0 min-w-75">
-          <Label :for="`ea${coIndex}`">EA</Label>
-          <MultiSelect
-            :input-id="`ea${coIndex}`"
-            label="Select EA"
-            :options="[1,2,3,4,5,6,7,8,9].map((x) => `EA${x}`)"
-            :selected="co.eas.map((x) => `EA${x}`)"
-            emptymessage="No EAs"
-          />
-        </div>
-      </div>
-
-      <div class="flex flex-wrap gap-1">
-        <Button variant="outline" :disabled="coIndex === 0"><ChevronUpIcon /></Button>
-        <Button variant="outline" :disabled="coIndex === colist.length - 1"><ChevronDownIcon /></Button>
-        <div class="grow"></div>
-        <Button variant="destructive"><MinusIcon /></Button>
-      </div>
-
-
-      <Separator class="my-5" v-if="coIndex < colist.length - 1"/>
-    </div>
-
-    <Button variant="default"><PlusIcon /></Button> -->
-  </div>
+  </template>
 </template>

@@ -172,9 +172,23 @@ const emptyComponent = computed<{
 </script>
 
 <template>
-  <div class="font-semibold">Assessment to CO mapping</div>
+  <div class="font-semibold flex flex-row items-center gap-1 h-9">
+    Assessment to CO mapping
+    <ResetButton :disabled="true" @reset="resetDiff()" />
+  </div>
 
-  <Table>
+  <template v-if="course.assessments.length === 0">
+    <EmptyComponent>
+      <template #title>
+        No assessments available
+      </template>
+      <template #description>
+        <Button variant="default" @click="addAssessment"><PlusIcon /> Click to add an assessment</Button>
+      </template>
+    </EmptyComponent>
+  </template>
+
+  <Table v-else>
     <TableHeader>
       <TableRow>
         <TableHead class="w-0"></TableHead>
@@ -284,102 +298,104 @@ const emptyComponent = computed<{
     </TableBody>
   </Table>
 
-  <div class="font-semibold">Assessment to WP/EA mapping</div>
+  <template v-if="course.assessments.length > 0">
+    <div class="font-semibold">Assessment to WP/EA mapping</div>
 
-  <EmptyComponent v-if="emptyComponent.show">
-    <template #title>
-      {{emptyComponent.title}}
-    </template>
-    <template #description>
-      {{emptyComponent.description}}
-    </template>
-  </EmptyComponent>
+    <EmptyComponent v-if="emptyComponent.show">
+      <template #title>
+        {{emptyComponent.title}}
+      </template>
+      <template #description>
+        {{emptyComponent.description}}
+      </template>
+    </EmptyComponent>
 
-  <Table v-else>
-    <TableHeader>
-      <TableRow>
-        <TableHead class="align-bottom">Assessment</TableHead>
-        <TableHead class="align-bottom text-center">Weightage</TableHead>
-        <TableHead class="align-bottom text-center">CO</TableHead>
-        <TableHead class="align-bottom text-center">PO</TableHead>
-        <TableHead
-          v-for="(wp, wpIndex) in wpOptions"
-          :key="wpIndex"
-          class="align-bottom text-center"
-          :title="`WP${wpIndex+1} ${wp}`"
-        >
-          <VerticalText :label="`WP${wpIndex+1}`" :content="wp" />
-        </TableHead>
-        <TableHead
-          v-for="(ea, eaIndex) in eaOptions"
-          :key="eaIndex"
-          class="align-bottom text-center"
-          :title="`EA${eaIndex+1} ${ea}`"
-        >
-          <VerticalText :label="`EA${eaIndex+1}`" :content="ea" />
-        </TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <template v-for="(assessment, assessmentIndex) in course.assessments" :key="assessmentIndex">
+    <Table v-else>
+      <TableHeader>
         <TableRow>
-          <TableCell>{{ assessment.description }}</TableCell>
-          <TableCell class="text-center">{{ assessment.weightage }}</TableCell>
-          <TableCell class="text-center">
-            <BadgeList :items="assessment.cos.map((co) => `CO${co}`)" />
-          </TableCell>
-          <TableCell class="text-center">
-            <BadgeList :items="getPoList(assessment)" />
-          </TableCell>
-          <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
-            <div class="flex flex-col gap-0.5 items-center">
-              <span class="bg-green-600 rounded w-1 h-1"></span>
-              <Checkbox
-                v-if="assessment.breakdown.length == 0"
-                :modelValue="assessment.wps?.includes(wpIndex + 1)"
-                @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'wps'], wpIndex + 1, checked)"
-              />
-            </div>
-          </TableCell>
-          <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex" class="text-center">
-            <div class="flex flex-col gap-0.5 items-center">
-               <span class="bg-transparent rounded w-1 h-1"></span>
-              <Checkbox
-                v-if="assessment.breakdown.length == 0"
-                :modelValue="assessment.eas?.includes(eaIndex + 1)"
-                @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'eas'], eaIndex + 1, checked)"
-              />
-            </div>
-          </TableCell>
+          <TableHead class="align-bottom">Assessment</TableHead>
+          <TableHead class="align-bottom text-center">Weightage</TableHead>
+          <TableHead class="align-bottom text-center">CO</TableHead>
+          <TableHead class="align-bottom text-center">PO</TableHead>
+          <TableHead
+            v-for="(wp, wpIndex) in wpOptions"
+            :key="wpIndex"
+            class="align-bottom text-center"
+            :title="`WP${wpIndex+1} ${wp}`"
+          >
+            <VerticalText :label="`WP${wpIndex+1}`" :content="wp" />
+          </TableHead>
+          <TableHead
+            v-for="(ea, eaIndex) in eaOptions"
+            :key="eaIndex"
+            class="align-bottom text-center"
+            :title="`EA${eaIndex+1} ${ea}`"
+          >
+            <VerticalText :label="`EA${eaIndex+1}`" :content="ea" />
+          </TableHead>
         </TableRow>
-        <template v-if="assessment.breakdown.length > 0">
-          <TableRow v-for="(breakdown, breakdownIndex) in assessment.breakdown" :key="breakdownIndex">
-            <TableCell class="flex flex-row items-center">
-              <CornerDownRightIcon class="inline-block" :size="16" />
-              <div class="inline-block ml-1">{{ breakdown.description }}</div>
-            </TableCell>
-            <TableCell class="text-center">{{ breakdown.weightage }}</TableCell>
+      </TableHeader>
+      <TableBody>
+        <template v-for="(assessment, assessmentIndex) in course.assessments" :key="assessmentIndex">
+          <TableRow>
+            <TableCell>{{ assessment.description }}</TableCell>
+            <TableCell class="text-center">{{ assessment.weightage }}</TableCell>
             <TableCell class="text-center">
-              <BadgeList :items="[`CO${breakdown.co}`]" />
+              <BadgeList :items="assessment.cos.map((co) => `CO${co}`)" />
             </TableCell>
             <TableCell class="text-center">
-              <BadgeList :items="course.cos[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
+              <BadgeList :items="getPoList(assessment)" />
             </TableCell>
             <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
-              <Checkbox
-                :modelValue="breakdown.wps?.includes(wpIndex + 1)"
-                @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'wps'], wpIndex + 1, isChecked)"
-              />
+              <div class="flex flex-col gap-0.5 items-center">
+                <span class="bg-green-600 rounded w-1 h-1"></span>
+                <Checkbox
+                  v-if="assessment.breakdown.length == 0"
+                  :modelValue="assessment.wps?.includes(wpIndex + 1)"
+                  @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'wps'], wpIndex + 1, checked)"
+                />
+              </div>
             </TableCell>
             <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex" class="text-center">
-              <Checkbox
-                :modelValue="breakdown.eas?.includes(eaIndex + 1)"
-                @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'eas'], eaIndex + 1, isChecked)"
-              />
+              <div class="flex flex-col gap-0.5 items-center">
+                <span class="bg-transparent rounded w-1 h-1"></span>
+                <Checkbox
+                  v-if="assessment.breakdown.length == 0"
+                  :modelValue="assessment.eas?.includes(eaIndex + 1)"
+                  @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'eas'], eaIndex + 1, checked)"
+                />
+              </div>
             </TableCell>
           </TableRow>
+          <template v-if="assessment.breakdown.length > 0">
+            <TableRow v-for="(breakdown, breakdownIndex) in assessment.breakdown" :key="breakdownIndex">
+              <TableCell class="flex flex-row items-center">
+                <CornerDownRightIcon class="inline-block" :size="16" />
+                <div class="inline-block ml-1">{{ breakdown.description }}</div>
+              </TableCell>
+              <TableCell class="text-center">{{ breakdown.weightage }}</TableCell>
+              <TableCell class="text-center">
+                <BadgeList :items="[`CO${breakdown.co}`]" />
+              </TableCell>
+              <TableCell class="text-center">
+                <BadgeList :items="course.cos[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
+              </TableCell>
+              <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
+                <Checkbox
+                  :modelValue="breakdown.wps?.includes(wpIndex + 1)"
+                  @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'wps'], wpIndex + 1, isChecked)"
+                />
+              </TableCell>
+              <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex" class="text-center">
+                <Checkbox
+                  :modelValue="breakdown.eas?.includes(eaIndex + 1)"
+                  @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'eas'], eaIndex + 1, isChecked)"
+                />
+              </TableCell>
+            </TableRow>
+          </template>
         </template>
-      </template>
-    </TableBody>
-  </Table>
+      </TableBody>
+    </Table>
+  </template>
 </template>
