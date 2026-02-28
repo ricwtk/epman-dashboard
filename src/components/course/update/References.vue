@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/table'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 import ResetButton from '@/components/ResetButton.vue'
+import EmptyComponent from '@/components/EmptyComponent.vue'
 
 import { getEditingCourseAndStore } from '@/composables/course'
 const { course, editingCourseStore } = getEditingCourseAndStore()
@@ -57,13 +58,22 @@ const referenceTypes = [
       References
       <ResetButton v-if="diffs" @reset="resetDiff()" />
     </div>
-    <Table>
+
+    <EmptyComponent v-if="course.references.length === 0">
+      <template #title>
+        No references available
+      </template>
+      <template #description>
+        Click the '+' button to add a reference
+      </template>
+    </EmptyComponent>
+    <Table v-else>
       <TableHeader>
         <TableRow>
-          <TableHead></TableHead>
-          <TableHead>Category</TableHead>
+          <TableHead class="w-0"></TableHead>
+          <TableHead class="w-0">Category</TableHead>
           <TableHead>Description</TableHead>
-          <TableHead></TableHead>
+          <TableHead class="w-0"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
