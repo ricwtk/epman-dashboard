@@ -9,6 +9,7 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const props = defineProps<{
   poList: Po[];
@@ -24,9 +25,14 @@ defineEmits(['update:editing']);
       Programme Outcomes (POs)
     </template>
     <template #body>
-      <template v-if="poList.length === 0">
-        <p>No POs defined.</p>
-      </template>
+      <EmptyComponent v-if="poList.length === 0">
+        <template #title>
+          No Programme Outcomes
+        </template>
+        <template #description>
+          Define programme outcomes to display mapping
+        </template>
+      </EmptyComponent>
       <template v-else>
         <Table>
           <TableHeader>

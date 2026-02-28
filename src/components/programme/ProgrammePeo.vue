@@ -8,6 +8,7 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const props = defineProps<{
   peoList: string[];
@@ -23,9 +24,14 @@ defineEmits(['update:editing']);
       Programme Education Outcomes (PEOs)
     </template>
     <template #body>
-      <template v-if="peoList.length === 0">
-        <p>No PEOs defined.</p>
-      </template>
+      <EmptyComponent v-if="peoList.length === 0">
+        <template #title>
+          No Programme Education Outcomes
+        </template>
+        <template #description>
+          Define programme education outcomes to display list
+        </template>
+      </EmptyComponent>
       <template v-else>
         <Table>
           <TableHeader>

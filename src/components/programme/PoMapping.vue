@@ -10,6 +10,7 @@ import {
   TableCell
 } from '@/components/ui/table';
 import BadgeList from '@/components/BadgeList.vue';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const props = defineProps<{
   poList: Po[];
@@ -25,7 +26,15 @@ defineEmits(['update:editing']);
       Program Outcomes (POs) Mapping Recommendations
     </template>
     <template #body>
-      <Table>
+      <EmptyComponent v-if="poList.length === 0">
+        <template #title>
+          No Programme Outcomes
+        </template>
+        <template #description>
+          Define programme outcomes to display mapping recommendations
+        </template>
+      </EmptyComponent>
+      <Table v-else>
         <TableHeader>
           <TableRow>
             <TableHead class="text-center" rowspan="2">PO</TableHead>
