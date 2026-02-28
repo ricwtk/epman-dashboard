@@ -64,3 +64,12 @@ export const USERLEVEL_OPTIONS = [
 ]
 
 export const DEFAULT_PW = 'sunway123';
+
+export const SLT_CATEGORIES = [
+  { short: 'L', long: "Lecture", key: "lecture" },
+  { short: 'T', long: "Tutorial", key: "tutorial" },
+  { short: 'P', long: "Practical", key: "practical" },
+  { short: 'A', long: "Assessment", key: "assessment" },
+  { short: 'O', long: "Others", key: "others" },
+  { short: 'IL', long: "Independent Learning", key: "self" },
+]

@@ -11,7 +11,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field';
 import { type Plan, type Allocation } from "@/types/course"
+import { SLT_CATEGORIES } from "@/constants"
 
 import { PlusIcon, MinusIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 
@@ -71,17 +73,17 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         <TableHead rowspan="3" class="w-0">Topic SLT</TableHead>
       </TableRow>
       <TableRow>
-        <TableHead colspan="2">L</TableHead>
-        <TableHead colspan="2">T</TableHead>
-        <TableHead colspan="2">P</TableHead>
-        <TableHead colspan="2">A</TableHead>
-        <TableHead colspan="2">O</TableHead>
-        <TableHead colspan="2">IL</TableHead>
+        <TableHead colspan="2"
+          v-for="(category, index) in SLT_CATEGORIES" :key="category.short"
+          :title="category.long"
+          class="text-center"
+          :class="{ 'border-r': index !== SLT_CATEGORIES.length - 1 }"
+        >{{ category.short }}</TableHead>
       </TableRow>
       <TableRow>
-        <template v-for="_ in 6">
+        <template v-for="(_, index) in 6">
           <TableHead class="w-0 text-center">Onl</TableHead>
-          <TableHead class="w-0 text-center">F2F</TableHead>
+          <TableHead class="w-0 text-center" :class="{ 'border-r': index !== 5 }">F2F</TableHead>
         </template>
       </TableRow>
     </TableHeader>
@@ -99,42 +101,26 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
             <Button variant="secondary" :disabled="planIndex === course.teachingPlan.length - 1"><ChevronDownIcon /></Button>
           </div>
         </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.lecture.online" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.lecture.f2f" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.tutorial.online" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.tutorial.f2f" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.practical.online" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.practical.f2f" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.assessment.online" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.assessment.f2f" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.others.online" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.others.f2f" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.self.online" type="number" class="w-16"/>
-        </TableCell>
-        <TableCell class="text-center">
-          <Input v-model="plan.hours.self.f2f" type="number" class="w-16" />
-        </TableCell>
+        <template
+          v-for="(category, index) in SLT_CATEGORIES"
+          :key="category.key"
+        >
+          <TableCell class="text-center">
+            <NumberField v-model="plan.hours[category.key].online" class="w-8">
+              <NumberFieldContent>
+                <NumberFieldInput/>
+              </NumberFieldContent>
+            </NumberField>
+          </TableCell>
+          <TableCell class="text-center" :class="{ 'border-r': index !== SLT_CATEGORIES.length - 1 }">
+            <NumberField v-model="plan.hours[category.key].f2f" class="w-8">
+              <NumberFieldContent>
+                <NumberFieldInput/>
+              </NumberFieldContent>
+            </NumberField>
+          </TableCell>
+        </template>
+
         <TableCell class="text-center">{{ getTopicHours(plan.hours) }}</TableCell>
       </TableRow>
 
@@ -149,18 +135,10 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         <TableCell></TableCell>
         <TableCell class="font-medium">Sub-total for each SLT components</TableCell>
         <TableCell></TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "lecture") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "lecture") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "tutorial") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "tutorial") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "practical") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "practical") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "assessment") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "assessment") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "others") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "others") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, "self") }}</TableCell>
-        <TableCell class="font-medium text-center">{{ getTotalComponentF2FHours(course.teachingPlan, "self") }}</TableCell>
+        <template v-for="(category, index) in SLT_CATEGORIES" :key="category.key">
+          <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, category.key) }}</TableCell>
+          <TableCell class="font-medium text-center" :class="{ 'border-r': index !== SLT_CATEGORIES.length-1 }">{{ getTotalComponentF2FHours(course.teachingPlan, category.key) }}</TableCell>
+        </template>
         <TableCell class="font-medium text-center">{{ totalSLT }}</TableCell>
       </TableRow>
 
@@ -168,14 +146,14 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         <TableCell></TableCell>
         <TableCell class="font-semibold">Total SLT Hours</TableCell>
         <TableCell></TableCell>
-        <TableCell colspan="7" class="font-semibold text-center">{{ totalSLT }}</TableCell>
+        <TableCell :colspan="SLT_CATEGORIES.length*2" class="font-semibold text-center">{{ totalSLT }}</TableCell>
       </TableRow>
 
       <TableRow>
         <TableCell></TableCell>
         <TableCell class="font-semibold">SLT Credit Hours</TableCell>
         <TableCell></TableCell>
-        <TableCell colspan="7" class="font-semibold text-center">{{ creditHours }}</TableCell>
+        <TableCell :colspan="SLT_CATEGORIES.length*2" class="font-semibold text-center">{{ creditHours }}</TableCell>
       </TableRow>
     </TableBody>
   </Table>
