@@ -13,9 +13,11 @@ import { dataService } from '@/services/dataService';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 
-const programmes: Ref<{ code: string, name: string }[]> = ref([]);
+const programmes = ref<{ code: string, name: string }[]>([]);
 async function updateProgrammeList() {
-  programmes.value = getSortedUniqueLatestPartial(await dataService.getProgrammes(), ["code", "name"]);
+  programmes.value = Object.entries(await dataService.getProgrammes())
+    .map(([code, programme]) => ({ code, name: programme.name }))
+    .sort((a, b) => a.code.localeCompare(b.code));
 }
 onMounted(async () => {
   await updateProgrammeList();
