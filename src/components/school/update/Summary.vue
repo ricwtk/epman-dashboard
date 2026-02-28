@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { SquareArrowOutUpRightIcon, XIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
+import NewOrAddPopover from '@/components/NewOrAddPopover.vue';
 
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
@@ -28,17 +29,50 @@ const resetDiff = (fields: string[]) => {
   editingSchoolStore.resetDiff(fields);
 };
 
-// const allProgrammes = ref<MappedProgramme[]>([]);
-// const updateProgrammes = async () => {
-//   allProgrammes.value = await dataService.getProgrammesMappedBySchool();
-// };
-// onMounted(async () => {
-//   await updateProgrammes();
-// });
-
 const programmesAssignedToSchools = computed(() => {
-  return Object.keys(programmeToSchoolMap.value)
-    .filter(code => programmeToSchoolMap.value[code]?.school.code !== "");
+  let programmes = Object.keys(programmeToSchoolMap.value)
+    .filter(code => programmeToSchoolMap.value[code]?.school.code !== "")
+    .map(code => ({
+      code,
+      name: programmeToSchoolMap.value[code]?.name || "",
+      school: programmeToSchoolMap.value[code]?.school,
+    }));
+  editingSchoolStore.addedProgrammes.forEach(code => {
+    programmes.push({
+      code,
+      name: programmeToSchoolMap.value[code]?.name || "",
+      school: school.value
+    });
+  });
+  editingSchoolStore.removedProgrammes.forEach(code => {
+    const index = programmes.findIndex(p => p.code === code);
+    if (index !== -1) programmes.splice(index, 1);
+  });
+  return programmes;
+})
+
+const programmesNotAssignedToSchools = computed(() => {
+  let programmes = Object.keys(programmeToSchoolMap.value)
+    .filter(code => programmeToSchoolMap.value[code]?.school.code === "")
+    .map(code => ({
+      code,
+      name: programmeToSchoolMap.value[code]?.name || "",
+      school: programmeToSchoolMap.value[code]?.school,
+    }));
+  editingSchoolStore.removedProgrammes.forEach(code => {
+    if (programmeToSchoolMap.value[code]?.name) {
+      programmes.push({
+        code,
+        name: programmeToSchoolMap.value[code]?.name,
+        school: { code: "", name: "" }
+      });
+    }
+  });
+  editingSchoolStore.addedProgrammes.forEach(code => {
+    const index = programmes.findIndex(p => p.code === code);
+    if (index !== -1) programmes.splice(index, 1);
+  });
+  return programmes;
 })
 
 const addNewProgramme = async (newName: string, newCode: string) => {
@@ -60,18 +94,22 @@ const addNewProgramme = async (newName: string, newCode: string) => {
   school.value.programmes.push(newCode);
 }
 
-const findProgramme = (code: string): MappedProgramme | null => {
-  return programmeToSchoolMap.value[code] || null;
+const addExistingProgramme = async (code: string) => {
+  school.value.programmes.push(code);
 }
 
-const additionalError = (code: string) => {
-  if (
-    Object.keys(programmeToSchoolMap.value).includes(code)
-    && programmeToSchoolMap.value[code]?.school
-  ) {
-    return `${code} exists in ${programmeToSchoolMap.value[code]?.school?.code}`;
+const getAdditionalError = (name: string, code: string, bannedItem?: { code: string, name: string, school?: { code: string, name: string } }) => {
+  let error = "";
+  console.log(bannedItem)
+  if (bannedItem) {
+    error += `Programme ${code} already exists`
+    if (bannedItem.school!.code == school.value.code) {
+      error = `${error} and assigned to the current school`;
+    } else {
+      error = `${error} and assigned to other school`;
+    }
   }
-  return '';
+  return error;
 }
 
 const removeProgramme = (code: string) => {
@@ -107,30 +145,34 @@ const removeProgramme = (code: string) => {
       <div class="flex flex-row flex-wrap gap-2">
         <ResetButton v-if="checkDiff(['programmes'])" @reset="resetDiff(['programmes'])" />
         <!-- <div v-for="programme in 10" :key="programme" class="flex flex-row justify-center"> -->
-        <div v-for="programme in school.programmes" :key="programme" class="flex flex-row justify-center">
-          <ButtonGroup class="gap-0!">
-            <ButtonGroupText class="max-w-50">
-              <span class="truncate" :title="findProgramme(programme)?.name">{{ programme }} {{ findProgramme(programme)?.name }}</span>
-            </ButtonGroupText>
-            <Button variant="outline" size="icon" @click="navigateToProgrammeExternal(programme)"><SquareArrowOutUpRightIcon /></Button>
-            <Button variant="outline" size="icon" @click="removeProgramme(programme)"><XIcon /></Button>
-          </ButtonGroup>
-        </div>
+        <template v-for="pCode in school.programmes" :key="pCode">
+          <div
+            class="flex flex-row justify-center"
+          >
+            <ButtonGroup class="gap-0!">
+              <ButtonGroupText class="max-w-50">
+                <span class="truncate"
+                  :title="programmeToSchoolMap[pCode]?.name"
+                >
+                  {{ pCode }} {{ programmeToSchoolMap[pCode]?.name }}
+                </span>
+              </ButtonGroupText>
+              <Button variant="outline" size="icon" @click="navigateToProgrammeExternal(pCode)"><SquareArrowOutUpRightIcon /></Button>
+              <Button variant="outline" size="icon" @click="removeProgramme(pCode)"><XIcon /></Button>
+            </ButtonGroup>
+          </div>
+        </template>
 
-        <CreateNewPopover v-if="authStore.canEditProgrammes"
-          :currentList="programmesAssignedToSchools"
-          @create="(name:string, code:string) => addNewProgramme(name, code)"
+        <NewOrAddPopover
+          :bannedList="programmesAssignedToSchools"
+          :availableList="programmesNotAssignedToSchools"
+          :errorMessageFcn="getAdditionalError"
+          title="New Programme"
+          description="Add or Create programme"
+          @create="addNewProgramme"
+          @add="addExistingProgramme"
         >
-          <template #title>
-            New Programme
-          </template>
-          <template #description>
-            Create new programme
-          </template>
-          <template v-slot:error="{name, code}">
-            {{ additionalError(code) }}
-          </template>
-        </CreateNewPopover>
+        </NewOrAddPopover>
       </div>
     </div>
   </div>

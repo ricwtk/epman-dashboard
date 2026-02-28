@@ -1,4 +1,4 @@
-import { ref, toRaw } from 'vue';
+import { ref, toRaw, computed } from 'vue';
 import type { School } from "@/types/school";
 import type { ProgrammeToSchoolMap } from "@/services/dataService";
 
@@ -17,6 +17,12 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
   const programmeToSchoolMap = ref<ProgrammeToSchoolMap>({})
+  const addedProgrammes = computed(() => {
+    return school.value.programmes.filter(p => !originalSchool.value.programmes.includes(p))
+  })
+  const removedProgrammes = computed(() => {
+    return originalSchool.value.programmes.filter(p => !school.value.programmes.includes(p))
+  })
 
   async function updateProgrammeToSchoolMap(): Promise<void> {
     programmeToSchoolMap.value = await dataService.getProgrammeToSchoolMap()
@@ -30,6 +36,12 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
   function commitSchool(): void {
     originalSchool.value = structuredClone(toRaw(school.value));
     updateProgrammeToSchoolMap();
+  }
+
+  function getDiff(pathArray: string[]): any {
+    const original = get(originalSchool.value, pathArray)
+    const current = get(school.value, pathArray)
+    return diff(original, current)
   }
 
   function resetDiff(pathArray: string[]): void {
@@ -90,8 +102,9 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
 
   return {
     selectedTab, school,
+    addedProgrammes, removedProgrammes,
     resetSchool, commitSchool, loadSchool, saveSchool,
     programmeToSchoolMap, updateProgrammeToSchoolMap,
-    checkDiff, resetDiff, updated
+    getDiff, checkDiff, resetDiff, updated
   }
 })
