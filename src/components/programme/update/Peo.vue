@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusIcon, MinusIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
 const overallDiff = computed(() => {
@@ -43,12 +44,22 @@ const resetItem = (index: number) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <!-- <div class="flex flex-col gap-4"> -->
     <div class="font-semibold flex flex-row items-center gap-1">
       Programme Education Outcomes Definition
       <ResetButton :disabled="!overallDiff" @reset="resetDiff" />
     </div>
-    <Table>
+
+    <EmptyComponent v-if="programme.peoList.length == 0">
+      <template #title>
+        No programme education outcomes available
+      </template>
+      <template #description>
+        <Button variant="default" @click="addItem"><PlusIcon /> Click to add a programme education outcome</Button>
+      </template>
+    </EmptyComponent>
+
+    <Table v-else>
       <TableHeader>
         <TableRow>
           <TableHead class="w-0 text-center"></TableHead>
@@ -78,7 +89,7 @@ const resetItem = (index: number) => {
         </TableRow>
         <TableRow>
           <TableCell colspan="4">
-            <Button variant="default" class="w-full" @click="addItem">
+            <Button variant="default" class="w-full text-xs" size="sm" @click="addItem">
               <PlusIcon />
               Add PEO
             </Button>
@@ -86,5 +97,5 @@ const resetItem = (index: number) => {
         </TableRow>
       </TableBody>
     </Table>
-  </div>
+  <!-- </div> -->
 </template>
