@@ -1,9 +1,16 @@
 // src/services/dataService.ts
 import { db } from "./firebase";
-import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where, orderBy } from "firebase/firestore";
+import {
+  collection,
+  doc, getDoc, setDoc, deleteDoc,
+  getDocs,
+  query, where, orderBy,
+  QueryConstraint
+} from "firebase/firestore";
 import type { Course } from "@/types/course";
 import type { Programme, ProgrammeStructure } from "@/types/programme";
 import type { School } from "@/types/school";
+import { createNewProgramme } from "@/utils/programmeHelpers";
 
 // Generic helper to fetch a document
 async function fetchDoc<T>(collectionName: string, id: string): Promise<T | null> {
@@ -28,6 +35,40 @@ async function fetchDocsByCode<T>(collectionName: string, codeString: string): P
 async function fetchCollection<T>(collectionName: string): Promise<T[]> {
   const snapshot = await getDocs(collection(db, collectionName));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+}
+
+type StringKeys<T> = {
+  [K in keyof T]: T[K] extends string ? K : never
+}[keyof T];
+
+async function fetchLatestCollection<
+  T extends { revision: string },
+>(
+  collectionName: string,
+  uniqueKey: StringKeys<T>,
+  extraConstraints: QueryConstraint[] = []
+): Promise<Record<string, T>> {
+  const q = query(
+    collection(db, collectionName),
+    orderBy('revision', 'desc'),
+    ...extraConstraints
+  );
+  const querySnapshot = await getDocs(q);
+
+  const processedValues = new Set<string>();
+  const result: Record<string, T> = {};
+
+  for (const doc of querySnapshot.docs) {
+    const data = doc.data() as T;
+    const key = data[uniqueKey] as string;
+
+    if (!processedValues.has(key)) {
+      result[key] = { ...data };
+      processedValues.add(key);
+    }
+  }
+
+  return result;
 }
 
 export interface MappedProgramme {
@@ -87,8 +128,8 @@ export const dataService = {
   },
 
   // --- Programmes ---
-  async getProgrammes(): Promise<Programme[]> {
-    return fetchCollection<Programme>("programmes");
+  async getProgrammes(): Promise<{[code: string]: Programme}> {
+    return fetchLatestCollection<Programme>("programmes", "code");
   },
 
   async getProgramme(code: string): Promise<Programme[]> {
@@ -100,11 +141,18 @@ export const dataService = {
     await setDoc(doc(db, "programmes", programme.id), programme);
   },
 
-  async getNameOfProgrammes(codes: string[]): Promise<Map<string, string>> {
-    const programmes = await this.getProgrammes();
-    const programmenames = new Map<string, string>();
-    programmes.filter(p => codes.includes(p.code)).forEach(p => programmenames.set(p.code, p.name));
-    return programmenames;
+  async getProgrammesOf(codes: string[]): Promise<{ [code: string]: Programme }> {
+    if (codes.length === 0) return {};
+    let programmes = await fetchLatestCollection<Programme>(
+      "programmes", "code",
+      [where("code", "in", codes)]
+    );
+    codes.forEach(code => {
+      if (!programmes[code]) {
+        programmes[code] = createNewProgramme({ code });
+      }
+    });
+    return programmes;
   },
 
   // --- Schools ---

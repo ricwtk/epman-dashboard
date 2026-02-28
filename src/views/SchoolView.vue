@@ -71,7 +71,7 @@ const deleteRevision = () => {
     />
     <SchoolListOfProgramme
       :editable="authStore.canEditSchools"
-      :school="viewingSchoolStore.school"
+      :programmes="viewingSchoolStore.programmes"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'programmes')"
     />

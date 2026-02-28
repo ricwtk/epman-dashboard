@@ -1,13 +1,18 @@
 import { ref, type Ref } from 'vue';
 import type { School } from "@/types/school";
+import type { Programme } from "@/types/programme";
 import { createNewSchool, getSchoolByCode } from "@/utils/schoolHelpers";
 import { dataService } from "@/services/dataService";
 import { defineStore } from "pinia";
 import { navigateToParent } from "@/utils/navigationHelpers";
+import { computedAsync } from '@vueuse/core';
 
 export const useViewingSchoolStore = defineStore('viewing-school', () => {
   const school: Ref<School> = ref(createNewSchool())
   const schoolRevisions = ref<School[]>([])
+  const programmes = computedAsync<{ [code: string]: Programme }>(async () => {
+    return await dataService.getProgrammesOf(school.value.programmes);
+  });
 
   function resetSchool(): void { school.value = createNewSchool() }
 
@@ -45,5 +50,5 @@ export const useViewingSchoolStore = defineStore('viewing-school', () => {
     }
   }
 
-  return { school, schoolRevisions, deleteRevision, resetSchool, loadSchoolByCode, loadSchoolRevision }
+  return { school, programmes, schoolRevisions, deleteRevision, resetSchool, loadSchoolByCode, loadSchoolRevision }
 })
