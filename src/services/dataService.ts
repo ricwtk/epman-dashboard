@@ -80,6 +80,17 @@ export interface MappedProgramme {
   } | null;
 }
 
+export interface ProgrammeToSchoolMap {
+  [programmeCode: string]: {
+    name: string;
+    code: string;
+    school: {
+      name: string;
+      code: string;
+    };
+  };
+}
+
 export interface GroupedStructures {
   [label: string]: ProgrammeStructure[];
 }
@@ -227,6 +238,41 @@ export const dataService = {
       return programmesWithSchool;
     } catch (error) {
       console.error("Error finding parent school from latest revisions:", error);
+      throw error;
+    }
+  },
+
+  // get programme to school mapping
+  async getProgrammeToSchoolMap(): Promise<ProgrammeToSchoolMap> {
+    try {
+      const programmeToSchoolMap: ProgrammeToSchoolMap = {};
+      const programmes = await fetchLatestCollection<Programme>("programmes", "code");
+      const schools = await fetchLatestCollection<School>("schools", "code");
+
+      for (const progCode in programmes) {
+        let schoolName = "";
+        let schoolCode = "";
+        for (const schCode in schools) {
+          const school = schools[schCode]!
+          if (school.programmes.includes(progCode)) {
+            schoolName = school.name;
+            schoolCode = school.code;
+            break;
+          }
+        };
+        programmeToSchoolMap[progCode] = {
+          name: programmes[progCode]!.name,
+          code: programmes[progCode]!.code,
+          school: {
+            name: schoolName,
+            code: schoolCode
+          },
+        }
+      };
+
+      return programmeToSchoolMap;
+    } catch (error) {
+      console.error("Error getting programme to school map:", error);
       throw error;
     }
   },

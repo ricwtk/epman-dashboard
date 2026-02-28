@@ -45,6 +45,7 @@ const createNew = () => {
     </PopoverTrigger>
     <PopoverContent class="w-80">
       <div class="grid gap-4">
+        {{ currentList }}
         <div class="space-y-2">
           <h4 class="font-medium leading-none">
             <slot name="title">New</slot>

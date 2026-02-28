@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
 import { getEditingSchoolAndStore } from '@/composables/school';
 const { school, editingSchoolStore } = getEditingSchoolAndStore();
+const { programmeToSchoolMap } = storeToRefs(editingSchoolStore);
 
 import { formatRevision } from '@/utils/common';
 import { dataService, type MappedProgramme } from '@/services/dataService';
@@ -26,17 +28,21 @@ const resetDiff = (fields: string[]) => {
   editingSchoolStore.resetDiff(fields);
 };
 
-const allProgrammes = ref<MappedProgramme[]>([]);
-const updateProgrammes = async () => {
-  allProgrammes.value = await dataService.getProgrammesMappedBySchool();
-};
-onMounted(async () => {
-  await updateProgrammes();
-});
+// const allProgrammes = ref<MappedProgramme[]>([]);
+// const updateProgrammes = async () => {
+//   allProgrammes.value = await dataService.getProgrammesMappedBySchool();
+// };
+// onMounted(async () => {
+//   await updateProgrammes();
+// });
+
+const programmesAssignedToSchools = computed(() => {
+  return Object.keys(programmeToSchoolMap.value)
+    .filter(code => programmeToSchoolMap.value[code]?.school.code !== "");
+})
 
 const addNewProgramme = async (newName: string, newCode: string) => {
-  const existingProgramme = allProgrammes.value.find(p => p.code == newCode)
-  if (!existingProgramme) {
+  if (!Object.keys(programmeToSchoolMap.value).includes(newCode)) {
     const newProgrammeParameters = {
       name: newName,
       code: newCode.toUpperCase(),
@@ -48,20 +54,22 @@ const addNewProgramme = async (newName: string, newCode: string) => {
     };
     const newProgramme = createNewProgramme(newProgrammeParameters);
     await dataService.saveProgramme(newProgramme);
-    await updateProgrammes();
+    await editingSchoolStore.updateProgrammeToSchoolMap();
+    // await updateProgrammes();
   }
   school.value.programmes.push(newCode);
 }
 
 const findProgramme = (code: string): MappedProgramme | null => {
-  console.log(allProgrammes.value)
-  return allProgrammes.value.find(p => p.code === code) || null;
+  return programmeToSchoolMap.value[code] || null;
 }
 
 const additionalError = (code: string) => {
-  const existingProgramme = allProgrammes.value.find(p => p.code === code);
-  if (existingProgramme && existingProgramme.school) {
-    return `${existingProgramme.code} exists in ${existingProgramme.school.code}`;
+  if (
+    Object.keys(programmeToSchoolMap.value).includes(code)
+    && programmeToSchoolMap.value[code]?.school
+  ) {
+    return `${code} exists in ${programmeToSchoolMap.value[code]?.school?.code}`;
   }
   return '';
 }
@@ -80,7 +88,7 @@ const removeProgramme = (code: string) => {
       <div class="flex flex-col gap-1 grow">
         <Label for="code">Code</Label>
         <div class="flex flex-row gap-2">
-          <Input id="code" placeholder="School Code" v-model="school.code"/>
+          <Input id="code" placeholder="School Code" v-model="school.code" disabled/>
           <ResetButton v-if="checkDiff(['code'])" @reset="resetDiff(['code'])" />
         </div>
       </div>
@@ -110,7 +118,7 @@ const removeProgramme = (code: string) => {
         </div>
 
         <CreateNewPopover v-if="authStore.canEditProgrammes"
-          :currentList="allProgrammes.filter(p => p.school).map(p => p.code)"
+          :currentList="programmesAssignedToSchools"
           @create="(name:string, code:string) => addNewProgramme(name, code)"
         >
           <template #title>

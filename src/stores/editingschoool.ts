@@ -1,5 +1,7 @@
 import { ref, toRaw } from 'vue';
 import type { School } from "@/types/school";
+import type { ProgrammeToSchoolMap } from "@/services/dataService";
+
 import { createNewSchool } from "@/utils/schoolHelpers";
 import { defineStore } from "pinia";
 import { get, set } from 'lodash-es';
@@ -14,6 +16,12 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
   const originalSchool = ref<School>(structuredClone(createNewSchool()))
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
+  const programmeToSchoolMap = ref<ProgrammeToSchoolMap>({})
+
+  async function updateProgrammeToSchoolMap(): Promise<void> {
+    programmeToSchoolMap.value = await dataService.getProgrammeToSchoolMap()
+  }
+  updateProgrammeToSchoolMap();
 
   function resetSchool(): void {
     school.value = structuredClone(toRaw(originalSchool.value))
@@ -21,6 +29,7 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
 
   function commitSchool(): void {
     originalSchool.value = structuredClone(toRaw(school.value));
+    updateProgrammeToSchoolMap();
   }
 
   function resetDiff(pathArray: string[]): void {
@@ -79,5 +88,10 @@ export const useEditingSchoolStore = defineStore('editing-school', () => {
     }
   }
 
-  return { selectedTab, school, resetSchool, commitSchool, loadSchool, saveSchool, checkDiff, resetDiff, updated }
+  return {
+    selectedTab, school,
+    resetSchool, commitSchool, loadSchool, saveSchool,
+    programmeToSchoolMap, updateProgrammeToSchoolMap,
+    checkDiff, resetDiff, updated
+  }
 })
