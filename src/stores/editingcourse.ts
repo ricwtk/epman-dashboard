@@ -1,4 +1,4 @@
-import { ref, computed, toRaw } from 'vue';
+import { ref, computed, toRaw, watch } from 'vue';
 import type { Course } from "@/types/course";
 import type { Programme } from "@/types/programme";
 import type { School } from "@/types/school";
@@ -29,15 +29,26 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
   const selectedProgramme = ref<Programme | null>(null)
   const selectedSchool = computed<School | null>(() => {
     if (!selectedProgramme.value) return null;
-    const schoolCode = courseUsage.value?.programmes[selectedProgramme.value.code]?.school;
-    return schoolCode ? courseUsage.value?.schools[schoolCode] || null : null;
+    const schoolCode = programmesWithCourse.value[selectedProgramme.value.code]?.school;
+    return schoolCode ? schoolsByCode.value[schoolCode] || null : null;
   });
+  const notAssignedToProgramme = computed<boolean>(() => {
+    return Object.keys(programmesWithCourse.value).length === 0;
+  })
+  const programmeNotSelected = computed<boolean>(() => {
+    return selectedProgramme.value === null || Object.keys(selectedProgramme.value).length === 0;
+  })
+  const programmeNotAssigned = computed<boolean>(() => {
+    return !programmeNotSelected.value && (selectedSchool.value === null);
+  })
 
-  const courseUsage = computedAsync<{
-    programmes: ProgrammesWithCourse,
-    schools: SchoolsByCode
-  }>(async () => {
-    return await dataService.traceCourseUsageAcrossProgrammes(course.value.code)
+  const programmesWithCourse = ref<ProgrammesWithCourse>({})
+  const schoolsByCode = ref<SchoolsByCode>({})
+
+  watch(course, async () => {
+    const usage = await dataService.traceCourseUsageAcrossProgrammes(course.value.code)
+    programmesWithCourse.value = usage.programmes
+    schoolsByCode.value = usage.schools
   })
 
   function resetCourse(): void {
@@ -199,7 +210,8 @@ export const useEditingCourseStore = defineStore('editing-course', () => {
 
   return {
     course, resetCourse, loadCourse,
-    courseUsage, selectedProgramme, selectedSchool,
+    selectedProgramme, selectedSchool,
+    notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
     selectedTab, updated,
     checkDiff, resetDiff,
     updateMapping,

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
+
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -89,6 +91,12 @@ const eaOptions = [
   "Familiarity"
 ]
 
+const {
+  notAssignedToProgramme,
+  programmeNotSelected,
+  programmeNotAssigned
+} = storeToRefs(editingCourseStore)
+
 const emptyComponent = computed<{
   show: boolean, title: string, description: string
 }>(() => {
@@ -104,21 +112,21 @@ const emptyComponent = computed<{
       description: 'Define course outcomes to display mapping matrices'
     }
   }
-  else if (Object.keys(editingCourseStore.courseUsage.programmes).length === 0) {
+  else if (notAssignedToProgramme.value) {
     return {
       show: true,
       title: 'Course not assigned to any programme',
       description: 'Add course to the structure of a programme to display mapping matrices'
     }
   }
-  else if (!editingCourseStore.selectedProgramme.value) {
+  else if (programmeNotSelected.value) {
     return {
       show: true,
       title: 'No Programme Selected',
       description: 'Select a programme to display mapping matrices'
     }
   }
-  else if (editingCourseStore.selectedProgramme.value && !editingCourseStore.selectedSchool.value) {
+  else if (programmeNotAssigned.value) {
     return {
       show: true,
       title: 'Programme not assigned to any school',

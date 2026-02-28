@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import { type Co, type Assessment } from '@/types/course';
 import {
   Table,
@@ -18,6 +19,8 @@ import BadgeList from '@/components/BadgeList.vue';
 import VerticalText from '@/components/VerticalText.vue';
 import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon } from 'lucide-vue-next';
 import { get } from 'lodash-es';
+import EmptyComponent from '@/components/EmptyComponent.vue';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { getEditingCourseAndStore } from '@/composables/course'
 const { course, editingCourseStore } = getEditingCourseAndStore()
@@ -116,6 +119,56 @@ const getPoList = (assessment: Assessment) => {
   return poListArray;
 }
 
+const {
+  notAssignedToProgramme,
+  programmeNotSelected,
+  programmeNotAssigned
+} = storeToRefs(editingCourseStore)
+
+const emptyComponent = computed<{
+  show: boolean, title: string, description: string
+}>(() => {
+  if (!course.value.assessments) return {
+    show: true,
+    title: 'Course object not ready',
+    description: 'Wait for the course object to be ready'
+  }
+  else if (course.value.assessments.length === 0) {
+    return {
+      show: true,
+      title: 'No Assessments',
+      description: 'Define assessments to display mapping matrix'
+    }
+  }
+  else if (notAssignedToProgramme.value) {
+    return {
+      show: true,
+      title: 'Course not assigned to any programme',
+      description: 'Add course to the structure of a programme to display mapping matrices'
+    }
+  }
+  else if (programmeNotSelected.value) {
+    return {
+      show: true,
+      title: 'No Programme Selected',
+      description: 'Select a programme to display mapping matrices'
+    }
+  }
+  else if (programmeNotAssigned.value) {
+    return {
+      show: true,
+      title: 'Programme not assigned to any school',
+      description: `Course is assigned to ${editingCourseStore.selectedProgramme.value.name} but ${editingCourseStore.selectedProgramme.value.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
+    }
+  }
+  else {
+    return {
+      show: false,
+      title: '',
+      description: ''
+    }
+  }
+})
 </script>
 
 <template>
@@ -124,14 +177,15 @@ const getPoList = (assessment: Assessment) => {
   <Table>
     <TableHeader>
       <TableRow>
-        <TableHead></TableHead>
+        <TableHead class="w-0"></TableHead>
         <TableHead colspan="2">Method</TableHead>
-        <TableHead>Component</TableHead>
-        <TableHead class="text-center">Weightage</TableHead>
+        <TableHead class="w-0">Component</TableHead>
+        <TableHead class="text-center w-0">Weightage</TableHead>
+        <TableHead class="text-center text-xs w-0" v-if="course.cos.length == 0">Define COs to show mapping matrix</TableHead>
         <TableHead
           v-for="(co, coIndex) in course.cos"
           :key="coIndex"
-          class="text-center"
+          class="text-center w-0"
         >
           {{ `CO${coIndex + 1}` }}
         </TableHead>
@@ -164,6 +218,9 @@ const getPoList = (assessment: Assessment) => {
               v-model="assessment.weightage" class="text-sm" type="number"
             />
           </TableCell>
+          <TableCell v-if="course.cos.length == 0">
+            <Skeleton class="h-8 w-full animate-none"/>
+          </TableCell>
           <TableCell
             v-for="(co, coIndex) in course.cos"
             :key="coIndex"
@@ -187,6 +244,9 @@ const getPoList = (assessment: Assessment) => {
             <Input v-model="breakdown.weightage" class="text-sm w-20" type="number" />
           </TableCell>
           <TableCell></TableCell>
+          <TableCell v-if="course.cos.length == 0">
+            <Skeleton class="h-4 w-full animate-none" />
+          </TableCell>
           <TableCell
             v-for="(co, coIndex) in course.cos"
             :key="coIndex"
@@ -226,7 +286,16 @@ const getPoList = (assessment: Assessment) => {
 
   <div class="font-semibold">Assessment to WP/EA mapping</div>
 
-  <Table>
+  <EmptyComponent v-if="emptyComponent.show">
+    <template #title>
+      {{emptyComponent.title}}
+    </template>
+    <template #description>
+      {{emptyComponent.description}}
+    </template>
+  </EmptyComponent>
+
+  <Table v-else>
     <TableHeader>
       <TableRow>
         <TableHead class="align-bottom">Assessment</TableHead>
