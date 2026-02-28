@@ -21,6 +21,7 @@ import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon }
 import { get } from 'lodash-es';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import { Skeleton } from '@/components/ui/skeleton';
+import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field';
 
 import { getEditingCourseAndStore } from '@/composables/course'
 const { course, editingCourseStore } = getEditingCourseAndStore()
@@ -227,10 +228,15 @@ const emptyComponent = computed<{
             </Select>
           </TableCell>
           <TableCell class="w-0 text-center">
-            <Input
+            <!-- <Input
               :class="{ 'border-destructive focus-visible:ring-destructive': totalWeightage !== 100 }"
               v-model="assessment.weightage" class="text-sm" type="number"
-            />
+            /> -->
+            <NumberField v-model="assessment.weightage" class="w-full">
+              <NumberFieldContent>
+                <NumberFieldInput/>
+              </NumberFieldContent>
+            </NumberField>
           </TableCell>
           <TableCell v-if="course.cos.length == 0">
             <Skeleton class="h-8 w-full animate-none"/>
@@ -255,7 +261,12 @@ const emptyComponent = computed<{
             <Input v-model="breakdown.description" class="text-sm" />
           </TableCell>
           <TableCell class="w-0">
-            <Input v-model="breakdown.weightage" class="text-sm w-20" type="number" />
+            <!-- <Input v-model="breakdown.weightage" class="text-sm w-20" type="number" /> -->
+            <NumberField v-model="breakdown.weightage" class="w-full">
+              <NumberFieldContent>
+                <NumberFieldInput/>
+              </NumberFieldContent>
+            </NumberField>
           </TableCell>
           <TableCell></TableCell>
           <TableCell v-if="course.cos.length == 0">
