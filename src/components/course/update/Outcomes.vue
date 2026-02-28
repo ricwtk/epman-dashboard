@@ -132,7 +132,7 @@ const emptyComponent = computed<{
     return {
       show: true,
       title: 'Programme not assigned to any school',
-      description: `Course is assigned to ${editingCourseStore.selectedProgramme.value.name} but ${editingCourseStore.selectedProgramme.value.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
+      description: `Course is assigned to ${editingCourseStore.selectedProgramme?.name} but ${editingCourseStore.selectedProgramme?.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
     }
   }
   else {
@@ -143,6 +143,10 @@ const emptyComponent = computed<{
     }
   }
 })
+
+function resetDiff() {
+
+}
 </script>
 
 <template>
