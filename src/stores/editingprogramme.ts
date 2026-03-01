@@ -18,6 +18,9 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
   const structureTrigger = ref(0)
+  // const allDiff = computed(() => {
+  //   return diff(originalProgramme.value, programme.value);
+  // })
 
   const structures: Ref<GroupedStructures | undefined> = computedAsync(async () => {
     // return getStructureLabelsByProgramme(programme.value.code);
@@ -166,6 +169,7 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     structures,
     resetProgramme,
     loadProgramme,
+    // allDiff,
     checkDiff,
     resetDiff,
     checkMappingDiff,

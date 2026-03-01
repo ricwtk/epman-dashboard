@@ -80,7 +80,7 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
           v-for="(item, index) in programme.peoList"
           :key="index"
         >
-          <VerticalText :label="`PEO${Number(index) + 1}`" :content="item.slice(0,10)+(item.length > 10 ? '...' : '')"/>
+          <VerticalText :label="`PEO${Number(index) + 1}`" :content="item"/>
         </TableHead>
         <TableHead class="w-0"></TableHead>
       </TableRow>
@@ -119,7 +119,7 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell :colspan="4 + (programme.peoList.length == 0 ? 1 : programme.peoList.length)">
+        <TableCell :colspan="4 + (programme.peoList.length == 0 ? 1 : programme.peoList.length) + 1">
           <Button variant="default" class="w-full text-xs" size="sm" @click="addItem">
             <PlusIcon />
             Add PO
