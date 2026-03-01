@@ -104,6 +104,22 @@ const onDrop = (event: DragEvent, semKey: string, courseIndex: number, zone: str
   structureObject.value[newPosition.sem]!.splice(newPosition.course, 0, item || "")
 };
 
+/*
+* Add course to semester parameters and functions
+*/
+const bannedList = computed(() => {
+  return []
+});
+const availableList = computed(() => {
+  return []
+});
+const errorMessageFcn = (name: string, code: string, bannedItem?: { name: string, code: string }) => {
+  return `Course ${name} (${code}) already exists`
+};
+const addCourse = (code: string) => {}
+const createCourse = (name:string, code: string) => {}
+// ----------
+
 import { zeroPad } from '@/utils/common';
 const addSemester = (asSemNumber = -1) => {
   if (asSemNumber <= 0) {
@@ -144,6 +160,7 @@ import { Button } from '@/components/ui/button';
 import { PlusIcon, XIcon, PenIcon } from 'lucide-vue-next'
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
 import AddCoursePopover from './update/AddCoursePopover.vue';
+import NewOrAddPopover from '../NewOrAddPopover.vue';
 </script>
 
 <template>
@@ -212,13 +229,17 @@ import AddCoursePopover from './update/AddCoursePopover.vue';
                 </TableRow>
                 <TableRow v-if="editable">
                   <TableCell>
-                    <!-- <Button
-                      size="sm"
-                      variant="secondary"
-                      class="w-full"
-                    ><PlusIcon/></Button> -->
                     <AddCoursePopover
                       :structure="structureObject"
+                    />
+                    <NewOrAddPopover
+                      :bannedList="bannedList"
+                      :availableList="availableList"
+                      title="Add Course"
+                      description="Add course to semester"
+                      :errorMessageFcn="errorMessageFcn"
+                      @create="createCourse"
+                      @add="addCourse"
                     />
                   </TableCell>
                 </TableRow>
