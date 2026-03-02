@@ -113,11 +113,38 @@ const bannedList = computed(() => {
 const availableList = computed(() => {
   return []
 });
-const errorMessageFcn = (name: string, code: string, bannedItem?: { name: string, code: string }) => {
+const errorMessageFcn = (name: string, code: string, bannedItem: { name: string, code: string }) => {
   return `Course ${name} (${code}) already exists`
 };
-const addCourse = (code: string) => {}
-const createCourse = (name:string, code: string) => {}
+const addCourse = (code: string, semKey: string) => {
+  if (structureObject.value[semKey]) {
+    structureObject.value[semKey].push(code)
+  }
+}
+import { formatRevision } from '@/utils/common';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
+import { createNewCourse } from '@/utils/courseHelpers';
+
+const createCourse = async (name: string, code: string, semKey: string) => {
+  const newCourseParameters = {
+    name: name,
+    code: code.toUpperCase(),
+    revision: formatRevision(),
+    committed: {
+      on: new Date(),
+      by: authStore.user?.email || 'unknown'
+    }
+  };
+  const newCourse = createNewCourse(newCourseParameters);
+  try {
+    await dataService.saveCourse(newCourse);
+    // await updateCourseList();
+    addCourse(code, semKey)
+  } catch (error) {
+    console.error('Error saving course:', error);
+  }
+}
 // ----------
 
 import { zeroPad } from '@/utils/common';
@@ -161,6 +188,7 @@ import { PlusIcon, XIcon, PenIcon } from 'lucide-vue-next'
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
 import AddCoursePopover from './update/AddCoursePopover.vue';
 import NewOrAddPopover from '../NewOrAddPopover.vue';
+import { dataService } from '@/services/dataService';
 </script>
 
 <template>
@@ -229,17 +257,20 @@ import NewOrAddPopover from '../NewOrAddPopover.vue';
                 </TableRow>
                 <TableRow v-if="editable">
                   <TableCell>
-                    <AddCoursePopover
+                    <!-- <AddCoursePopover
                       :structure="structureObject"
-                    />
+                    /> -->
                     <NewOrAddPopover
+                      buttonSize="sm"
+                      buttonVariant="secondary"
+                      buttonClass="w-full"
                       :bannedList="bannedList"
                       :availableList="availableList"
                       title="Add Course"
                       description="Add course to semester"
                       :errorMessageFcn="errorMessageFcn"
-                      @create="createCourse"
-                      @add="addCourse"
+                      @create="(name: string, code: string) => createCourse(name, code, sem_key)"
+                      @add="(code: string) => addCourse(code, sem_key)"
                     />
                   </TableCell>
                 </TableRow>

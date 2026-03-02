@@ -15,7 +15,7 @@ interface Info {
   [key: string]: any;
 }
 interface errorHandler {
-  (name: string, code: string, bannedItem?: Info): string;
+  (name: string, code: string, bannedItem: Info): string;
 }
 const props = defineProps<{
   bannedList: Info[],
@@ -23,7 +23,11 @@ const props = defineProps<{
   errorMessageFcn?: errorHandler,
   title?: string,
   description?: string,
+  buttonClass?: string,
+  buttonVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined,
+  buttonSize?: "default" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg" | null | undefined
 }>()
+
 const isPopoverOpen = ref(false)
 const newName = ref("")
 const newCode = ref("")
@@ -44,7 +48,7 @@ const newOrAdd = () => {
 }
 
 const availableItem = computed(() => props.availableList.find((item) => item.code.toUpperCase() === newCode.value.toUpperCase()));
-const bannedItem = computed(() => props.bannedList.find((item) => item.code.toUpperCase() === newCode.value.toUpperCase()));
+const bannedItem = computed(() => props.bannedList.find((item) => item.code.toUpperCase() === newCode.value.toUpperCase()) || { name: '', code: '' });
 const canAdd = computed(() => props.availableList.some((item) => item.code.toUpperCase() === newCode.value.toUpperCase()));
 const canCreate = computed(() => props.bannedList.every((item) => item.code.toUpperCase() !== newCode.value.toUpperCase()));
 const buttonEnabled = computed(() => {
@@ -56,8 +60,9 @@ const buttonEnabled = computed(() => {
   <Popover v-model:open="isPopoverOpen">
     <PopoverTrigger as-child>
       <Button
-        variant="outline"
-        size="icon"
+        :size="buttonSize || 'icon'"
+        :class="buttonClass"
+        :variant="buttonVariant || 'outline'"
       >
         <PlusIcon />
       </Button>
