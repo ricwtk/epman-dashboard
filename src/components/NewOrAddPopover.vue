@@ -8,7 +8,6 @@ import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-vue-next';
 import { ref, watch, computed } from 'vue';
-import process from 'node:process';
 
 interface Info {
   name: string;
