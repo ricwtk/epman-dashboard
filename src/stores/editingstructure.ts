@@ -9,6 +9,10 @@ import {
 import { defineStore } from "pinia";
 import { get, set } from 'lodash-es';
 import diff from 'microdiff';
+import { dataService } from '@/services/dataService';
+import { formatRevision } from '@/utils/common';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
 
 export const useEditingStructureStore = defineStore('editing-structure', () => {
   const structure: Ref<ProgrammeStructure> = ref(createNewStructure())
@@ -16,6 +20,10 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
 
   function resetStructure(): void {
     structure.value = structuredClone(toRaw(originalStructure.value))
+  }
+
+  function commitStructure(): void {
+    originalStructure.value = structuredClone(toRaw(structure.value))
   }
 
   function resetDiff(): void {
@@ -42,5 +50,23 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
     structure.value = structuredClone(toRaw(struc))
   }
 
-  return { structure, originalStructure, resetStructure, resetDiff, checkDiff, getDiff, loadStructure, copyStructureFrom }
+  async function saveStructure(): Promise<void> {
+    structure.value.parentRevision = structure.value.revision
+    structure.value.revision = formatRevision()
+    structure.value.committed = {
+      on: new Date(),
+      by: authStore.user?.email || 'unknown'
+    }
+    await dataService.saveStructure(structure.value)
+
+  }
+
+  return {
+    structure,
+    originalStructure,
+    resetStructure,
+    resetDiff, checkDiff, getDiff,
+    loadStructure, copyStructureFrom,
+    saveStructure, commitStructure
+  }
 })

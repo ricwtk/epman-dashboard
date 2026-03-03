@@ -31,19 +31,19 @@ const diffs = computed(() => {
 // const diffContent = computed(() => editingStructureStore.getDiff())
 const resetDiff = () => editingStructureStore.resetDiff()
 
-const structureDisplayMode = ref<string | null>(null);
-const STRUCTURE_DISPLAY_MODES = ['by year', 'by semester'];
-onMounted(() => {
-  let currentDisplayMode = localStorage.getItem('structureDisplayMode');
-  if (currentDisplayMode) {
-    structureDisplayMode.value = currentDisplayMode;
-  } else {
-    structureDisplayMode.value = STRUCTURE_DISPLAY_MODES[0] || null;
-  }
-});
-watch(structureDisplayMode, (newMode) => {
-  localStorage.setItem('structureDisplayMode', newMode || "");
-});
+// const structureDisplayMode = ref<string | null>(null);
+// const STRUCTURE_DISPLAY_MODES = ['by year', 'by semester'];
+// onMounted(() => {
+//   let currentDisplayMode = localStorage.getItem('structureDisplayMode');
+//   if (currentDisplayMode) {
+//     structureDisplayMode.value = currentDisplayMode;
+//   } else {
+//     structureDisplayMode.value = STRUCTURE_DISPLAY_MODES[0] || null;
+//   }
+// });
+// watch(structureDisplayMode, (newMode) => {
+//   localStorage.setItem('structureDisplayMode', newMode || "");
+// });
 
 const selectedStructureLabel = ref<string | null>(null);
 const labels = computed(() => Object.keys(editingProgrammeStore.structures ?? {}));
@@ -108,6 +108,10 @@ const deleteRevision = async () => {
   }
 };
 
+const saveStructure = async () => {
+  await editingStructureStore.saveStructure();
+}
+
 </script>
 
 <template>
@@ -159,6 +163,7 @@ const deleteRevision = async () => {
             </Select>
           </div>
           <Button variant="destructive" @click="deleteRevision">Delete revision</Button>
+          <Button variant="default" @click="saveStructure">Save structure</Button>
         </template>
       </StructureGrid>
 

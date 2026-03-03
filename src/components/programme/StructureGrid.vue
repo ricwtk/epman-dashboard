@@ -1,10 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from 'vue';
+import { createNewCourse } from '@/utils/courseHelpers';
+import { formatRevision } from '@/utils/common';
+import { dataService } from '@/services/dataService';
+import { navigateToCourseExternal } from '@/utils/navigationHelpers';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
 
 defineProps<{
   editable: boolean
 }>();
 
+/* create structure object */
+import { getCourseInfoInStructure } from "@/utils/structureHelpers"
+const structureObject = defineModel<{ [semesterKey: string]: string[] }>({ default: {} });
+const structureObjectWithCourseInfo = computed(() => getCourseInfoInStructure(structureObject.value))
+const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
+// ----------
+
+/* display mode: by year or by semester */
 import { STRUCTURE_DISPLAY_MODES, NUMBER_OF_SEMESTER_PER_YEAR } from '@/constants'
 const structureDisplayMode = ref<string | null>(null)
 onMounted(() => {
@@ -18,14 +32,9 @@ onMounted(() => {
 watch(structureDisplayMode, (newMode) => {
   localStorage.setItem('structureDisplayMode', newMode || "");
 });
+// ----------
 
-import { getCourseInfoInStructure } from "@/utils/structureHelpers"
-// const structureArray = defineModel<string[][]>({ default: [[]] })
-// const structureArrayWithCourseInfo = computed(() => getCourseInfoInStructure(structureArray.value))
-const structureObject = ref<{ [semesterKey: string]: string[] }>({});
-const structureObjectWithCourseInfo = computed(() => getCourseInfoInStructure(structureObject.value))
-const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
-
+/* setup display grid */
 const col_n = computed(() =>
   structureDisplayMode.value ?
     structureDisplayMode.value == "by year" ?
@@ -69,7 +78,9 @@ const sem_keys = computed(() => {
     return all_sem
   }
 })
+// ----------
 
+/* drag and drop function */
 const onDragStart = (event: DragEvent, semKey: string, courseIndex: number) => {
   event.dataTransfer!.setData('application/json', JSON.stringify({sem: semKey, course: courseIndex}));
   event.dataTransfer!.effectAllowed = 'move';
@@ -103,6 +114,7 @@ const onDrop = (event: DragEvent, semKey: string, courseIndex: number, zone: str
   // 3. Insert item
   structureObject.value[newPosition.sem]!.splice(newPosition.course, 0, item || "")
 };
+// ----------
 
 /*
 * Add course to semester parameters and functions
@@ -130,11 +142,6 @@ const addCourse = (code: string, semKey: string) => {
     structureObject.value[semKey].push(code)
   }
 }
-import { formatRevision } from '@/utils/common';
-import { useAuthStore } from '@/stores/auth';
-const authStore = useAuthStore();
-import { createNewCourse } from '@/utils/courseHelpers';
-
 const createCourse = async (name: string, code: string, semKey: string) => {
   const newCourseParameters = {
     name: name,
@@ -202,12 +209,9 @@ import {
 } from '@/components/ui/select';
 import CourseListItem from '@/components/programme/CourseListItem.vue';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, XIcon, PenIcon } from 'lucide-vue-next'
+import { XIcon, PenIcon } from 'lucide-vue-next'
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
-import AddCoursePopover from './update/AddCoursePopover.vue';
 import NewOrAddPopover from '../NewOrAddPopover.vue';
-import { dataService } from '@/services/dataService';
-import { navigateToCourseExternal } from '@/utils/navigationHelpers';
 </script>
 
 <template>
