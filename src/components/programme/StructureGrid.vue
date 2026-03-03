@@ -108,7 +108,16 @@ const onDrop = (event: DragEvent, semKey: string, courseIndex: number, zone: str
 * Add course to semester parameters and functions
 */
 const bannedList = computed(() => {
-  return []
+  let bl = new Set<{ name: string, code: string }>([]);
+  for (const sem of Object.values(structureObjectWithCourseInfo.value)) {
+    for (const course of sem) {
+      bl.add({
+        name: course.name,
+        code: course.code
+      })
+    }
+  }
+  return [ ...bl ]
 });
 const availableList = computed(() => {
   return []
@@ -144,6 +153,15 @@ const createCourse = async (name: string, code: string, semKey: string) => {
   } catch (error) {
     console.error('Error saving course:', error);
   }
+}
+// ----------
+
+/* course manipulation */
+const deleteCourseFrom = (courseIndex: number, semKey: string) => {
+  structureObject.value[semKey]!.splice(courseIndex, 1)
+}
+const editCourse = (courseCode: string) => {
+  navigateToCourseExternal(courseCode)
 }
 // ----------
 
@@ -189,6 +207,7 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } 
 import AddCoursePopover from './update/AddCoursePopover.vue';
 import NewOrAddPopover from '../NewOrAddPopover.vue';
 import { dataService } from '@/services/dataService';
+import { navigateToCourseExternal } from '@/utils/navigationHelpers';
 </script>
 
 <template>
@@ -224,58 +243,45 @@ import { dataService } from '@/services/dataService';
         <TableRow v-for="row, row_index in sem_keys">
           <TableHead v-if="row_header!==''" class="w-0">{{ `${row_header} ${row_index+1}` }}</TableHead>
           <TableCell v-for="sem_key, col_index in row"
-            class="text-center align-top"
+            class="text-center align-top flex justify-center"
           >
-            <Table>
-              <TableBody>
-                <TableRow v-for="course, course_index in structureObjectWithCourseInfo[sem_key!]">
-                  <TableCell class="py-0 min-w-50">
-                    <ContextMenu>
-                      <ContextMenuTrigger>
-                        <CourseListItem
-                          :draggable="editable"
-                          :code="course.code"
-                          :name="course.name"
-                          :credits="course.credits"
-                          @drag-start="(event: DragEvent) => onDragStart(event, sem_key, course_index)"
-                          @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, course_index, zone)"
-                        />
-                      </ContextMenuTrigger>
-                      <ContextMenuContent class="w-fit">
-                        <ContextMenuItem>
-                          <XIcon />
-                          Delete
-                        </ContextMenuItem>
-                        <ContextMenuItem>
-                          <PenIcon />
-                          Edit
-                        </ContextMenuItem>
-                      </ContextMenuContent>
-                    </ContextMenu>
+            <div class="flex flex-col w-36 gap-1">
+              <ContextMenu v-for="course, course_index in structureObjectWithCourseInfo[sem_key!]">
+                <ContextMenuTrigger>
+                  <CourseListItem
+                    :draggable="editable"
+                    :code="course.code"
+                    :name="course.name"
+                    :credits="course.credits"
+                    @drag-start="(event: DragEvent) => onDragStart(event, sem_key, course_index)"
+                    @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, course_index, zone)"
+                  />
+                </ContextMenuTrigger>
+                <ContextMenuContent class="w-fit">
+                  <ContextMenuItem @click="deleteCourseFrom(course_index, sem_key)">
+                    <XIcon />
+                    Delete
+                  </ContextMenuItem>
+                  <ContextMenuItem @click="editCourse(course.code)">
+                    <PenIcon />
+                    Edit
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
+              <NewOrAddPopover
+                buttonSize="sm"
+                buttonVariant="secondary"
+                buttonClass=""
+                :bannedList="bannedList"
+                :availableList="availableList"
+                title="Add Course"
+                description="Add course to semester"
+                :errorMessageFcn="errorMessageFcn"
+                @create="(name: string, code: string) => createCourse(name, code, sem_key)"
+                @add="(code: string) => addCourse(code, sem_key)"
+              />
+            </div>
 
-                  </TableCell>
-                </TableRow>
-                <TableRow v-if="editable">
-                  <TableCell>
-                    <!-- <AddCoursePopover
-                      :structure="structureObject"
-                    /> -->
-                    <NewOrAddPopover
-                      buttonSize="sm"
-                      buttonVariant="secondary"
-                      buttonClass="w-full"
-                      :bannedList="bannedList"
-                      :availableList="availableList"
-                      title="Add Course"
-                      description="Add course to semester"
-                      :errorMessageFcn="errorMessageFcn"
-                      @create="(name: string, code: string) => createCourse(name, code, sem_key)"
-                      @add="(code: string) => addCourse(code, sem_key)"
-                    />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
           </TableCell>
         </TableRow>
       </TableBody>

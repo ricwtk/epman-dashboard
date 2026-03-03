@@ -24,3 +24,8 @@ export function navigateToProgrammeExternal(programmeCode: string) {
   const url = router.resolve({ path: `/programme/${programmeCode}` }).href;
   window.open(url, '_blank');
 }
+
+export function navigateToCourseExternal(courseCode: string) {
+  const url = router.resolve({ path: `/course/${courseCode}` }).href;
+  window.open(url, '_blank');
+}

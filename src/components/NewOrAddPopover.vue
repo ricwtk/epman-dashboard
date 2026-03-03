@@ -8,6 +8,7 @@ import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-vue-next';
 import { ref, watch, computed } from 'vue';
+import process from 'node:process';
 
 interface Info {
   name: string;
@@ -37,10 +38,11 @@ const emits = defineEmits<{
   (e: 'add', code: string): void
 }>()
 const newOrAdd = () => {
+  const processedCode = newCode.value.toUpperCase();
   if (canAdd.value) {
-    emits('add', newCode.value);
+    emits('add', processedCode);
   } else {
-    emits('create', newName.value, newCode.value);
+    emits('create', newName.value, processedCode);
   }
   isPopoverOpen.value = false;
   newName.value = '';
@@ -68,6 +70,7 @@ const buttonEnabled = computed(() => {
       </Button>
     </PopoverTrigger>
     <PopoverContent class="w-80">
+      {{ bannedList }}
       <form @submit.prevent="newOrAdd">
         <FieldSet class="gap-1">
           <FieldLegend class="mb-1">{{ title || 'Add' }}</FieldLegend>

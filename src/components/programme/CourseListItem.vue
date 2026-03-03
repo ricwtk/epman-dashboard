@@ -58,7 +58,7 @@ const targetIndex = ref<number | null>(null);
 
 <template>
   <div ref="cliroot"
-    class="flex flex-col gap-1 text-xs course-list-item"
+    class="flex flex-col gap-1 text-sm course-list-item bg-secondary rounded"
     :draggable="draggable"
     @dragstart="onDragStart"
     @dragend="onDragEnd"
@@ -67,9 +67,13 @@ const targetIndex = ref<number | null>(null);
     @dragleave="onDragLeave"
   >
     <div class="drop-indicator top" :class="{ 'visible': dropZone === 'top' }"></div>
-    <div class="">{{ code }}</div>
-    <div class="truncate" :title="name">{{ name }}</div>
-    <div class="">{{ credits }}</div>
+    <div class="flex flex-col">
+      <div class="flex flex-row px-2">
+        <div class="flex-5 text-left">{{ code }}</div>
+        <div class="flex-1 text-right">{{ credits }}</div>
+      </div>
+      <div class="truncate px-2 text-left" :title="name">{{ name || "Course Name" }}</div>
+    </div>
     <div class="drop-indicator bottom" :class="{ 'visible': dropZone === 'bottom' }"></div>
   </div>
 </template>
