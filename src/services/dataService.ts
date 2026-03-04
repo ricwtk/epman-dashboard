@@ -125,8 +125,8 @@ export interface CourseAssignment {
 
 export const dataService = {
   // --- Courses ---
-  async getCourses(): Promise<Course[]> {
-    return fetchCollection<Course>("courses");
+  async getCourses(): Promise<{ [code: string]: Course }> {
+    return fetchLatestCollection<Course>("courses", "code");
   },
 
   async getCourse(code: string): Promise<Course[]> {

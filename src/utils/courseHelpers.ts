@@ -8,6 +8,7 @@ import type {
   Assessment,
   Breakdown,
   Reference,
+  CourseInfo,
 } from "@/types/course";
 
 // currently using courseExamples.ts
@@ -146,4 +147,10 @@ export const createReference = (description?: string, overrides?: Partial<Refere
   description: description || '',
   label: 'additional',
   ...overrides
+});
+
+export const createCourseInfo = (course?: Partial<Course>): CourseInfo => ({
+  name: course?.name || "",
+  code: course?.code || "",
+  credits: course?.credits || 0
 });

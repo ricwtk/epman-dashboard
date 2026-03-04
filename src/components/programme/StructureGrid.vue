@@ -4,17 +4,22 @@ import { createNewCourse } from '@/utils/courseHelpers';
 import { formatRevision } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 import { navigateToCourseExternal } from '@/utils/navigationHelpers';
+// initiate auth store
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
+// initiate course list store
+import { useCourseListStore } from '@/stores/courselist';
+const courseListStore = useCourseListStore();
 
 defineProps<{
   editable: boolean
 }>();
 
 /* create structure object */
-import { getCourseInfoInStructure } from "@/utils/structureHelpers"
 const structureObject = defineModel<{ [semesterKey: string]: string[] }>({ default: {} });
-const structureObjectWithCourseInfo = computed(() => getCourseInfoInStructure(structureObject.value))
+const structureObjectWithCourseInfo = computed(
+  () => courseListStore.getCourseInfoInStructure(structureObject.value)
+)
 const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
 // ----------
 
@@ -132,7 +137,17 @@ const bannedList = computed(() => {
   return [ ...bl ]
 });
 const availableList = computed(() => {
-  return []
+  let al = new Set<{ name: string, code: string }>([]);
+  let bannedCodes = bannedList.value.map(b => b.code);
+  for (const [courseCode, course] of Object.entries(courseListStore.codeToInfoMap)) {
+    if (!bannedCodes.includes(courseCode)) {
+      al.add({
+        name: course.name,
+        code: course.code
+      })
+    }
+  }
+  return [ ...al ]
 });
 const errorMessageFcn = (name: string, code: string, bannedItem: { name: string, code: string }) => {
   return `Course ${name} (${code}) already exists`
@@ -155,7 +170,7 @@ const createCourse = async (name: string, code: string, semKey: string) => {
   const newCourse = createNewCourse(newCourseParameters);
   try {
     await dataService.saveCourse(newCourse);
-    // await updateCourseList();
+    courseListStore.saveCourseUpdate(newCourse);
     addCourse(code, semKey)
   } catch (error) {
     console.error('Error saving course:', error);
