@@ -182,7 +182,7 @@ const createCourse = async (name: string, code: string, semKey: string) => {
 const deleteCourseFrom = (courseIndex: number, semKey: string) => {
   structureObject.value[semKey]!.splice(courseIndex, 1)
 }
-const editCourse = (courseCode: string) => {
+const viewCourse = (courseCode: string) => {
   navigateToCourseExternal(courseCode)
 }
 // ----------
@@ -224,7 +224,7 @@ import {
 } from '@/components/ui/select';
 import CourseListItem from '@/components/programme/CourseListItem.vue';
 import { Button } from '@/components/ui/button';
-import { XIcon, PenIcon } from 'lucide-vue-next'
+import { XIcon, EyeIcon } from 'lucide-vue-next'
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
 import NewOrAddPopover from '../NewOrAddPopover.vue';
 </script>
@@ -277,17 +277,17 @@ import NewOrAddPopover from '../NewOrAddPopover.vue';
                   />
                 </ContextMenuTrigger>
                 <ContextMenuContent class="w-fit">
-                  <ContextMenuItem @click="deleteCourseFrom(course_index, sem_key)">
+                  <ContextMenuItem v-if="editable" @click="deleteCourseFrom(course_index, sem_key)">
                     <XIcon />
                     Delete
                   </ContextMenuItem>
-                  <ContextMenuItem @click="editCourse(course.code)">
-                    <PenIcon />
-                    Edit
+                  <ContextMenuItem @click="viewCourse(course.code)">
+                    <EyeIcon />
+                    View
                   </ContextMenuItem>
                 </ContextMenuContent>
               </ContextMenu>
-              <NewOrAddPopover
+              <NewOrAddPopover v-if="editable"
                 buttonSize="sm"
                 buttonVariant="secondary"
                 buttonClass=""

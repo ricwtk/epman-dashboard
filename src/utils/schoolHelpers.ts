@@ -1,6 +1,7 @@
 import type { School } from '@/types/school';
 import { schools } from './schoolExamples';
 import { formatId } from './common';
+import type { ProgrammeStructure, ProgrammeStructureInfo } from '@/types/programme';
 
 // using schoolExamples.ts
 export function getSchoolList(): { code: string, name: string }[] {
@@ -34,4 +35,11 @@ export function createNewSchool(overrides?: Partial<School>): School {
   };
   newSchool.id = formatId(newSchool);
   return newSchool;
+}
+
+export function createStructureInfo(structure?: Partial<ProgrammeStructure>): ProgrammeStructureInfo {
+  return {
+    programme: structure?.programme || "",
+    label: structure?.label || ""
+  }
 }

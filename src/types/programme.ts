@@ -56,3 +56,8 @@ export interface ProgrammeStructure {
   revision: string;
   parentRevision: string;
 }
+
+export interface ProgrammeStructureInfo {
+  programme: string,
+  label: string
+}

@@ -22,11 +22,13 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   //   return diff(originalProgramme.value, programme.value);
   // })
 
-  const structures: Ref<GroupedStructures | undefined> = computedAsync(async () => {
-    // return getStructureLabelsByProgramme(programme.value.code);
-    structureTrigger.value
-    return await dataService.getStructuresByProgramme(programme.value.code);
-  })
+
+  const structures = ref({})
+  // const structures: Ref<GroupedStructures | undefined> = computedAsync(async () => {
+  //   // return getStructureLabelsByProgramme(programme.value.code);
+  //   structureTrigger.value
+  //   return await dataService.getStructuresByProgramme(programme.value.code);
+  // })
 
   const school = computedAsync(async () => {
     return await dataService.getSchoolByProgrammeCode(programme.value.code);
@@ -139,27 +141,27 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   }
 
   async function deleteStructure(structToDelete: ProgrammeStructure) {
-    const structureId = structToDelete.id;
-    const structureLabel = structToDelete.label;
-    await dataService.deleteItem("structures", structureId);
-    let indexToDelete = structures.value![structureLabel]!.findIndex(x => x.id === structureId);
-    if (indexToDelete !== -1) {
-      structures.value![structureLabel]!.splice(indexToDelete, 1);
-    }
-    let updatedStructureLabel = null
-    let updatedRevision = null
-    if (structures.value![structureLabel]!.length === 0) {
-      delete structures.value![structureLabel];
-    } else {
-      updatedStructureLabel = structureLabel
-      if (indexToDelete !== -1) {
-        if (indexToDelete >= structures.value![structureLabel]!.length) {
-          indexToDelete = indexToDelete -1
-        }
-        updatedRevision = structures.value![structureLabel]![indexToDelete]!.revision
-      }
-    }
-    return { updatedStructureLabel, updatedRevision }
+    // const structureId = structToDelete.id;
+    // const structureLabel = structToDelete.label;
+    // await dataService.deleteItem("structures", structureId);
+    // let indexToDelete = structures.value![structureLabel]!.findIndex(x => x.id === structureId);
+    // if (indexToDelete !== -1) {
+    //   structures.value![structureLabel]!.splice(indexToDelete, 1);
+    // }
+    // let updatedStructureLabel = null
+    // let updatedRevision = null
+    // if (structures.value![structureLabel]!.length === 0) {
+    //   delete structures.value![structureLabel];
+    // } else {
+    //   updatedStructureLabel = structureLabel
+    //   if (indexToDelete !== -1) {
+    //     if (indexToDelete >= structures.value![structureLabel]!.length) {
+    //       indexToDelete = indexToDelete -1
+    //     }
+    //     updatedRevision = structures.value![structureLabel]![indexToDelete]!.revision
+    //   }
+    // }
+    // return { updatedStructureLabel, updatedRevision }
   }
 
   return {

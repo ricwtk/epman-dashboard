@@ -1,4 +1,4 @@
-import { type ProgrammeStructure } from "@/types/programme";
+import { type ProgrammeStructure, type ProgrammeStructureInfo } from "@/types/programme";
 import { type CourseInfo } from "@/types/course";
 import { structures } from "./structureExamples";
 import { getCourseInfoByCode } from "./courseHelpers";
@@ -124,3 +124,8 @@ export const createNewStructure = (
   newStructure.id = formatStructureId(newStructure);
   return newStructure;
 };
+
+export const createStructureInfo = (structure?: Partial<ProgrammeStructure>): ProgrammeStructureInfo => ({
+  programme: structure?.programme || "",
+  label: structure?.programme || ""
+});

@@ -17,10 +17,18 @@ const authStore = useAuthStore();
 import { useViewingProgrammeStore } from '@/stores/viewingprogramme';
 const viewingProgrammeStore = useViewingProgrammeStore();
 
+import { useStructureListStore } from '@/stores/structurelist';
+const structureListStore = useStructureListStore();
+
+import { useViewingStructureStore } from '@/stores/viewingstructure';
+const viewingStructureStore = useViewingStructureStore();
+
 const props = defineProps<{ code: string }>();
 onMounted(() => {
   viewingProgrammeStore.loadProgrammeByCode(props.code);
   console.log(viewingProgrammeStore.programmeRevisions)
+  structureListStore.updateLabelToInfoMap(props.code)
+  viewingStructureStore.programmeCode = props.code
 });
 
 import { useEditingProgrammeStore } from "@/stores/editingprogramme";
@@ -91,7 +99,7 @@ const deleteRevision = () => {
     />
     <ProgrammeStructure
       :editable="authStore.canEditProgrammes"
-      :programme="viewingProgrammeStore.programme.code"
+      :structureList="structureListStore.labelToInfoMap"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'structure')"
     />

@@ -11,6 +11,7 @@ import type { Course } from "@/types/course";
 import type { Programme, ProgrammeStructure } from "@/types/programme";
 import type { School } from "@/types/school";
 import { createNewProgramme } from "@/utils/programmeHelpers";
+import { getStructureByProgrammeAndLabel } from "@/utils/structureHelpers";
 
 // Generic helper to fetch a document
 async function fetchDoc<T>(collectionName: string, id: string): Promise<T | null> {
@@ -32,8 +33,15 @@ async function fetchDocsByCode<T>(collectionName: string, codeString: string): P
 }
 
 // Generic helper to fetch a collection
-async function fetchCollection<T>(collectionName: string): Promise<T[]> {
-  const snapshot = await getDocs(collection(db, collectionName));
+async function fetchCollection<T>(
+  collectionName: string,
+  extraConstraints: QueryConstraint[] = []
+): Promise<T[]> {
+  const q = query(
+    collection(db, collectionName),
+    ...extraConstraints
+  )
+  const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
 }
 
@@ -347,39 +355,59 @@ export const dataService = {
     return fetchCollection<ProgrammeStructure>("structures");
   },
 
-  // Get structures for a specific programme
-  async getStructuresByProgramme(programmeCode: string): Promise<GroupedStructures> {
-    try {
-      const q = query(
-        collection(db, "structures"),
-        where("programme", "==", programmeCode),
-        orderBy("revision", 'desc') // Database already sorts descending
-      );
-
-      const snapshot = await getDocs(q);
-
-      // 1. Get the raw data
-      const allStructures = snapshot.docs.map(doc => doc.data() as ProgrammeStructure);
-
-      // 2. Group by label using reduce
-      const grouped = allStructures.reduce((acc: GroupedStructures, structure) => {
-        const label = structure.label || 'Unlabeled';
-
-        if (!acc[label]) {
-          acc[label] = [];
-        }
-
-        acc[label].push(structure);
-        return acc;
-      }, {});
-
-      console.log(grouped);
-      return grouped;
-    } catch (error) {
-      console.error("Error fetching grouped structures:", error);
-      throw error;
-    }
+  async getStructuresByProgramme(programmeCode: string): Promise<{ [label: string]: ProgrammeStructure }> {
+    return await fetchLatestCollection<ProgrammeStructure>(
+      "structures", "label", [where("programme", "==", programmeCode)])
   },
+
+  async getStructureRevisionsByProgrammeAndLabel(
+    programmeCode: string, structureLabel: string
+  ): Promise<{ [revision: string]: ProgrammeStructure }> {
+    const structures = await fetchCollection<ProgrammeStructure>(
+      "structures", [
+        where("programme", "==", programmeCode),
+        where("label", "==", structureLabel)
+      ]
+    );
+    return structures.reduce((acc, structure) => {
+      acc[structure.revision] = structure
+      return acc
+    }, {} as { [revision: string]: ProgrammeStructure })
+  },
+
+  // Get structures for a specific programme
+  // async getStructuresByProgramme(programmeCode: string): Promise<GroupedStructures> {
+  //   try {
+  //     const q = query(
+  //       collection(db, "structures"),
+  //       where("programme", "==", programmeCode),
+  //       orderBy("revision", 'desc') // Database already sorts descending
+  //     );
+
+  //     const snapshot = await getDocs(q);
+
+  //     // 1. Get the raw data
+  //     const allStructures = snapshot.docs.map(doc => doc.data() as ProgrammeStructure);
+
+  //     // 2. Group by label using reduce
+  //     const grouped = allStructures.reduce((acc: GroupedStructures, structure) => {
+  //       const label = structure.label || 'Unlabeled';
+
+  //       if (!acc[label]) {
+  //         acc[label] = [];
+  //       }
+
+  //       acc[label].push(structure);
+  //       return acc;
+  //     }, {});
+
+  //     console.log(grouped);
+  //     return grouped;
+  //   } catch (error) {
+  //     console.error("Error fetching grouped structures:", error);
+  //     throw error;
+  //   }
+  // },
 
   async saveStructure(structure: ProgrammeStructure): Promise<void> {
     await setDoc(doc(db, "structures", structure.id), structure);
