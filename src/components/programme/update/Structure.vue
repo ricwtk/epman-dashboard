@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import ResetButton from '@/components/ResetButton.vue'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +23,15 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
 import { getEditingProgrammeAndStore, getEditingStructureAndStore } from '@/composables/programme';
 const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
 const { structure, editingStructureStore } = getEditingStructureAndStore();
+const {
+  selectedStructureLabel,
+  structureRevisions,
+  selectedRevision,
+  revisions
+} = storeToRefs(editingStructureStore);
+onMounted(() => {
+  editingStructureStore.programmeCode = programme.value.code;
+})
 
 const diffs = computed(() => {
   return editingStructureStore.checkDiff()
@@ -29,48 +39,30 @@ const diffs = computed(() => {
 // const diffContent = computed(() => editingStructureStore.getDiff())
 const resetDiff = () => editingStructureStore.resetDiff()
 
-// const structureDisplayMode = ref<string | null>(null);
-// const STRUCTURE_DISPLAY_MODES = ['by year', 'by semester'];
-// onMounted(() => {
-//   let currentDisplayMode = localStorage.getItem('structureDisplayMode');
-//   if (currentDisplayMode) {
-//     structureDisplayMode.value = currentDisplayMode;
-//   } else {
-//     structureDisplayMode.value = STRUCTURE_DISPLAY_MODES[0] || null;
+// watch(selectedStructureLabel, (newLabel) => {
+//   if (newLabel) {
+//     selectedRevision.value = editingProgrammeStore.structures?.[newLabel]?.[0]?.revision ?? null;
+//     // editingStructureStore.loadStructure(programme.value.code, newLabel);
 //   }
 // });
-// watch(structureDisplayMode, (newMode) => {
-//   localStorage.setItem('structureDisplayMode', newMode || "");
+
+// const selectedRevision = ref<string | null>(null);
+// const revisionsOfSelectedLabel = computed(() => {
+//   if (selectedStructureLabel.value) {
+//     return editingProgrammeStore.structures?.[selectedStructureLabel.value]?.map(srec => srec.revision ?? '');
+//   }
+//   return [];
 // });
-
-
-
-const selectedStructureLabel = ref<string | null>(null);
-// const labels = computed(() => Object.keys(editingProgrammeStore.structures ?? {}));
-watch(selectedStructureLabel, (newLabel) => {
-  if (newLabel) {
-    selectedRevision.value = editingProgrammeStore.structures?.[newLabel]?.[0]?.revision ?? null;
-    // editingStructureStore.loadStructure(programme.value.code, newLabel);
-  }
-});
-
-const selectedRevision = ref<string | null>(null);
-const revisionsOfSelectedLabel = computed(() => {
-  if (selectedStructureLabel.value) {
-    return editingProgrammeStore.structures?.[selectedStructureLabel.value]?.map(srec => srec.revision ?? '');
-  }
-  return [];
-});
-watch(selectedRevision, (newRevision) => {
-  if (newRevision) {
-    // editingStructureStore.loadStructure(programme.value.code, selectedStructureLabel.value, newRevision);
-    console.log(selectedStructureLabel.value, selectedRevision.value)
-    if (selectedStructureLabel.value && selectedRevision.value) {
-      const sRevision = editingProgrammeStore.structures?.[selectedStructureLabel.value]?.find(srec => srec.revision === newRevision)
-      if (sRevision) editingStructureStore.copyStructureFrom(sRevision);
-    }
-  }
-});
+// watch(selectedRevision, (newRevision) => {
+//   if (newRevision) {
+//     // editingStructureStore.loadStructure(programme.value.code, selectedStructureLabel.value, newRevision);
+//     console.log(selectedStructureLabel.value, selectedRevision.value)
+//     if (selectedStructureLabel.value && selectedRevision.value) {
+//       const sRevision = editingProgrammeStore.structures?.[selectedStructureLabel.value]?.find(srec => srec.revision === newRevision)
+//       if (sRevision) editingStructureStore.copyStructureFrom(sRevision);
+//     }
+//   }
+// });
 
 const addNewStructure = async (newLabel: string) => {
   const newStructureParameters = {
@@ -85,27 +77,32 @@ const addNewStructure = async (newLabel: string) => {
   const newStructure = createNewStructure(newStructureParameters);
   try {
     await dataService.saveStructure(newStructure);
-    editingProgrammeStore.structureTrigger++
+    // structureListStore
+    // editingStructureStore
   } catch (error) {
     console.error('Error saving structure:', error);
   }
 };
 
 const deleteRevision = async () => {
-  try {
-    console.log(editingStructureStore.structure.id);
-    const { updatedStructureLabel, updatedRevision } = await editingProgrammeStore.deleteStructure(editingStructureStore.structure);
-    editingProgrammeStore.structureTrigger++
-    if (updatedStructureLabel) {
-      selectedStructureLabel.value = updatedStructureLabel;
-      selectedRevision.value = updatedRevision;
-    } else {
-      selectedRevision.value = null;
-      selectedStructureLabel.value = null;
-    }
-  } catch (error) {
-    console.error('Error deleting structure:', error);
-  }
+  // dataService
+  // structureListStore
+  // editingStructureStore
+  //
+  // try {
+  //   console.log(editingStructureStore.structure.id);
+  //   const { updatedStructureLabel, updatedRevision } = await editingProgrammeStore.deleteStructure(editingStructureStore.structure);
+  //   editingProgrammeStore.structureTrigger++
+  //   if (updatedStructureLabel) {
+  //     selectedStructureLabel.value = updatedStructureLabel;
+  //     selectedRevision.value = updatedRevision;
+  //   } else {
+  //     selectedRevision.value = null;
+  //     selectedStructureLabel.value = null;
+  //   }
+  // } catch (error) {
+  //   console.error('Error deleting structure:', error);
+  // }
 };
 
 const saveStructure = async () => {
@@ -155,7 +152,7 @@ const saveStructure = async () => {
               <SelectContent>
                 <SelectGroup>
                   <SelectItem
-                    v-for="srev in revisionsOfSelectedLabel"
+                    v-for="srev in revisions"
                     :value="srev"
                   >{{ srev }}</SelectItem>
                 </SelectGroup>

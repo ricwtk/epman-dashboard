@@ -17,13 +17,13 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const originalProgramme: Ref<Programme> = ref(createNewProgramme())
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
-  const structureTrigger = ref(0)
+  // const structureTrigger = ref(0)
   // const allDiff = computed(() => {
   //   return diff(originalProgramme.value, programme.value);
   // })
 
 
-  const structures = ref({})
+  // const structures = ref({})
   // const structures: Ref<GroupedStructures | undefined> = computedAsync(async () => {
   //   // return getStructureLabelsByProgramme(programme.value.code);
   //   structureTrigger.value

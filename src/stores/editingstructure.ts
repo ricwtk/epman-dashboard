@@ -36,6 +36,23 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
     }
   })
 
+  const selectedRevision = ref<string>("")
+  watch(structureRevisions, () => {
+    if (revisions.value.length < 1) { selectedRevision.value = "" }
+    else if (
+      !selectedRevision.value
+      || !revisions.value.includes(selectedRevision.value)
+    ) { selectedRevision.value = revisions.value[0] || "" }
+    else { loadStructure(); }
+  })
+  watch(selectedRevision, () => loadStructure())
+  function loadStructure() {
+    if (revisions.value.includes(selectedRevision.value)) {
+      originalStructure.value = structureRevisions.value[selectedRevision.value]!
+      structure.value = structuredClone(toRaw(originalStructure.value))
+    }
+  }
+
   function resetStructure(): void {
     structure.value = structuredClone(toRaw(originalStructure.value))
   }
@@ -57,12 +74,6 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
     // return diff(structure.value, originalStructure.value)
   }
 
-  function loadStructure(prog: string, label: string): void {
-    const progstruct = getStructureByProgrammeAndLabel(prog, label) || createNewStructure()
-    originalStructure.value = structuredClone(progstruct)
-    structure.value = structuredClone(progstruct)
-  }
-
   function copyStructureFrom(struc: ProgrammeStructure): void {
     originalStructure.value = structuredClone(toRaw(struc))
     structure.value = structuredClone(toRaw(struc))
@@ -81,8 +92,12 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
   }
 
   return {
+    programmeCode,
     structure,
     originalStructure,
+    selectedStructureLabel,
+    structureRevisions,
+    revisions, selectedRevision,
     resetStructure,
     resetDiff, checkDiff, getDiff,
     loadStructure, copyStructureFrom,
