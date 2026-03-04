@@ -140,7 +140,7 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     }
   }
 
-  async function deleteStructure(structToDelete: ProgrammeStructure) {
+  // async function deleteStructure(structToDelete: ProgrammeStructure) {
     // const structureId = structToDelete.id;
     // const structureLabel = structToDelete.label;
     // await dataService.deleteItem("structures", structureId);
@@ -162,13 +162,13 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     //   }
     // }
     // return { updatedStructureLabel, updatedRevision }
-  }
+  // }
 
   return {
     selectedTab,
     school,
     programme,
-    structures,
+    // structures,
     resetProgramme,
     loadProgramme,
     // allDiff,
@@ -179,7 +179,7 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     updated,
     commitProgramme,
     saveProgramme,
-    deleteStructure,
-    structureTrigger
+    // deleteStructure,
+    // structureTrigger
   }
 })

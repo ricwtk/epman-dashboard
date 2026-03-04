@@ -39,31 +39,6 @@ const diffs = computed(() => {
 // const diffContent = computed(() => editingStructureStore.getDiff())
 const resetDiff = () => editingStructureStore.resetDiff()
 
-// watch(selectedStructureLabel, (newLabel) => {
-//   if (newLabel) {
-//     selectedRevision.value = editingProgrammeStore.structures?.[newLabel]?.[0]?.revision ?? null;
-//     // editingStructureStore.loadStructure(programme.value.code, newLabel);
-//   }
-// });
-
-// const selectedRevision = ref<string | null>(null);
-// const revisionsOfSelectedLabel = computed(() => {
-//   if (selectedStructureLabel.value) {
-//     return editingProgrammeStore.structures?.[selectedStructureLabel.value]?.map(srec => srec.revision ?? '');
-//   }
-//   return [];
-// });
-// watch(selectedRevision, (newRevision) => {
-//   if (newRevision) {
-//     // editingStructureStore.loadStructure(programme.value.code, selectedStructureLabel.value, newRevision);
-//     console.log(selectedStructureLabel.value, selectedRevision.value)
-//     if (selectedStructureLabel.value && selectedRevision.value) {
-//       const sRevision = editingProgrammeStore.structures?.[selectedStructureLabel.value]?.find(srec => srec.revision === newRevision)
-//       if (sRevision) editingStructureStore.copyStructureFrom(sRevision);
-//     }
-//   }
-// });
-
 const addNewStructure = async (newLabel: string) => {
   const newStructureParameters = {
     programme: programme.value.code,
@@ -77,7 +52,7 @@ const addNewStructure = async (newLabel: string) => {
   const newStructure = createNewStructure(newStructureParameters);
   try {
     await dataService.saveStructure(newStructure);
-    // structureListStore
+    structureListStore.saveStructure(newStructure);
     // editingStructureStore
   } catch (error) {
     console.error('Error saving structure:', error);
@@ -86,7 +61,7 @@ const addNewStructure = async (newLabel: string) => {
 
 const deleteRevision = async () => {
   // dataService
-  // structureListStore
+  // if (no more revisions) structureListStore.deleteStructure(structure.value);
   // editingStructureStore
   //
   // try {

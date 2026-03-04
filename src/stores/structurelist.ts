@@ -14,8 +14,24 @@ export const useStructureListStore = defineStore('structure-list', () => {
     )
   }
 
+  async function saveStructure(structure: ProgrammeStructure): Promise<void> {
+    const structureLabel = structure.label;
+    if (!Object.keys(labelToInfoMap.value).includes(structureLabel)) {
+      labelToInfoMap.value[structureLabel] = createStructureInfo(structure);
+    }
+  }
+
+  async function deleteStructure(structure: ProgrammeStructure): Promise<void> {
+    const structureLabel = structure.label;
+    if (Object.keys(labelToInfoMap.value).includes(structureLabel)) {
+      delete labelToInfoMap.value[structureLabel];
+    }
+  }
+
   return {
     labelToInfoMap,
-    updateLabelToInfoMap
+    updateLabelToInfoMap,
+    saveStructure,
+    deleteStructure
   }
 })
