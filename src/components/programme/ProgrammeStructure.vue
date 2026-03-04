@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
-import {
-  createStructureInfo,
-  getStructureByProgrammeAndLabel,
-  getStructureLabelsByProgramme
-} from '@/utils/structureHelpers';
+import { computed } from 'vue';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 import StructureGrid from '@/components/programme/StructureGrid.vue';
 import type { ProgrammeStructureInfo } from '@/types/programme';
 
@@ -37,7 +33,15 @@ const labels = computed(() => Object.keys(props.structureList))
       Programme Structure
     </template>
     <template #body>
-      <StructureGrid
+      <EmptyComponent v-if="labels.length === 0">
+        <template #title>
+          No Programme Structure
+        </template>
+        <template #description>
+          Define at least one programme structure to view
+        </template>
+      </EmptyComponent>
+      <StructureGrid v-else
         :editable="false"
         v-model="structure.structure"
       >
@@ -73,7 +77,22 @@ const labels = computed(() => Object.keys(props.structureList))
           </div>
         </template>
       </StructureGrid>
-
+      <EmptyComponent v-if="selectedStructureLabel == ''">
+        <template #title>
+          Select Programme Structure
+        </template>
+        <template #description>
+          Select the label of a programme structure to view
+        </template>
+      </EmptyComponent>
+      <EmptyComponent v-else-if="selectedRevision == ''">
+        <template #title>
+          Select Revision
+        </template>
+        <template #description>
+          Select the revision of a programme structure to view
+        </template>
+      </EmptyComponent>
     </template>
   </ContentCard>
 </template>
