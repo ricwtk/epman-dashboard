@@ -1,4 +1,4 @@
-import { ref, type Ref, toRaw, computed } from 'vue';
+import { ref, watch, toRaw, computed } from 'vue';
 import type { ProgrammeStructure } from "@/types/programme";
 import {
   createNewStructure,
@@ -16,8 +16,25 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 
 export const useEditingStructureStore = defineStore('editing-structure', () => {
+  const programmeCode = ref<string>("")
+  const structureRevisions = ref<{ [revision: string]: ProgrammeStructure }>({})
+  const revisions = computed<string[]>(() => Object.keys(structureRevisions.value).sort((a, b) => b.localeCompare(a)))
+
+  const selectedStructureLabel = ref<string>("")
   const structure = ref<ProgrammeStructure>(createNewStructure())
   const originalStructure = ref<ProgrammeStructure>(createNewStructure())
+
+  async function loadStructureRevisionsByProgrammeAndLabel(programme: string, label: string) {
+    structureRevisions.value = await dataService.getStructureRevisionsByProgrammeAndLabel(programme, label)
+  }
+  watch([programmeCode, selectedStructureLabel], () => {
+    if (programmeCode.value && selectedStructureLabel.value) {
+      loadStructureRevisionsByProgrammeAndLabel(
+        programmeCode.value,
+        selectedStructureLabel.value
+      )
+    }
+  })
 
   function resetStructure(): void {
     structure.value = structuredClone(toRaw(originalStructure.value))

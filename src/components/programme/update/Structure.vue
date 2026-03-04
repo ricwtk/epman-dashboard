@@ -3,17 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import ResetButton from '@/components/ResetButton.vue'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { getEditingProgrammeAndStore, getEditingStructureAndStore } from '@/composables/programme';
-const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
-const { structure, editingStructureStore } = getEditingStructureAndStore();
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StructureGrid from "@/components/programme/StructureGrid.vue"
 import CreateLabelPopover from '@/components/CreateLabelPopover.vue';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -24,6 +14,14 @@ import { Button } from '@/components/ui/button';
 import { dataService } from '@/services/dataService';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
+
+import { useStructureListStore } from '@/stores/structurelist';
+const structureListStore = useStructureListStore();
+const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
+
+import { getEditingProgrammeAndStore, getEditingStructureAndStore } from '@/composables/programme';
+const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+const { structure, editingStructureStore } = getEditingStructureAndStore();
 
 const diffs = computed(() => {
   return editingStructureStore.checkDiff()
@@ -45,8 +43,10 @@ const resetDiff = () => editingStructureStore.resetDiff()
 //   localStorage.setItem('structureDisplayMode', newMode || "");
 // });
 
+
+
 const selectedStructureLabel = ref<string | null>(null);
-const labels = computed(() => Object.keys(editingProgrammeStore.structures ?? {}));
+// const labels = computed(() => Object.keys(editingProgrammeStore.structures ?? {}));
 watch(selectedStructureLabel, (newLabel) => {
   if (newLabel) {
     selectedRevision.value = editingProgrammeStore.structures?.[newLabel]?.[0]?.revision ?? null;
