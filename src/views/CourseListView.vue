@@ -1,26 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue';
-import { getCourseList, createNewCourse } from '@/utils/courseHelpers';
+import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
+import { createNewCourse } from '@/utils/courseHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
 
 import { navigateToCourse } from '@/utils/navigationHelpers';
-import { formatRevision, getSortedUniqueLatestPartial } from '@/utils/common';
+import { formatRevision } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 
-const courses: Ref<{ code: string, name: string }[]> = ref([]);
-async function updateCourseList() {
-  courses.value = getSortedUniqueLatestPartial(await dataService.getCourses(), ["code", "name"]);
-}
-onMounted(async () => {
-  await updateCourseList();
-});
+import { useCourseListStore } from '@/stores/courselist';
+const courseListStore = useCourseListStore();
 
+const { codeToInfoMap: courses } = storeToRefs(courseListStore);
+const courseList = computed(() => Object.keys(courses.value).sort((a, b) => a.localeCompare(b)));
 const addNewCourse = async (newName: string, newCode: string) => {
   const newCourseParameters = {
     name: newName,
@@ -34,7 +32,7 @@ const addNewCourse = async (newName: string, newCode: string) => {
   const newCourse = createNewCourse(newCourseParameters);
   try {
     await dataService.saveCourse(newCourse);
-    await updateCourseList();
+    courseListStore.saveCourseUpdate(newCourse);
   } catch (error) {
     console.error('Error saving course:', error);
   }
@@ -61,16 +59,16 @@ const addNewCourse = async (newName: string, newCode: string) => {
         2xl:grid-cols-6
         gap-2
       ">
-        <template v-for="course in courses" :key="course.code">
+        <template v-for="courseCode in courseList" :key="courseCode">
           <Button
             variant="default"
-            @click="navigateToCourse(course.code)"
+            @click="navigateToCourse(courseCode)"
           >
-            {{ course.code }} {{ course.name }}
+            {{ courses[courseCode]!.code }} {{ courses[courseCode]!.name }}
           </Button>
         </template>
         <CreateNewPopover v-if="authStore.canEditCourses"
-          :currentList="courses.map(course => course.code)"
+          :currentList="courseList"
           @create="(name:string, code:string) => addNewCourse(name, code)"
         >
           <template #title>
