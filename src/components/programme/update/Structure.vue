@@ -11,6 +11,7 @@ import { ButtonGroup } from '@/components/ui/button-group';
 import { formatRevision } from '@/utils/common';
 import { createNewStructure } from '@/utils/structureHelpers';
 import { Button } from '@/components/ui/button';
+import { type ProgrammeStructure } from '@/types/programme';
 
 import { dataService } from '@/services/dataService';
 import { useAuthStore } from '@/stores/auth';
@@ -50,39 +51,28 @@ const addNewStructure = async (newLabel: string) => {
     }
   }
   const newStructure = createNewStructure(newStructureParameters);
-  try {
-    await dataService.saveStructure(newStructure);
-    structureListStore.saveStructure(newStructure);
-    // editingStructureStore
-  } catch (error) {
-    console.error('Error saving structure:', error);
-  }
+  saveStructure(newStructure)
 };
+
+const saveRevision = async () => {
+  editingStructureStore.saveStructure()
+  saveStructure(structure.value)
+}
+
+const saveStructure = async (struc: ProgrammeStructure) => {
+  structureListStore.saveStructure(struc);
+  editingStructureStore.copyStructureFrom(struc)
+  await dataService.saveStructure(struc);
+}
 
 const deleteRevision = async () => {
-  // dataService
-  // if (no more revisions) structureListStore.deleteStructure(structure.value);
-  // editingStructureStore
-  //
-  // try {
-  //   console.log(editingStructureStore.structure.id);
-  //   const { updatedStructureLabel, updatedRevision } = await editingProgrammeStore.deleteStructure(editingStructureStore.structure);
-  //   editingProgrammeStore.structureTrigger++
-  //   if (updatedStructureLabel) {
-  //     selectedStructureLabel.value = updatedStructureLabel;
-  //     selectedRevision.value = updatedRevision;
-  //   } else {
-  //     selectedRevision.value = null;
-  //     selectedStructureLabel.value = null;
-  //   }
-  // } catch (error) {
-  //   console.error('Error deleting structure:', error);
-  // }
+  const idToDelete = structure.value.id
+  await dataService.deleteItem("structures", idToDelete)
+  editingStructureStore.deleteRevision()
+  if (editingStructureStore.revisions.length == 0) {
+    structureListStore.deleteStructure(structure.value)
+  }
 };
-
-const saveStructure = async () => {
-  await editingStructureStore.saveStructure();
-}
 
 </script>
 
@@ -135,7 +125,7 @@ const saveStructure = async () => {
             </Select>
           </div>
           <Button variant="destructive" @click="deleteRevision">Delete revision</Button>
-          <Button variant="default" @click="saveStructure">Save structure</Button>
+          <Button variant="default" @click="saveRevision">Save structure</Button>
         </template>
       </StructureGrid>
 

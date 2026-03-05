@@ -77,18 +77,35 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
   function copyStructureFrom(struc: ProgrammeStructure): void {
     originalStructure.value = structuredClone(toRaw(struc))
     structure.value = structuredClone(toRaw(struc))
+    selectedStructureLabel.value = struc.label
+    selectedRevision.value = struc.revision
+    structureRevisions.value[struc.revision] = structuredClone(toRaw(struc))
   }
 
   async function saveStructure(): Promise<void> {
-    structure.value.id = formatStructureId(structure.value)
     structure.value.parentRevision = structure.value.revision
     structure.value.revision = formatRevision()
     structure.value.committed = {
       on: new Date(),
       by: authStore.user?.email || 'unknown'
     }
-    await dataService.saveStructure(structure.value)
+    structure.value.id = formatStructureId(structure.value)
     commitStructure()
+  }
+
+  function deleteRevision() {
+    const indexToDelete = revisions.value.indexOf(selectedRevision.value)
+    if (revisions.value.includes(selectedRevision.value)) {
+      delete structureRevisions.value[selectedRevision.value]
+    }
+    if (revisions.value.length == 0) {
+      selectedRevision.value = ""
+      selectedStructureLabel.value = ""
+    } else if (revisions.value.length > indexToDelete) {
+      selectedRevision.value = revisions.value[indexToDelete]!
+    } else {
+      selectedRevision.value = revisions.value[indexToDelete - 1]!
+    }
   }
 
   return {
@@ -97,7 +114,7 @@ export const useEditingStructureStore = defineStore('editing-structure', () => {
     originalStructure,
     selectedStructureLabel,
     structureRevisions,
-    revisions, selectedRevision,
+    revisions, selectedRevision, deleteRevision,
     resetStructure,
     resetDiff, checkDiff, getDiff,
     loadStructure, copyStructureFrom,
