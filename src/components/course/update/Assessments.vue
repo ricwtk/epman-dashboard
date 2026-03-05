@@ -20,6 +20,8 @@ import VerticalText from '@/components/VerticalText.vue';
 import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon } from 'lucide-vue-next';
 import { get } from 'lodash-es';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import ResetButton from '@/components/ResetButton.vue';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field';
 

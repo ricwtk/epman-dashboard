@@ -9,6 +9,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import VerticalText from '@/components/VerticalText.vue'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
+import ResetButton from '@/components/ResetButton.vue'
 import EmptyComponent from '@/components/EmptyComponent.vue';
 
 import { BLOOM_TAXONOMY, PO_ATTRIBUTES } from '@/constants'
