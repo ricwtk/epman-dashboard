@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
+
 import {
   Table,
   TableHeader,
@@ -20,22 +22,26 @@ import { PlusIcon, MinusIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-
 import ResetButton from '@/components/ResetButton.vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 
-import { getEditingCourseAndStore } from '@/composables/course'
-const { course, editingCourseStore } = getEditingCourseAndStore()
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore()
+const { draft } = storeToRefs(courseStore)
+
+// import { getEditingCourseAndStore } from '@/composables/course'
+// const { course, editingCourseStore } = getEditingCourseAndStore()
 
 const diffs = computed(() => {
-  return editingCourseStore.checkDiff(['teachingPlan'])
+  return courseStore.checkDiff(['teachingPlan'])
 })
 const resetDiff = () => {
-  editingCourseStore.resetDiff(['teachingPlan'])
+  courseStore.resetDiff(['teachingPlan'])
 }
 
 const addTopic = () => {
-  editingCourseStore.addTopic()
+  courseStore.addTopic()
 }
 
 const removeTopic = (index: number) => {
-  editingCourseStore.removeTopic(index)
+  courseStore.removeTopic(index)
 }
 
 // const teachingPlan: Plan[] = [
@@ -55,7 +61,7 @@ import {
   getCreditHours
 } from '@/utils/courseHelpers';
 
-const totalSLT = computed(() => getTotalHoursForCourse(course.value.teachingPlan))
+const totalSLT = computed(() => getTotalHoursForCourse(draft.value.teachingPlan))
 const creditHours = computed(() => getCreditHours(totalSLT.value))
 </script>
 
@@ -64,7 +70,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
     Teaching Plan
     <ResetButton :disabled="!diffs" @reset="resetDiff()" />
   </div>
-  <template v-if="course.teachingPlan.length === 0">
+  <template v-if="draft.teachingPlan.length === 0">
     <EmptyComponent>
       <template #title>
         No teaching plan available
@@ -100,7 +106,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
       </TableRow>
     </TableHeader>
     <TableBody>
-      <TableRow v-for="(plan, planIndex) in course.teachingPlan">
+      <TableRow v-for="(plan, planIndex) in draft.teachingPlan">
         <TableCell class="w-0">
           <Button variant="destructive" size="icon" @click="removeTopic(planIndex)"><MinusIcon /></Button>
         </TableCell>
@@ -110,7 +116,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         <TableCell class="w-0">
           <div class="flex flex-col">
             <Button variant="secondary" :disabled="planIndex === 0"><ChevronUpIcon /></Button>
-            <Button variant="secondary" :disabled="planIndex === course.teachingPlan.length - 1"><ChevronDownIcon /></Button>
+            <Button variant="secondary" :disabled="planIndex === draft.teachingPlan.length - 1"><ChevronDownIcon /></Button>
           </div>
         </TableCell>
         <template
@@ -148,8 +154,8 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         <TableCell class="font-medium">Sub-total for each SLT components</TableCell>
         <TableCell></TableCell>
         <template v-for="(category, index) in SLT_CATEGORIES" :key="category.key">
-          <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(course.teachingPlan, category.key) }}</TableCell>
-          <TableCell class="font-medium text-center" :class="{ 'border-r': index !== SLT_CATEGORIES.length-1 }">{{ getTotalComponentF2FHours(course.teachingPlan, category.key) }}</TableCell>
+          <TableCell class="font-medium text-center">{{ getTotalComponentOnlineHours(draft.teachingPlan, category.key) }}</TableCell>
+          <TableCell class="font-medium text-center" :class="{ 'border-r': index !== SLT_CATEGORIES.length-1 }">{{ getTotalComponentF2FHours(draft.teachingPlan, category.key) }}</TableCell>
         </template>
         <TableCell class="font-medium text-center">{{ totalSLT }}</TableCell>
       </TableRow>

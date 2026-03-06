@@ -57,6 +57,7 @@ export const useCourseStore = defineStore('course', () => {
 
   function clear(): void { draft.value = createCourseObject(); saved.value = createCourseObject(); }
   function createDraft(): void { draft.value = structuredClone(toRaw(saved.value)); }
+  function resetDraft(): void { draft.value = structuredClone(toRaw(saved.value)); }
   function commit(): void { saved.value = structuredClone(toRaw(draft.value)); }
 
   async function loadCourseByCode(code: string): Promise<void> {
@@ -162,9 +163,14 @@ export const useCourseStore = defineStore('course', () => {
     try {
       await dataService.saveCourse(draft.value);
       commit();
+      addToRevisions();
     } catch (error) {
       console.error('Error saving course:', error);
     }
+  }
+
+  function addToRevisions(): void {
+    revisions.value.splice(0, 0, toRaw(draft.value))
   }
 
   function moveUp(keyOfList: keyof Course, index: number): void {
@@ -188,7 +194,7 @@ export const useCourseStore = defineStore('course', () => {
   return {
     draft, saved, revisions,
     loadCourseByCode, loadRevision, deleteRevision,
-    clear, createDraft, save,
+    clear, createDraft, resetDraft, save,
     selectedProgramme, selectedSchool,
     notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
     editingTab,

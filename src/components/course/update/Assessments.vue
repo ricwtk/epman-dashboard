@@ -25,19 +25,28 @@ import ResetButton from '@/components/ResetButton.vue';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field';
 
-import { getEditingCourseAndStore } from '@/composables/course'
-const { course, editingCourseStore } = getEditingCourseAndStore()
+import { useCourseStore } from '@/stores/course'
+const courseStore = useCourseStore()
+const {
+  draft,
+  notAssignedToProgramme,
+  programmeNotSelected,
+  programmeNotAssigned
+} = storeToRefs(courseStore)
+
+// import { getEditingCourseAndStore } from '@/composables/course'
+// const { course, editingCourseStore } = getEditingCourseAndStore()
 
 
 const componentOptions = ['Written Assessment', 'Assignment', 'Lab'];
 const updateMapping = (pathArray: string[], itemIndex: number, isChecked: boolean | 'indeterminate') => {
   if (isChecked === 'indeterminate') { return; }
-  editingCourseStore.updateMapping(["assessments", ...pathArray], itemIndex, isChecked)
+  courseStore.updateMapping(["assessments", ...pathArray], itemIndex, isChecked)
 }
-const addAssessment = () => { editingCourseStore.addAssessment() }
-const deleteAssessment = (index: number) => { editingCourseStore.deleteAssessment(index) }
-const addBreakdown = (index: number) => { editingCourseStore.addBreakdown(index) }
-const deleteBreakdown = (assessmentIndex: number, breakdownIndex: number) => { editingCourseStore.deleteBreakdown(assessmentIndex, breakdownIndex) }
+const addAssessment = () => { courseStore.addAssessment() }
+const deleteAssessment = (index: number) => { courseStore.deleteAssessment(index) }
+const addBreakdown = (index: number) => { courseStore.addBreakdown(index) }
+const deleteBreakdown = (assessmentIndex: number, breakdownIndex: number) => { courseStore.deleteBreakdown(assessmentIndex, breakdownIndex) }
 // const assessmentList = ref<Assessment[]>([
 //   {
 //     description: "Continuous Assessment",
@@ -107,13 +116,13 @@ const recommendedPO2WPEAMapping = {
 }
 
 const totalWeightage = computed(() => {
-  return course.value.assessments.reduce((acc, assessment) => acc + assessment.weightage, 0);
+  return draft.value.assessments.reduce((acc, assessment) => acc + assessment.weightage, 0);
 });
 
 const getPoList = (assessment: Assessment) => {
   let poList = new Set<string>();
   assessment.cos.forEach((co) => {
-    course.value.cos[co - 1]!.pos.forEach((po) => {
+    draft.value.cos[co - 1]!.pos.forEach((po) => {
       poList.add(`PO${po}`);
     })
   });
@@ -122,21 +131,15 @@ const getPoList = (assessment: Assessment) => {
   return poListArray;
 }
 
-const {
-  notAssignedToProgramme,
-  programmeNotSelected,
-  programmeNotAssigned
-} = storeToRefs(editingCourseStore)
-
 const emptyComponent = computed<{
   show: boolean, title: string, description: string
 }>(() => {
-  if (!course.value.assessments) return {
+  if (!draft.value.assessments) return {
     show: true,
     title: 'Course object not ready',
     description: 'Wait for the course object to be ready'
   }
-  else if (course.value.assessments.length === 0) {
+  else if (draft.value.assessments.length === 0) {
     return {
       show: true,
       title: 'No Assessments',
@@ -161,7 +164,7 @@ const emptyComponent = computed<{
     return {
       show: true,
       title: 'Programme not assigned to any school',
-      description: `Course is assigned to ${editingCourseStore.selectedProgramme.value.name} but ${editingCourseStore.selectedProgramme.value.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
+      description: `Course is assigned to ${courseStore.selectedProgramme?.name} but ${courseStore.selectedProgramme?.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
     }
   }
   else {
@@ -172,6 +175,10 @@ const emptyComponent = computed<{
     }
   }
 })
+
+const resetDiff = () => {
+
+}
 </script>
 
 <template>
@@ -180,7 +187,7 @@ const emptyComponent = computed<{
     <ResetButton :disabled="true" @reset="resetDiff()" />
   </div>
 
-  <template v-if="course.assessments.length === 0">
+  <template v-if="draft.assessments.length === 0">
     <EmptyComponent>
       <template #title>
         No assessments available
@@ -198,9 +205,9 @@ const emptyComponent = computed<{
         <TableHead colspan="2">Method</TableHead>
         <TableHead class="w-0">Component</TableHead>
         <TableHead class="text-center w-0">Weightage</TableHead>
-        <TableHead class="text-center text-xs w-0" v-if="course.cos.length == 0">Define COs to show mapping matrix</TableHead>
+        <TableHead class="text-center text-xs w-0" v-if="draft.cos.length == 0">Define COs to show mapping matrix</TableHead>
         <TableHead
-          v-for="(co, coIndex) in course.cos"
+          v-for="(co, coIndex) in draft.cos"
           :key="coIndex"
           class="text-center w-0"
         >
@@ -209,7 +216,7 @@ const emptyComponent = computed<{
       </TableRow>
     </TableHeader>
     <TableBody>
-      <template v-for="(assessment, assessmentIndex) in course.assessments" :key="assessmentIndex">
+      <template v-for="(assessment, assessmentIndex) in draft.assessments" :key="assessmentIndex">
         <TableRow>
           <TableCell>
             <Button variant="destructive" @click="deleteAssessment(assessmentIndex)"><MinusIcon /></Button>
@@ -240,11 +247,11 @@ const emptyComponent = computed<{
               </NumberFieldContent>
             </NumberField>
           </TableCell>
-          <TableCell v-if="course.cos.length == 0">
+          <TableCell v-if="draft.cos.length == 0">
             <Skeleton class="h-8 w-full animate-none"/>
           </TableCell>
           <TableCell
-            v-for="(co, coIndex) in course.cos"
+            v-for="(co, coIndex) in draft.cos"
             :key="coIndex"
             class="w-0 text-center"
           >
@@ -271,11 +278,11 @@ const emptyComponent = computed<{
             </NumberField>
           </TableCell>
           <TableCell></TableCell>
-          <TableCell v-if="course.cos.length == 0">
+          <TableCell v-if="draft.cos.length == 0">
             <Skeleton class="h-4 w-full animate-none" />
           </TableCell>
           <TableCell
-            v-for="(co, coIndex) in course.cos"
+            v-for="(co, coIndex) in draft.cos"
             :key="coIndex"
             class="w-0 text-center"
           >
@@ -287,13 +294,13 @@ const emptyComponent = computed<{
         </TableRow>
         <TableRow>
           <TableCell></TableCell>
-          <TableCell :colspan="course.cos.length+4">
+          <TableCell :colspan="draft.cos.length+4">
             <Button variant="secondary" class="w-full text-xs" size="sm" @click="addBreakdown(assessmentIndex)"><ListPlusIcon /> Add Breakdown</Button>
           </TableCell>
         </TableRow>
       </template>
       <TableRow>
-        <TableCell :colspan="course.cos.length+5">
+        <TableCell :colspan="draft.cos.length+5">
           <Button variant="default" class="w-full text-xs" size="sm" @click="addAssessment"><PlusIcon /> Add Assessment</Button>
         </TableCell>
       </TableRow>
@@ -306,12 +313,12 @@ const emptyComponent = computed<{
           class="text-center font-medium"
           :class="totalWeightage === 100 ? '' : 'bg-destructive text-white'"
         >{{ totalWeightage }}</TableCell>
-        <TableCell v-for="_ in course.cos.length"></TableCell>
+        <TableCell v-for="_ in draft.cos.length"></TableCell>
       </TableRow>
     </TableBody>
   </Table>
 
-  <template v-if="course.assessments.length > 0">
+  <template v-if="draft.assessments.length > 0">
     <div class="font-semibold">Assessment to WP/EA mapping</div>
 
     <EmptyComponent v-if="emptyComponent.show">
@@ -349,7 +356,7 @@ const emptyComponent = computed<{
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-for="(assessment, assessmentIndex) in course.assessments" :key="assessmentIndex">
+        <template v-for="(assessment, assessmentIndex) in draft.assessments" :key="assessmentIndex">
           <TableRow>
             <TableCell>{{ assessment.description }}</TableCell>
             <TableCell class="text-center">{{ assessment.weightage }}</TableCell>
@@ -391,7 +398,7 @@ const emptyComponent = computed<{
                 <BadgeList :items="[`CO${breakdown.co}`]" />
               </TableCell>
               <TableCell class="text-center">
-                <BadgeList :items="course.cos[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
+                <BadgeList :items="draft.cos[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
               </TableCell>
               <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
                 <Checkbox

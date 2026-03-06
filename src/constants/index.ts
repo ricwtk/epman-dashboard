@@ -1,3 +1,5 @@
+import type { Allocation } from "@/types/course";
+
 export const FIREBASE_EMAIL_LOCAL_STORAGE_NAME = "epman:emailforsignin"
 export const STRUCTURE_DISPLAY_MODES = ['by year', 'by semester'];
 export const NUMBER_OF_SEMESTER_PER_YEAR = 3;
@@ -65,7 +67,7 @@ export const USERLEVEL_OPTIONS = [
 
 export const DEFAULT_PW = 'sunway123';
 
-export const SLT_CATEGORIES = [
+export const SLT_CATEGORIES: { short: string; long: string; key: keyof Allocation }[] = [
   { short: 'L', long: "Lecture", key: "lecture" },
   { short: 'T', long: "Tutorial", key: "tutorial" },
   { short: 'P', long: "Practical", key: "practical" },

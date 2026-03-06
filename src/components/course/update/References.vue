@@ -1,14 +1,6 @@
 <script setup lang="ts">
-import {
-  Select,
-  SelectItem,
-  SelectContent,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { ref, computed } from 'vue'
-import { type Reference } from '@/types/course'
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,31 +11,42 @@ import {
   TableHeader,
   TableHead
 } from '@/components/ui/table'
-import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import ResetButton from '@/components/ResetButton.vue'
 import EmptyComponent from '@/components/EmptyComponent.vue'
+import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 
-import { getEditingCourseAndStore } from '@/composables/course'
-const { course, editingCourseStore } = getEditingCourseAndStore()
+import { useCourseStore } from '@/stores/course'
+const courseStore = useCourseStore()
+const { draft } = storeToRefs(courseStore)
+
+// import { getEditingCourseAndStore } from '@/composables/course'
+// const { course, editingCourseStore } = getEditingCourseAndStore()
 
 const diffs = computed(() => {
-  return editingCourseStore.checkDiff(['references'])
+  return courseStore.checkDiff(['references'])
 })
 const resetDiff = () => {
-  editingCourseStore.resetDiff(['references'])
+  courseStore.resetDiff(['references'])
 }
 
 const addReference = () => {
-  editingCourseStore.addReference()
+  courseStore.addReference()
 }
 const deleteReference = (index: number) => {
-  editingCourseStore.deleteReference(index)
+  courseStore.deleteReference(index)
 }
 const moveReferenceUp = (index: number) => {
-  editingCourseStore.moveReferenceUp(index)
+  courseStore.moveReferenceUp(index)
 }
 const moveReferenceDown = (index: number) => {
-  editingCourseStore.moveReferenceDown(index)
+  courseStore.moveReferenceDown(index)
 }
 
 const referenceTypes = [
@@ -58,7 +61,7 @@ const referenceTypes = [
     <ResetButton :disabled="!diffs" @reset="resetDiff()" />
   </div>
 
-  <EmptyComponent v-if="course.references.length === 0">
+  <EmptyComponent v-if="draft.references.length === 0">
     <template #title>
       No references available
     </template>
@@ -77,7 +80,7 @@ const referenceTypes = [
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(reference, refIndex) in course.references" :key="refIndex">
+        <TableRow v-for="(reference, refIndex) in draft.references" :key="refIndex">
           <TableCell class="w-14 text-center">
             <Button
               variant="destructive"
@@ -111,7 +114,7 @@ const referenceTypes = [
               ><ChevronUpIcon /></Button>
               <Button
                 variant="secondary"
-                :disabled="refIndex === course.references.length - 1"
+                :disabled="refIndex === draft.references.length - 1"
                 @click="moveReferenceDown(refIndex)"
               ><ChevronDownIcon /></Button>
             </div>

@@ -31,11 +31,15 @@ const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
 
-import { getEditingCourseAndStore } from "@/composables/course";
-const { editingCourseStore } = getEditingCourseAndStore();
-const diff = computed(() => editingCourseStore.checkDiff([]))
-const resetCourse = () => { editingCourseStore.resetCourse(); }
-const saveCourse = () => { editingCourseStore.saveCourse(); }
+import { useCourseStore } from '@/stores/course'
+const courseStore = useCourseStore()
+
+// import { getEditingCourseAndStore } from "@/composables/course";
+// const { editingCourseStore } = getEditingCourseAndStore();
+
+const diff = computed(() => courseStore.checkDiff([]))
+const resetCourse = () => { courseStore.resetDraft(); }
+const saveCourse = () => { courseStore.save(); }
 </script>
 
 <template>
@@ -45,7 +49,7 @@ const saveCourse = () => { editingCourseStore.saveCourse(); }
       <DialogTitle>Course Details Update</DialogTitle>
       <DialogDescription>Update course details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden" v-model="editingCourseStore.selectedTab">
+    <Tabs default-value="summary" class="overflow-hidden" v-model="courseStore.editingTab">
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>

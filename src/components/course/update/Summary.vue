@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
+
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -8,8 +10,12 @@ import ResetButton from '@/components/ResetButton.vue'
 import { Field } from '@/components/ui/field'
 import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field'
 
-import { getEditingCourseAndStore } from '@/composables/course'
-const { course, editingCourseStore } = getEditingCourseAndStore()
+import { useCourseStore } from '@/stores/course'
+const courseStore = useCourseStore()
+const { draft } = storeToRefs(courseStore)
+
+// import { getEditingCourseAndStore } from '@/composables/course'
+// const { course, editingCourseStore } = getEditingCourseAndStore()
 const diffs = computed(() => {
   return Object.fromEntries(
     [
@@ -25,12 +31,12 @@ const diffs = computed(() => {
       'transferableSkills',
       'deliveryMethods'
     ].map(
-      (key) => [key, editingCourseStore.checkDiff([key])]
+      (key) => [key, courseStore.checkDiff([key])]
     )
   )
 })
 const resetDiff = (key: string) => {
-  editingCourseStore.resetDiff([key])
+  courseStore.resetDiff([key])
 }
 </script>
 
@@ -42,7 +48,7 @@ const resetDiff = (key: string) => {
           Code
           <ResetButton :disabled="!diffs.code" @reset="resetDiff('code')" />
         </Label>
-        <Input disabled id="code" placeholder="Course Code" v-model="course.code"/>
+        <Input disabled id="code" placeholder="Course Code" v-model="draft.code"/>
       </Field>
 
       <Field class="gap-1">
@@ -50,10 +56,10 @@ const resetDiff = (key: string) => {
           Name
           <ResetButton :disabled="!diffs.name" @reset="resetDiff('name')" />
         </Label>
-        <Input id="name" placeholder="Course Name" v-model="course.name"/>
+        <Input id="name" placeholder="Course Name" v-model="draft.name"/>
       </Field>
 
-      <NumberField id="credits" v-model="course.credits" class="gap-1" :min="0">
+      <NumberField id="credits" v-model="draft.credits" class="gap-1" :min="0">
         <Label for="credits">
           Credits
           <ResetButton :disabled="!diffs.credits" @reset="resetDiff('credits')" />
@@ -64,7 +70,7 @@ const resetDiff = (key: string) => {
       </NumberField>
     </div>
     <div class="flex flex-col sm:flex-row gap-2">
-      <NumberField id="year" v-model="course.year" class="gap-1 grow" :min="0">
+      <NumberField id="year" v-model="draft.year" class="gap-1 grow" :min="0">
       <!-- <Field class="gap-1"> -->
         <Label for="year">
           Year
@@ -76,7 +82,7 @@ const resetDiff = (key: string) => {
         </NumberFieldContent>
       </NumberField>
 
-      <NumberField id="semester" v-model="course.semester" class="gap-1 grow" :min="0">
+      <NumberField id="semester" v-model="draft.semester" class="gap-1 grow" :min="0">
       <!-- <Field class="gap-1"> -->
         <Label for="semester">
           Semester
@@ -93,7 +99,7 @@ const resetDiff = (key: string) => {
         Synopsis
         <ResetButton :disabled="!diffs.synopsis" @reset="resetDiff('synopsis')" />
       </Label>
-      <Textarea id="synopsis" placeholder="Course Synopsis" v-model="course.synopsis"/>
+      <Textarea id="synopsis" placeholder="Course Synopsis" v-model="draft.synopsis"/>
     </Field>
     <!-- <div class="flex flex-wrap gap-2"> -->
     <div class="flex flex-col sm:flex-row gap-2">
@@ -107,7 +113,7 @@ const resetDiff = (key: string) => {
           input-id="prerequisites"
           label="Select Prerequisites"
           :options="['Option 1', 'Option 2', 'Option 3']"
-          :selected="course.prerequisites"
+          :selected="draft.prerequisites"
           emptymessage="No Prerequisites"
         />
       </Field>
@@ -121,7 +127,7 @@ const resetDiff = (key: string) => {
           input-id="transferable"
           label="Select Transferable Skills"
           :options="['Option 1', 'Option 2', 'Option 3']"
-          :selected="course.transferableSkills"
+          :selected="draft.transferableSkills"
           emptymessage="No Transferable Skills"
         />
       </Field>
@@ -134,7 +140,7 @@ const resetDiff = (key: string) => {
           input-id="delivery"
           label="Select Delivery Method"
           :options="['Option 1', 'Option 2', 'Option 3']"
-          :selected="course.deliveryMethods"
+          :selected="draft.deliveryMethods"
           emptymessage="No Delivery Methods"
         />
       </Field>

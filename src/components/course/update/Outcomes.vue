@@ -14,26 +14,34 @@ import EmptyComponent from '@/components/EmptyComponent.vue';
 
 import { BLOOM_TAXONOMY, PO_ATTRIBUTES } from '@/constants'
 
-import { getEditingCourseAndStore } from '@/composables/course'
-const { course, editingCourseStore } = getEditingCourseAndStore()
+import { useCourseStore } from '@/stores/course'
+const courseStore = useCourseStore()
+const {
+  draft,
+  notAssignedToProgramme,
+  programmeNotSelected,
+  programmeNotAssigned
+} = storeToRefs(courseStore)
+
+// import { getEditingCourseAndStore } from '@/composables/course'
+// const { course, editingCourseStore } = getEditingCourseAndStore()
 
 const selectedBloomTaxonomy = computed(() => {
-  return course.value.cos.map((co) => `${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`)
+  return draft.value.cos.map((co) => `${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`)
 })
 
 const updateBloomTaxonomy = (coIndex: number, newBloomTaxonomy: string) => {
-  const co = course.value.cos[coIndex]
+  const co = draft.value.cos[coIndex]
   if (co) {
     let newBloomTaxonomyArray = newBloomTaxonomy.toLowerCase().split('')
     co.bloomtax = [String(newBloomTaxonomyArray[0]), Number(newBloomTaxonomyArray[1])]
-    editingCourseStore.updateCourse(course.value)
   }
 }
 
-const addCo = () => editingCourseStore.addCo();
+const addCo = () => courseStore.addCo();
 
 const handleMappingChange = (coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', mappingIndex: number, checked: boolean) => {
-  const co = course.value.cos[coIndex]
+  const co = draft.value.cos[coIndex]
   if (co) {
     if (type === 'po') {
       if (checked) {
@@ -60,7 +68,6 @@ const handleMappingChange = (coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', m
         co.eas = co.eas.filter((ea) => ea !== mappingIndex + 1)
       }
     }
-    editingCourseStore.updateCourse(course.value)
   }
 }
 
@@ -94,21 +101,15 @@ const eaOptions = [
   "Familiarity"
 ]
 
-const {
-  notAssignedToProgramme,
-  programmeNotSelected,
-  programmeNotAssigned
-} = storeToRefs(editingCourseStore)
-
 const emptyComponent = computed<{
   show: boolean, title: string, description: string
 }>(() => {
-  if (!course.value.cos) return {
+  if (!draft.value.cos) return {
     show: true,
     title: 'Course object not ready',
     description: 'Wait for the course object to be ready'
   }
-  else if (course.value.cos.length === 0) {
+  else if (draft.value.cos.length === 0) {
     return {
       show: true,
       title: 'No Course Outcomes',
@@ -133,7 +134,7 @@ const emptyComponent = computed<{
     return {
       show: true,
       title: 'Programme not assigned to any school',
-      description: `Course is assigned to ${editingCourseStore.selectedProgramme?.name} but ${editingCourseStore.selectedProgramme?.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
+      description: `Course is assigned to ${courseStore.selectedProgramme?.name} but ${courseStore.selectedProgramme?.name} is not assigned to any school. Add the programme to a school to display mapping matrices`
     }
   }
   else {
@@ -156,7 +157,7 @@ function resetDiff() {
     <ResetButton :disabled="true" @reset="resetDiff()" />
   </div>
 
-  <EmptyComponent v-if="course.cos.length == 0">
+  <EmptyComponent v-if="draft.cos.length == 0">
     <template #title>
       No course outcomes available
     </template>
@@ -178,9 +179,9 @@ function resetDiff() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex">
+        <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex">
           <TableCell class="w-14 text-center">
-            <Button variant="destructive" @click="editingCourseStore.removeCo(coIndex)"><MinusIcon /></Button>
+            <Button variant="destructive" @click="courseStore.removeCo(coIndex)"><MinusIcon /></Button>
           </TableCell>
           <TableCell class="">{{ coIndex + 1 }}</TableCell>
           <TableCell class="">
@@ -209,12 +210,12 @@ function resetDiff() {
               <Button
                 variant="secondary"
                 :disabled="coIndex === 0"
-                @click="editingCourseStore.moveCoUp(coIndex)"
+                @click="courseStore.moveCoUp(coIndex)"
               ><ChevronUpIcon /></Button>
               <Button
                 variant="secondary"
-                :disabled="coIndex === course.cos.length - 1"
-                @click="editingCourseStore.moveCoDown(coIndex)"
+                :disabled="coIndex === draft.cos.length - 1"
+                @click="courseStore.moveCoDown(coIndex)"
               ><ChevronDownIcon /></Button>
             </div>
           </TableCell>
@@ -249,7 +250,7 @@ function resetDiff() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+          <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
             <TableCell v-for="(po, poIndex) in PO_ATTRIBUTES" :key="poIndex">
               <Checkbox
@@ -278,7 +279,7 @@ function resetDiff() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+          <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
             <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
             <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex">
@@ -308,7 +309,7 @@ function resetDiff() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+          <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
             <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
             <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex">
@@ -338,7 +339,7 @@ function resetDiff() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="(co, coIndex) in course.cos" :key="coIndex" class="text-center">
+          <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
             <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
             <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex">
