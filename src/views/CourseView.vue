@@ -15,88 +15,81 @@ import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
 import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
 
-import { useViewingCourseStore } from '@/stores/viewingcourse';
-const viewingCourseStore = useViewingCourseStore();
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore();
+
+// import { useViewingCourseStore } from '@/stores/viewingcourse';
+// const viewingCourseStore = useViewingCourseStore();
 
 const props = defineProps<{ code: string }>();
-onMounted(() => { viewingCourseStore.loadCourseByCode(props.code); });
+onMounted(() => { courseStore.loadCourseByCode(props.code); });
 
-import { useEditingCourseStore } from "@/stores/editingcourse";
-const editingCourseStore = useEditingCourseStore();
+// import { useEditingCourseStore } from "@/stores/editingcourse";
+// const editingCourseStore = useEditingCourseStore();
 
 const editing = ref(false);
 const updateEditing = (ev: boolean, tab?: string) => {
   if (ev) {
-    if (editingCourseStore.course.code !== viewingCourseStore.course.code) {
-      editingCourseStore.loadCourse(toRaw(viewingCourseStore.course));
+    if (courseStore.draft.code !== courseStore.saved.code) {
+      courseStore.createDraft();
     }
-    editingCourseStore.selectedTab = tab || 'summary';
+    courseStore.editingTab = tab || 'summary';
   }
   editing.value = ev;
 };
-watch(editing, () => {
-  if (!editing.value && editingCourseStore.updated) {
-    viewingCourseStore.loadCourseByCode(props.code);
-    editingCourseStore.updated = false;
-  }
-})
-
-const deleteRevision = () => {
-  viewingCourseStore.deleteRevision();
-}
 </script>
 
 <template>
   <NavIndicator :items="[
     { label: 'Course', path: '/course' },
-    { label: viewingCourseStore.course.name, path: `/course/${viewingCourseStore.course.code}` }
+    { label: courseStore.saved.name, path: `/course/${courseStore.saved.code}` }
   ]"/>
 
-  <template v-if="viewingCourseStore.course">
+  <template v-if="courseStore.saved">
     <div class="card-plain px-4 text-muted-foreground text-sm flex flex-row justify-start items-center gap-2">
-      {{ viewingCourseStore.course.code }} {{ viewingCourseStore.course.name }}
+      {{ courseStore.saved.code }} {{ courseStore.saved.name }}
       <RevisionDropdown
-        :current="viewingCourseStore.course.revision"
-        :options="viewingCourseStore.courseRevisions.map(cour => cour.revision)"
-        @selected="(rev) => viewingCourseStore.loadCourseRevision(rev)"
+        :current="courseStore.saved.revision"
+        :options="courseStore.revisions.map(cour => cour.revision)"
+        @selected="(rev) => courseStore.loadRevision(rev)"
       />
       <div class="grow"></div>
-      <RevisionDeleteButton @delete="deleteRevision" v-if="authStore.canEditCourses"/>
+      <RevisionDeleteButton @delete="courseStore.deleteRevision()" v-if="authStore.canEditCourses"/>
     </div>
     <CourseSummary
       :editable="authStore.canEditCourses"
-      :course="viewingCourseStore.course"
+      :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
     />
     <CourseOutcomes
       :editable="authStore.canEditCourses"
-      :cos="viewingCourseStore.course?.cos || []"
+      :cos="courseStore.saved.cos || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'outcomes')"
     />
     <CourseAssessments
       :editable="authStore.canEditCourses"
-      :assessments="viewingCourseStore.course?.assessments"
-      :coCount="viewingCourseStore.course?.cos?.length || 0"
+      :assessments="courseStore.saved.assessments"
+      :coCount="courseStore.saved.cos?.length || 0"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'assessments')"
     />
     <CEPCEAImplementation
       :editable="authStore.canEditCourses"
-      :course="viewingCourseStore.course"
+      :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'assessments')"
     />
     <CoursePlan
       :editable="authStore.canEditCourses"
-      :course="viewingCourseStore.course"
+      :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'teachingplan')"
     />
     <CourseReferences
       :editable="authStore.canEditCourses"
-      :references="viewingCourseStore.course.references || []"
+      :references="courseStore.saved.references || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'references')"
     />

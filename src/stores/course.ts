@@ -56,7 +56,7 @@ export const useCourseStore = defineStore('course', () => {
   })
 
   function clear(): void { draft.value = createCourseObject(); saved.value = createCourseObject(); }
-  function reset(): void { draft.value = structuredClone(toRaw(saved.value)); }
+  function createDraft(): void { draft.value = structuredClone(toRaw(saved.value)); }
   function commit(): void { saved.value = structuredClone(toRaw(draft.value)); }
 
   async function loadCourseByCode(code: string): Promise<void> {
@@ -186,9 +186,9 @@ export const useCourseStore = defineStore('course', () => {
   }
 
   return {
-    draft, saved,
+    draft, saved, revisions,
     loadCourseByCode, loadRevision, deleteRevision,
-    clear, reset, save,
+    clear, createDraft, save,
     selectedProgramme, selectedSchool,
     notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
     editingTab,
