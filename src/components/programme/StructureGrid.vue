@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from 'vue';
-import { createNewCourse } from '@/utils/courseHelpers';
+import { createCourseObject } from '@/utils/courseHelpers';
 import { formatRevision } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 import { navigateToCourseExternal } from '@/utils/navigationHelpers';
@@ -167,7 +167,7 @@ const createCourse = async (name: string, code: string, semKey: string) => {
       by: authStore.user?.email || 'unknown'
     }
   };
-  const newCourse = createNewCourse(newCourseParameters);
+  const newCourse = createCourseObject(newCourseParameters);
   try {
     await dataService.saveCourse(newCourse);
     courseListStore.saveCourseUpdate(newCourse);

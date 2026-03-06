@@ -1,16 +1,16 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { type Course } from '@/types/course'
-import { createNewCourse, getCourseByCode } from '@/utils/courseHelpers'
+import { createCourseObject, getCourseByCode } from '@/utils/courseHelpers'
 import { dataService } from '@/services/dataService'
 import { navigateToParent } from '@/utils/navigationHelpers'
 
 export const useViewingCourseStore = defineStore('viewing-course', () => {
-  const course = ref<Course>(createNewCourse())
+  const course = ref<Course>(createCourseObject())
   const courseRevisions = ref<Course[]>([])
 
   function resetCourse(): void {
-    course.value = createNewCourse()
+    course.value = createCourseObject()
   }
 
   async function loadCourseByCode(code: string)  {

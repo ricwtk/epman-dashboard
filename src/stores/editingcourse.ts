@@ -2,7 +2,7 @@ import { ref, computed, toRaw, watch } from 'vue';
 import type { Course } from "@/types/course";
 import type { Programme } from "@/types/programme";
 import type { School } from "@/types/school";
-import { createNewCourse } from "@/utils/courseHelpers";
+import { createCourseObject } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
 import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon, updateMapping as updateMappingCommon } from '@/utils/common.ts'
 import {
@@ -22,8 +22,8 @@ import { createNewSchool } from '@/utils/schoolHelpers';
 import { computedAsync } from '@vueuse/core';
 
 export const useEditingCourseStore = defineStore('editing-course', () => {
-  const course = ref<Course>(createNewCourse())
-  const originalCourse = ref<Course>(createNewCourse())
+  const course = ref<Course>(createCourseObject())
+  const originalCourse = ref<Course>(createCourseObject())
   const selectedTab = ref<string>('summary')
   const updated = ref(false)
   const selectedProgramme = ref<Programme | null>(null)

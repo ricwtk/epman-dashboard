@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import { createNewCourse } from '@/utils/courseHelpers';
+import { createCourseObject } from '@/utils/courseHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
@@ -29,7 +29,7 @@ const addNewCourse = async (newName: string, newCode: string) => {
       by: authStore.user?.email || 'unknown'
     }
   };
-  const newCourse = createNewCourse(newCourseParameters);
+  const newCourse = createCourseObject(newCourseParameters);
   try {
     await dataService.saveCourse(newCourse);
     courseListStore.saveCourseUpdate(newCourse);

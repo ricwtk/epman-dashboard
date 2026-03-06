@@ -13,12 +13,12 @@ import type {
 
 // currently using courseExamples.ts
 export function getCourseByCode(code: string): Course {
-  return courses.find((course) => course.code === code) || createNewCourse({ code: code });
+  return courses.find((course) => course.code === code) || createCourseObject({ code: code });
 }
 
 // currently using courseExamples.ts
 export function getCourseInfoByCode(code: string): { code: string, name: string, credits: number } {
-  let thisCourse = courses.find((course) => course.code === code) || createNewCourse({ code: code });
+  let thisCourse = courses.find((course) => course.code === code) || createCourseObject({ code: code });
   return { code: thisCourse.code, name: thisCourse.name, credits: thisCourse.credits };
 }
 
@@ -68,7 +68,7 @@ export const getTotalHoursForCourse = (teachingPlan: Plan[]) => {
 export const getCreditHours = (totalHours: number) => Math.round(totalHours / 40);
 
 // default objects creation
-export const createNewCourse = (overrides?: Partial<Course>): Course => {
+export const createCourseObject = (overrides?: Partial<Course>): Course => {
   const newCourse: Course = {
     id: "",
     code: "",
