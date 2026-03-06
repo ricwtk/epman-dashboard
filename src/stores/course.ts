@@ -48,9 +48,9 @@ export const useCourseStore = defineStore('course', () => {
 
 
 
-  watch(() => draft.value.code, async () => {
-    if (!draft.value.code) return;
-    const usage = await dataService.traceCourseUsageAcrossProgrammes(draft.value.code)
+  watch(() => saved.value.code, async () => {
+    if (!saved.value.code) return;
+    const usage = await dataService.traceCourseUsageAcrossProgrammes(saved.value.code)
     programmes.value = usage.programmes
     schools.value = usage.schools
   })
@@ -195,6 +195,7 @@ export const useCourseStore = defineStore('course', () => {
     draft, saved, revisions,
     loadCourseByCode, loadRevision, deleteRevision,
     clear, createDraft, resetDraft, save,
+    programmes, schools,
     selectedProgramme, selectedSchool,
     notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
     editingTab,

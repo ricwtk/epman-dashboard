@@ -5,6 +5,7 @@ import NavIndicator from '@/components/NavIndicator.vue';
 import { RevisionDropdown, RevisionDeleteButton } from '@/components/revision';
 
 import CourseSummary from '@/components/course/CourseSummary.vue';
+import ProgrammeAllocation from '@/components/course/ProgrammeAllocation.vue';
 import CourseOutcomes from '@/components/course/CourseOutcomes.vue';
 import CourseAssessments from '@/components/course/CourseAssessments.vue';
 import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
@@ -61,6 +62,12 @@ const updateEditing = (ev: boolean, tab?: string) => {
       :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
+    />
+    <ProgrammeAllocation
+      :editable="authStore.canEditCourses"
+      :programmes="courseStore.programmes"
+      :editing="editing"
+      @update:editing="(ev: boolean) => updateEditing(ev, 'summary')"
     />
     <CourseOutcomes
       :editable="authStore.canEditCourses"
