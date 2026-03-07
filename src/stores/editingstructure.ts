@@ -2,9 +2,9 @@ import { ref, watch, toRaw, computed } from 'vue';
 import type { ProgrammeStructure } from "@/types/programme";
 import {
   createNewStructure,
-  getCourseInfoInStructure,
-  getStructureByProgrammeAndLabel,
-  convertStructureToTable
+  // getCourseInfoInStructure,
+  // getStructureByProgrammeAndLabel,
+  // convertStructureToTable
 } from "@/utils/structureHelpers";
 import { defineStore } from "pinia";
 import { get, set } from 'lodash-es';

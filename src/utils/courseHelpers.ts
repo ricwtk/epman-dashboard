@@ -1,5 +1,5 @@
 import { formatId } from "./common";
-import { courses } from "./courseExamples";
+// import { courses } from "./courseExamples";
 import type {
   Course,
   Co,
@@ -12,20 +12,20 @@ import type {
 } from "@/types/course";
 
 // currently using courseExamples.ts
-export function getCourseByCode(code: string): Course {
-  return courses.find((course) => course.code === code) || createCourseObject({ code: code });
-}
+// export function getCourseByCode(code: string): Course {
+//   return courses.find((course) => course.code === code) || createCourseObject({ code: code });
+// }
 
 // currently using courseExamples.ts
-export function getCourseInfoByCode(code: string): { code: string, name: string, credits: number } {
-  let thisCourse = courses.find((course) => course.code === code) || createCourseObject({ code: code });
-  return { code: thisCourse.code, name: thisCourse.name, credits: thisCourse.credits };
-}
+// export function getCourseInfoByCode(code: string): { code: string, name: string, credits: number } {
+//   let thisCourse = courses.find((course) => course.code === code) || createCourseObject({ code: code });
+//   return { code: thisCourse.code, name: thisCourse.name, credits: thisCourse.credits };
+// }
 
 // currently using courseExamples.ts
-export function getCourseList(): { code: string, name: string }[] {
-  return courses.map((course) => ({ code: course.code, name: course.name }));
-}
+// export function getCourseList(): { code: string, name: string }[] {
+//   return courses.map((course) => ({ code: course.code, name: course.name }));
+// }
 
 export const getTotalHours = (hours: { online: number, f2f: number }) => (hours.online + hours.f2f);
 

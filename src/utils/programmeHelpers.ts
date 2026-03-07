@@ -5,18 +5,18 @@ import type {
 } from "@/types/programme"
 import { COURSE_TYPES } from "@/constants";
 import { type CourseType } from "@/types/course";
-import { programmes } from "@/utils/programmeExamples"
+// import { programmes } from "@/utils/programmeExamples"
 import { formatId } from './common';
 
 // using programmeExamples.ts
-export function getProgrammeList(): { code: string, name: string }[] {
-  return programmes.map((programme) => ({ code: programme.code, name: programme.name }));
-}
+// export function getProgrammeList(): { code: string, name: string }[] {
+//   return programmes.map((programme) => ({ code: programme.code, name: programme.name }));
+// }
 
 // using programmeExamples.ts
-export function getProgrammeByCode(code: string): Programme {
-  return programmes.find((programme) => programme.code === code) || createNewProgramme({ code: code });
-}
+// export function getProgrammeByCode(code: string): Programme {
+//   return programmes.find((programme) => programme.code === code) || createNewProgramme({ code: code });
+// }
 
 /**
  * A utility to generate default "empty" states for your interfaces.

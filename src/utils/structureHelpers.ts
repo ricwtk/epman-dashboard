@@ -1,17 +1,17 @@
 import { type ProgrammeStructure, type ProgrammeStructureInfo } from "@/types/programme";
 import { type CourseInfo } from "@/types/course";
-import { structures } from "./structureExamples";
-import { getCourseInfoByCode } from "./courseHelpers";
-import { BetweenVerticalStart } from "lucide-vue-next";
+// import { structures } from "./structureExamples";
+// import { getCourseInfoByCode } from "./courseHelpers";
+// import { BetweenVerticalStart } from "lucide-vue-next";
 import { formatStructureId } from "./common";
 
 // using structureExamples
-export const getStructureByProgrammeAndLabel = (
-  programmeCode: string,
-  label: string
-): ProgrammeStructure => {
-  return structures.find(item => item.programme === programmeCode && item.label === label) || createNewStructure();
-};
+// export const getStructureByProgrammeAndLabel = (
+//   programmeCode: string,
+//   label: string
+// ): ProgrammeStructure => {
+//   return structures.find(item => item.programme === programmeCode && item.label === label) || createNewStructure();
+// };
 
 // using structureExamples
 // export const getProgrammesByCourse = (
@@ -32,29 +32,29 @@ export const getStructureByProgrammeAndLabel = (
  * @param programme - The programme code (e.g., 'BCIV').
  * @param revision - The revision string (e.g., '2026-V1').
  */
-export const getStructureLabelsByProgramme = (
-  programme: string,
-): string[] => {
-  return structures
-    .filter((item) => item.programme === programme)
-    .map((item) => item.label);
-};
+// export const getStructureLabelsByProgramme = (
+//   programme: string,
+// ): string[] => {
+//   return structures
+//     .filter((item) => item.programme === programme)
+//     .map((item) => item.label);
+// };
 
 /**
  * Retrieves all course information associated with a specific Structure.
  * @param structure - The structure object with semester as key and course codes as list.
  * @returns The structure array with course information.
  */
-export const getCourseInfoInStructure = (
-  semesters: { [semesterKey: string]: string[] },
-): { [semesterKey: string]: CourseInfo[] } => {
-  return Object.fromEntries(
-    Object.entries(semesters).map(([semesterKey, courses]) => [
-      semesterKey,
-      courses.map((course) => getCourseInfoByCode(course)),
-    ])
-  );
-};
+// export const getCourseInfoInStructure = (
+//   semesters: { [semesterKey: string]: string[] },
+// ): { [semesterKey: string]: CourseInfo[] } => {
+//   return Object.fromEntries(
+//     Object.entries(semesters).map(([semesterKey, courses]) => [
+//       semesterKey,
+//       courses.map((course) => getCourseInfoByCode(course)),
+//     ])
+//   );
+// };
 
 /**
  * Converts a structure array into a table format,

@@ -11,7 +11,7 @@ const authStore = useAuthStore();
 import { dataService, type GroupedStructures } from '@/services/dataService';
 import type { CourseType } from '@/types/course';
 
-import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
+// import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
 
 export const useEditingProgrammeStore = defineStore('editing-programme', () => {
   const programme: Ref<Programme> = ref(createNewProgramme())

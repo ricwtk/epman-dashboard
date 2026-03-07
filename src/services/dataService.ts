@@ -11,7 +11,7 @@ import type { Course } from "@/types/course";
 import type { Programme, ProgrammeStructure } from "@/types/programme";
 import type { School } from "@/types/school";
 import { createNewProgramme } from "@/utils/programmeHelpers";
-import { getStructureByProgrammeAndLabel } from "@/utils/structureHelpers";
+// import { getStructureByProgrammeAndLabel } from "@/utils/structureHelpers";
 
 // Generic helper to fetch a document
 async function fetchDoc<T>(collectionName: string, id: string): Promise<T | null> {
