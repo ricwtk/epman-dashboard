@@ -2,10 +2,11 @@
 import { getEditingProgrammeAndStore } from '@/composables/programme';
 import { storeToRefs } from 'pinia';
 import ResetButton from '@/components/ResetButton.vue';
+import { type CourseType } from '@/types/course';
 
 const props = defineProps<{
   title: string,
-  coursetype: "examBased" | "projectBased"
+  coursetype: CourseType
 }>();
 
 const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
@@ -25,11 +26,7 @@ import EmptyComponent from '@/components/EmptyComponent.vue';
 import { computed } from 'vue';
 
 const mapping = computed(() => {
-  if (props.coursetype == "examBased") {
-    return programme.value.poList.map((po) => po.mapping.examBased);
-  } else {
-    return programme.value.poList.map((po) => po.mapping.projectBased);
-  }
+  return programme.value.poList.map((po) => po.mapping[props.coursetype]);
 });
 
 const handleMappingChange = (poIndex: number, component: "wk" | "wp" | "ea", compValue: number, isChecked: boolean | 'indeterminate') => {

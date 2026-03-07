@@ -15,13 +15,14 @@ export interface Mapping {
   sdg: boolean;
 }
 
+import type { CourseType } from "@/types/course";
 export interface Po {
   attribute: string;
   descriptor: string;
   mapping: {
     peo: number;
-    examBased: Mapping;
-    projectBased: Mapping;
+  } & {
+    [K in CourseType]: Mapping;
   }
 }
 

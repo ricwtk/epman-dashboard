@@ -11,17 +11,24 @@ import {
 } from '@/components/ui/table';
 import BadgeList from '@/components/BadgeList.vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import { COURSE_TYPES } from '@/constants';
+import { PenIcon } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
 
 const props = defineProps<{
   poList: Po[];
   editing: boolean;
+  editable?: boolean;
 }>();
 
-defineEmits(['update:editing']);
+defineEmits<{
+  (e: 'update:editing', value: boolean): void;
+  (e: 'editMapping', value: string): void
+}>();
 </script>
 
 <template>
-  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
+  <ContentCard :editable="false" :editing="editing" @update:editing="$emit('update:editing', $event)">
     <template #title>
       Program Outcomes (POs) Mapping Recommendations
     </template>
@@ -39,20 +46,23 @@ defineEmits(['update:editing']);
           <TableRow>
             <TableHead class="text-center" rowspan="2">PO</TableHead>
             <TableHead class="text-center" rowspan="2">PEO</TableHead>
-            <TableHead class="w-0 bg-border"></TableHead>
-            <TableHead class="text-center" colspan="3">Exam Based</TableHead>
-            <TableHead class="w-0 bg-border"></TableHead>
-            <TableHead class="text-center" colspan="3">Project Based</TableHead>
+            <template v-for="courseType in COURSE_TYPES" :key="courseType.key">
+              <TableHead class="w-0 bg-border"></TableHead>
+              <TableHead class="text-center" colspan="3">
+                {{ courseType.label }}
+                <Button variant="ghost" size="sm" @click="$emit('editMapping', courseType.key)">
+                  <PenIcon />
+                </Button>
+              </TableHead>
+            </template>
           </TableRow>
           <TableRow>
-            <TableHead class="w-0 bg-border"></TableHead>
-            <TableHead class="text-center">WK</TableHead>
-            <TableHead class="text-center">WP</TableHead>
-            <TableHead class="text-center">EA</TableHead>
-            <TableHead class="w-0 bg-border"></TableHead>
-            <TableHead class="text-center">WK</TableHead>
-            <TableHead class="text-center">WP</TableHead>
-            <TableHead class="text-center">EA</TableHead>
+            <template v-for="courseType in COURSE_TYPES" :key="courseType.key">
+              <TableHead class="w-0 bg-border"></TableHead>
+              <TableHead class="text-center">WK</TableHead>
+              <TableHead class="text-center">WP</TableHead>
+              <TableHead class="text-center">EA</TableHead>
+            </template>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,26 +71,18 @@ defineEmits(['update:editing']);
             <TableCell class="text-center">
               <BadgeList :items="[`PEO${po.mapping.peo}`]" />
             </TableCell>
-            <TableCell class="w-4 bg-border"></TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="po.mapping.examBased.wk.map((wk) => `WK${wk}`)" />
-            </TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="po.mapping.examBased.wp.map((wp) => `WP${wp}`)" />
-            </TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="po.mapping.examBased.ea.map((ea) => `EA${ea}`)" />
-            </TableCell>
-            <TableCell class="w-4 bg-border"></TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="po.mapping.projectBased.wk.map((wk) => `WK${wk}`)" />
-            </TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="po.mapping.projectBased.wp.map((wp) => `WP${wp}`)" />
-            </TableCell>
-            <TableCell class="text-center">
-              <BadgeList :items="po.mapping.projectBased.ea.map((ea) => `EA${ea}`)" />
-            </TableCell>
+            <template v-for="courseType in COURSE_TYPES" :key="courseType.key">
+              <TableCell class="w-4 bg-border"></TableCell>
+              <TableCell class="text-center">
+                <BadgeList :items="po.mapping[courseType.key].wk.map((wk) => `WK${wk}`)" />
+              </TableCell>
+              <TableCell class="text-center">
+                <BadgeList :items="po.mapping[courseType.key].wp.map((wp) => `WP${wp}`)" />
+              </TableCell>
+              <TableCell class="text-center">
+                <BadgeList :items="po.mapping[courseType.key].ea.map((ea) => `EA${ea}`)" />
+              </TableCell>
+            </template>
           </TableRow>
         </TableBody>
       </Table>

@@ -95,7 +95,7 @@ const deleteRevision = () => {
       :editable="authStore.canEditProgrammes"
       :poList="viewingProgrammeStore.programme.poList"
       :editing="editing"
-      @update:editing="(ev) => updateEditing(ev, 'exambased')"
+      @editMapping="(courseType) => updateEditing(true, courseType)"
     />
     <ProgrammeStructure
       :editable="authStore.canEditProgrammes"

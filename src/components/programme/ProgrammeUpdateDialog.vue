@@ -20,6 +20,7 @@ import Peo from './update/Peo.vue'
 import Po from './update/Po.vue'
 import PoMapping from './update/PoMapping.vue'
 import Structure from './update/Structure.vue'
+import { COURSE_TYPES } from '@/constants';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -52,8 +53,9 @@ const saveProgramme = () => { editingProgrammeStore.saveProgramme(); }
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="peo">PEO</TabsTrigger>
             <TabsTrigger value="po">PO</TabsTrigger>
-            <TabsTrigger value="exambased">Exam Based</TabsTrigger>
-            <TabsTrigger value="projectbased">Project Based</TabsTrigger>
+            <template v-for="courseType in COURSE_TYPES" :key="courseType.key">
+              <TabsTrigger :value="courseType.key">{{ courseType.label }}</TabsTrigger>
+            </template>
             <TabsTrigger value="structure">Structure</TabsTrigger>
           </TabsList>
         </div>
@@ -71,12 +73,11 @@ const saveProgramme = () => { editingProgrammeStore.saveProgramme(); }
         <TabsContent value="po">
           <Po />
         </TabsContent>
-        <TabsContent value="exambased">
-          <PoMapping title="Exam Based Mapping" coursetype="examBased" />
-        </TabsContent>
-        <TabsContent value="projectbased">
-          <PoMapping title="Project Based Mapping" coursetype="projectBased" />
-        </TabsContent>
+        <template v-for="courseType in COURSE_TYPES" :key="courseType.key">
+          <TabsContent :value="courseType.key">
+            <PoMapping :title="`${courseType.label} Mapping`" :coursetype="courseType.key" />
+          </TabsContent>
+        </template>
         <TabsContent value="structure">
           <Structure />
         </TabsContent>

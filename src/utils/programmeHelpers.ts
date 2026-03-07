@@ -3,6 +3,8 @@ import type {
   Mapping,
   Programme
 } from "@/types/programme"
+import { COURSE_TYPES } from "@/constants";
+import { type CourseType } from "@/types/course";
 import { programmes } from "@/utils/programmeExamples"
 import { formatId } from './common';
 
@@ -33,8 +35,11 @@ export const createNewPo = (overrides?: Partial<Po>): Po => ({
   descriptor: "",
   mapping: {
     peo: 1,
-    examBased: createNewMapping(),
-    projectBased: createNewMapping(),
+    ...(Object.fromEntries(
+      COURSE_TYPES.map(
+        (type) => [type.key, createNewMapping()]
+      )
+    )) as Record<CourseType, Mapping>,
   },
   ...overrides,
 });

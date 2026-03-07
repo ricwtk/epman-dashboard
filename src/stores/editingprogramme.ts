@@ -9,6 +9,7 @@ import { formatRevision, formatId } from '@/utils/common';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 import { dataService, type GroupedStructures } from '@/services/dataService';
+import type { CourseType } from '@/types/course';
 
 import { getStructureLabelsByProgramme } from '@/utils/structureHelpers';
 
@@ -94,27 +95,27 @@ export const useEditingProgrammeStore = defineStore('editing-programme', () => {
     return original !== current;
   }
 
-  function checkMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): boolean {
+  function checkMappingDiff(courseType: CourseType, component: "wk" | "wp" | "ea"): boolean {
     const originalPoList = originalProgramme.value.poList
-    const original = originalPoList.map(po => get(po, ['mapping', coursetype, component]))
+    const original = originalPoList.map(po => get(po, ['mapping', courseType, component]))
 
     const currentPoList = programme.value.poList
-    const current = currentPoList.map(po => get(po, ['mapping', coursetype, component]))
+    const current = currentPoList.map(po => get(po, ['mapping', courseType, component]))
 
     if (original && current) {
       return diff(original, current).length > 0 || original.length !== current.length;
     } else return true;
   }
 
-  function resetMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): void {
+  function resetMappingDiff(courseType: CourseType, component: "wk" | "wp" | "ea"): void {
     const originalPoList = originalProgramme.value.poList
-    const original = originalPoList.map(po => get(po, ['mapping', coursetype, component]))
+    const original = originalPoList.map(po => get(po, ['mapping', courseType, component]))
 
     const currentPoList = programme.value.poList
-    const current = currentPoList.map(po => get(po, ['mapping', coursetype, component]))
+    const current = currentPoList.map(po => get(po, ['mapping', courseType, component]))
 
     if (original && current) {
-      currentPoList.map((po, index) => set(po, ['mapping', coursetype, component], structuredClone(toRaw(original[index]))))
+      currentPoList.map((po, index) => set(po, ['mapping', courseType, component], structuredClone(toRaw(original[index]))))
     }
   }
 

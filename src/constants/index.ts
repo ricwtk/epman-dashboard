@@ -1,8 +1,12 @@
 import type { Allocation } from "@/types/course";
 
-export const FIREBASE_EMAIL_LOCAL_STORAGE_NAME = "epman:emailforsignin"
+// export const FIREBASE_EMAIL_LOCAL_STORAGE_NAME = "epman:emailforsignin"
 export const STRUCTURE_DISPLAY_MODES = ['by year', 'by semester'];
 export const NUMBER_OF_SEMESTER_PER_YEAR = 3;
+export const COURSE_TYPES = [
+  { key: "examBased", label: "Exam Based" },
+  { key: "projectBased", label: "Project Based" }
+] as const;
 export const BLOOM_TAXONOMY = [
   {
     domain: "Cognitive",
@@ -36,20 +40,6 @@ export const BLOOM_TAXONOMY = [
     ]
   }
 ]
-
-export const PO_ATTRIBUTES = [
-  "Engineering Knowledge",
-  "Problem Analysis",
-  "Design/Development of Solutions",
-  "Investigation",
-  "Tool Usage",
-  "The Engineer and the World",
-  "Ethics",
-  "Individual and Collaborative Team Work",
-  "Communication",
-  "Project Management and Finance",
-  "Life-long Learning"
-];
 
 export const DATALEVEL_OPTIONS = [
   { title: "Read Only", description: "No edit permission" },

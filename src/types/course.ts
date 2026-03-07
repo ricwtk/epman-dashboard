@@ -1,3 +1,6 @@
+import { COURSE_TYPES } from "@/constants";
+export type CourseType = typeof COURSE_TYPES[number]["key"];
+
 export interface Co {
   description: string;
   bloomtax: [string, number]; // e.g., ['c', 6]

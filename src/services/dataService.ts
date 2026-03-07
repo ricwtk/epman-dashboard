@@ -444,7 +444,7 @@ export const dataService = {
         for (const [semKey, courses] of semesterEntries) {
           if (Array.isArray(courses) && courses.includes(courseCode)) {
             if (!programmes[pCode]) programmes[pCode] = {
-              ...latestProgrammes[pCode],
+              ...latestProgrammes[pCode]!,
               school: "", structures: {}
             };
             const semesterIndex = semesterOrder.indexOf(semKey);
