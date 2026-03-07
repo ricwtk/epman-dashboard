@@ -4,6 +4,9 @@ import ContentItem from '@/components/contentcard/ContentItem.vue';
 import ContentItemBadges from '@/components/contentcard/ContentItemBadges.vue';
 import { Button } from '@/components/ui/button';
 import { type Course } from '@/types/course';
+import { COURSE_TYPES } from '@/constants';
+import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
+import { Badge } from '@/components/ui/badge';
 
 defineProps<{
   course: Course;
@@ -27,20 +30,39 @@ defineEmits(['update:editing']);
           <ContentItem title="Name">
             <div>{{course.name}}</div>
           </ContentItem>
-          <ContentItem title="Credit Hours">
-            <div>{{course.credits}}</div>
-          </ContentItem>
-          <ContentItem title="Offering">
-            <div>{{ "Year " + course.year + " Semester " + course.semester }}</div>
-          </ContentItem>
+          <ContentItemBadges
+            title="Credit Hours"
+            :badges="[ String(course.credits) ]"
+            elsemessage=""
+          />
         </div>
-        <ContentItemBadges
-          title="Lecturers"
-          :badges="course.lecturers"
-          elsemessage="No lecturers"
-        />
+        <div class="flex flex-wrap gap-3">
+          <ContentItem title="Offering">
+            <ButtonGroup class="gap-0!">
+              <ButtonGroupText>
+                <span>{{ "Year " + course.year }}</span>
+              </ButtonGroupText>
+              <ButtonGroupText>
+                <span>{{ "Semester " + course.semester }}</span>
+              </ButtonGroupText>
+            </ButtonGroup>
+          </ContentItem>
+          <ContentItemBadges
+            title="Category"
+            :badges="[ COURSE_TYPES.find((t) => t.key === course.category)?.label || '' ]"
+            elsemessage="Category not defined"
+          />
+          <ContentItemBadges
+            title="Lecturers"
+            :badges="course.lecturers"
+            elsemessage="No lecturers"
+          />
+        </div>
         <ContentItem title="Synopsis">
-          <div>{{course.synopsis}}</div>
+          <div>
+            <Badge v-if="!course.synopsis" variant="outline">No synopsis</Badge>
+            {{course.synopsis}}
+          </div>
         </ContentItem>
         <div class="flex flex-wrap gap-3">
           <ContentItemBadges

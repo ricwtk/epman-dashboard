@@ -238,7 +238,6 @@ function resetDiff() {
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Select v-model="courseStore.selectedProgramme" :options="Object.keys(courseStore.programmes)" />
     </Field>
 
     <EmptyComponent v-if="emptyComponent.show">

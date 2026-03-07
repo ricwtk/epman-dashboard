@@ -1,3 +1,4 @@
+import { COURSE_TYPES } from "@/constants";
 import { formatId } from "./common";
 // import { courses } from "./courseExamples";
 import type {
@@ -75,7 +76,7 @@ export const createCourseObject = (overrides?: Partial<Course>): Course => {
     name: "",
     prerequisites: [],
     lecturers: [],
-    category: "",
+    category: COURSE_TYPES[0].key,
     semester: 1,
     year: 1,
     credits: 0,
