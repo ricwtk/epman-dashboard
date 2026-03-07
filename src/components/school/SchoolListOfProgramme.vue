@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { SquareArrowOutUpRightIcon } from 'lucide-vue-next';
 
 const props = defineProps<{
-  programmes: { [code: string]: Programme };
+  programmes: { code: string; name: string; }[];
   editing: boolean;
 }>();
 

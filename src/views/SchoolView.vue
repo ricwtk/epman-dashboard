@@ -11,67 +11,60 @@ import SchoolUpdateDialog from '@/components/school/SchoolUpdateDialog.vue';
 import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
 
+import { useSchoolStore } from "@/stores/school";
+const schoolStore = useSchoolStore();
+
 const props = defineProps<{ code: string }>();
 
-import { useViewingSchoolStore } from "@/stores/viewingschoool";
-const viewingSchoolStore = useViewingSchoolStore();
+// import { useViewingSchoolStore } from "@/stores/viewingschoool";
+// const viewingSchoolStore = useViewingSchoolStore();
 
 onMounted(async () => {
-  viewingSchoolStore.loadSchoolByCode(props.code);
-  console.log(viewingSchoolStore.schoolRevisions);
+  schoolStore.loadSchoolByCode(props.code);
+  // console.log(viewingSchoolStore.schoolRevisions);
 });
 
-import { useEditingSchoolStore } from "@/stores/editingschoool";
-const editingSchoolStore = useEditingSchoolStore();
+// import { useEditingSchoolStore } from "@/stores/editingschoool";
+// const editingSchoolStore = useEditingSchoolStore();
 
 const editing = ref(false);
 const updateEditing = (ev: boolean, tab?: string) => {
   if (ev) {
-    if (editingSchoolStore.school.code !== viewingSchoolStore.school.code) {
-      editingSchoolStore.loadSchool(toRaw(viewingSchoolStore.school));
+    if (schoolStore.draft.code !== schoolStore.saved.code) {
+      schoolStore.createDraft();
     }
-    editingSchoolStore.selectedTab = tab || 'summary';
+    schoolStore.editingTab = tab || 'summary';
   }
   editing.value = ev;
 };
-watch(editing, () => {
-  if (!editing.value && editingSchoolStore.updated) {
-    viewingSchoolStore.loadSchoolByCode(props.code);
-    editingSchoolStore.updated = false;
-  }
-})
-
-const deleteRevision = () => {
-  viewingSchoolStore.deleteRevision();
-}
 </script>
 
 <template>
   <NavIndicator :items="[
     { label: 'School', path: '/school' },
-    { label: viewingSchoolStore.school.name, path: `/school/${viewingSchoolStore.school.code}` }
+    { label: schoolStore.saved.name, path: `/school/${schoolStore.saved.code}` }
   ]"/>
 
-  <template v-if="viewingSchoolStore.school">
+  <template v-if="schoolStore.saved">
     <div class="card-plain px-4 text-muted-foreground text-sm flex flex-row justify-start items-center gap-2">
-      {{ viewingSchoolStore.school.code }} {{ viewingSchoolStore.school.name }}
+      {{ schoolStore.saved.code }} {{ schoolStore.saved.name }}
       <RevisionDropdown
-        :current="viewingSchoolStore.school.revision"
-        :options="viewingSchoolStore.schoolRevisions.map(sch => sch.revision)"
-        @selected="(rev) => viewingSchoolStore.loadSchoolRevision(rev)"
+        :current="schoolStore.saved.revision"
+        :options="schoolStore.revisions.map(sch => sch.revision)"
+        @selected="(rev) => schoolStore.loadRevision(rev)"
       />
       <div class="grow"></div>
-      <RevisionDeleteButton @delete="deleteRevision" v-if="authStore.canEditSchools"/>
+      <RevisionDeleteButton @delete="schoolStore.deleteRevision()" v-if="authStore.canEditSchools"/>
     </div>
     <SchoolSummary
       :editable="authStore.canEditSchools"
-      :school="viewingSchoolStore.school"
+      :school="schoolStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
     />
     <SchoolListOfProgramme
       :editable="authStore.canEditSchools"
-      :programmes="viewingSchoolStore.programmes!"
+      :programmes="schoolStore.saved.programmes.map(p => ({ code: p, name: schoolStore.programmeToSchoolMap[p]?.name || '' }))"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'programmes')"
     />
@@ -79,7 +72,7 @@ const deleteRevision = () => {
       :editable="authStore.canEditSchools"
       title="Washington Accord Knowledge & Attribute Profile (WK)"
       shortlabel="WK"
-      :items="viewingSchoolStore.school.components?.wks || []"
+      :items="schoolStore.saved.components?.wks || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'wk')"
     />
@@ -87,7 +80,7 @@ const deleteRevision = () => {
       :editable="authStore.canEditSchools"
       title="Washington Accord Problem Identification & Solving (WP)"
       shortlabel="WP"
-      :items="viewingSchoolStore.school.components?.wps || []"
+      :items="schoolStore.saved.components?.wps || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'wp')"
     />
@@ -95,7 +88,7 @@ const deleteRevision = () => {
       :editable="authStore.canEditSchools"
       title="Complex Engineering Activities (EA)"
       shortlabel="EA"
-      :items="viewingSchoolStore.school.components?.eas || []"
+      :items="schoolStore.saved.components?.eas || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'ea')"
     />

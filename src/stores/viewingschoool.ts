@@ -1,7 +1,7 @@
 import { ref, type Ref } from 'vue';
 import type { School } from "@/types/school";
 import type { Programme } from "@/types/programme";
-import { createNewSchool, getSchoolByCode } from "@/utils/schoolHelpers";
+import { createNewSchool } from "@/utils/schoolHelpers";
 import { dataService } from "@/services/dataService";
 import { defineStore } from "pinia";
 import { navigateToParent } from "@/utils/navigationHelpers";
@@ -18,7 +18,6 @@ export const useViewingSchoolStore = defineStore('viewing-school', () => {
 
   async function loadSchoolByCode(code: string) {
     resetSchool();
-    // school.value = getSchoolByCode(code)
     schoolRevisions.value = await dataService.getSchool(code);
     schoolRevisions.value.sort((a, b) => b.revision.localeCompare(a.revision));
     if (schoolRevisions.value.length > 0) {

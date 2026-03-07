@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { getEditingSchoolAndStore } from '@/composables/school';
-const { school, editingSchoolStore } = getEditingSchoolAndStore();
-const { programmeToSchoolMap } = storeToRefs(editingSchoolStore);
+// import { getEditingSchoolAndStore } from '@/composables/school';
+// const { school, editingSchoolStore } = getEditingSchoolAndStore();
+// const { programmeToSchoolMap } = storeToRefs(editingSchoolStore);
+
+import { useSchoolStore } from '@/stores/school';
+const schoolStore = useSchoolStore();
+const { programmeToSchoolMap } = storeToRefs(schoolStore);
 
 import { formatRevision } from '@/utils/common';
 import { dataService, type MappedProgramme } from '@/services/dataService';
@@ -23,10 +27,10 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 
 const checkDiff = (fields: string[]) => {
-  return editingSchoolStore.checkDiff(fields);
+  return schoolStore.checkDiff(fields);
 };
 const resetDiff = (fields: string[]) => {
-  editingSchoolStore.resetDiff(fields);
+  schoolStore.resetDiff(fields);
 };
 
 const programmesAssignedToSchools = computed(() => {
@@ -37,14 +41,14 @@ const programmesAssignedToSchools = computed(() => {
       name: programmeToSchoolMap.value[code]?.name || "",
       school: programmeToSchoolMap.value[code]?.school,
     }));
-  editingSchoolStore.addedProgrammes.forEach(code => {
+  schoolStore.addedProgrammes.forEach(code => {
     programmes.push({
       code,
       name: programmeToSchoolMap.value[code]?.name || "",
-      school: school.value
+      school: schoolStore.draft
     });
   });
-  editingSchoolStore.removedProgrammes.forEach(code => {
+  schoolStore.removedProgrammes.forEach(code => {
     const index = programmes.findIndex(p => p.code === code);
     if (index !== -1) programmes.splice(index, 1);
   });
@@ -59,7 +63,7 @@ const programmesNotAssignedToSchools = computed(() => {
       name: programmeToSchoolMap.value[code]?.name || "",
       school: programmeToSchoolMap.value[code]?.school,
     }));
-  editingSchoolStore.removedProgrammes.forEach(code => {
+  schoolStore.removedProgrammes.forEach(code => {
     if (programmeToSchoolMap.value[code]?.name) {
       programmes.push({
         code,
@@ -68,7 +72,7 @@ const programmesNotAssignedToSchools = computed(() => {
       });
     }
   });
-  editingSchoolStore.addedProgrammes.forEach(code => {
+  schoolStore.addedProgrammes.forEach(code => {
     const index = programmes.findIndex(p => p.code === code);
     if (index !== -1) programmes.splice(index, 1);
   });
@@ -88,14 +92,14 @@ const addNewProgramme = async (newName: string, newCode: string) => {
     };
     const newProgramme = createNewProgramme(newProgrammeParameters);
     await dataService.saveProgramme(newProgramme);
-    await editingSchoolStore.updateProgrammeToSchoolMap();
+    await schoolStore.updateProgrammeToSchoolMap();
     // await updateProgrammes();
   }
-  school.value.programmes.push(newCode);
+  schoolStore.draft.programmes.push(newCode);
 }
 
 const addExistingProgramme = async (code: string) => {
-  school.value.programmes.push(code);
+  schoolStore.draft.programmes.push(code);
 }
 
 const getAdditionalError = (name: string, code: string, bannedItem?: { code: string, name: string, school?: { code: string, name: string } }) => {
@@ -103,7 +107,7 @@ const getAdditionalError = (name: string, code: string, bannedItem?: { code: str
   console.log(bannedItem)
   if (bannedItem) {
     error += `Programme ${code} already exists`
-    if (bannedItem.school!.code == school.value.code) {
+    if (bannedItem.school!.code == schoolStore.draft.code) {
       error = `${error} and assigned to the current school`;
     } else {
       error = `${error} and assigned to other school`;
@@ -113,9 +117,9 @@ const getAdditionalError = (name: string, code: string, bannedItem?: { code: str
 }
 
 const removeProgramme = (code: string) => {
-  const index = school.value.programmes.indexOf(code);
+  const index = schoolStore.draft.programmes.indexOf(code);
   if (index !== -1) {
-    school.value.programmes.splice(index, 1);
+    schoolStore.draft.programmes.splice(index, 1);
   }
 }
 </script>
@@ -126,7 +130,7 @@ const removeProgramme = (code: string) => {
       <div class="flex flex-col gap-1 grow">
         <Label for="code">Code</Label>
         <div class="flex flex-row gap-2">
-          <Input id="code" placeholder="School Code" v-model="school.code" disabled/>
+          <Input id="code" placeholder="School Code" v-model="schoolStore.draft.code" disabled/>
           <ResetButton v-if="checkDiff(['code'])" @reset="resetDiff(['code'])" />
         </div>
       </div>
@@ -134,7 +138,7 @@ const removeProgramme = (code: string) => {
       <div class="flex flex-col gap-1 grow">
         <Label for="name">Name</Label>
         <div class="flex flex-row gap-2">
-          <Input id="name" placeholder="School Name" v-model="school.name"/>
+          <Input id="name" placeholder="School Name" v-model="schoolStore.draft.name"/>
           <ResetButton v-if="checkDiff(['name'])" @reset="resetDiff(['name'])" />
         </div>
       </div>
@@ -145,7 +149,7 @@ const removeProgramme = (code: string) => {
       <div class="flex flex-row flex-wrap gap-2">
         <ResetButton v-if="checkDiff(['programmes'])" @reset="resetDiff(['programmes'])" />
         <!-- <div v-for="programme in 10" :key="programme" class="flex flex-row justify-center"> -->
-        <template v-for="pCode in school.programmes" :key="pCode">
+        <template v-for="pCode in schoolStore.draft.programmes" :key="pCode">
           <div
             class="flex flex-row justify-center"
           >

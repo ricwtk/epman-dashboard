@@ -28,11 +28,15 @@ const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
 
-import { getEditingSchoolAndStore } from "@/composables/school";
-const { editingSchoolStore } = getEditingSchoolAndStore();
-const diff = computed(() => editingSchoolStore.checkDiff([]))
-const resetSchool = () => { editingSchoolStore.resetSchool(); }
-const saveSchool = () => { editingSchoolStore.saveSchool(); }
+import { useSchoolStore } from '@/stores/school';
+const schoolStore = useSchoolStore();
+
+// import { getEditingSchoolAndStore } from "@/composables/school";
+// const { editingSchoolStore } = getEditingSchoolAndStore();
+
+const diff = computed(() => schoolStore.checkDiff([]))
+const resetSchool = () => { schoolStore.resetDraft(); }
+const saveSchool = () => { schoolStore.save(); }
 </script>
 
 <template>
@@ -42,7 +46,7 @@ const saveSchool = () => { editingSchoolStore.saveSchool(); }
       <DialogTitle>School Details Update</DialogTitle>
       <DialogDescription>Update school level details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden" v-model="editingSchoolStore.selectedTab">
+    <Tabs default-value="summary" class="overflow-hidden" v-model="schoolStore.editingTab">
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>

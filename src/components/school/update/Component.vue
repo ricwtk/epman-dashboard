@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getEditingSchoolAndStore } from '@/composables/school';
+// import { getEditingSchoolAndStore } from '@/composables/school';
 
 import {
   Table,
@@ -16,37 +16,40 @@ import { Textarea } from '@/components/ui/textarea';
 import ResetButton from '@/components/ResetButton.vue';
 import { PlusIcon, MinusIcon, RotateCcwIcon } from 'lucide-vue-next';
 
+import { useSchoolStore } from '@/stores/school';
+const schoolStore = useSchoolStore();
+
 const props = defineProps<{
   title: string,
   shortlabel: string,
   component: string,
 }>();
 
-const { school, editingSchoolStore } = getEditingSchoolAndStore();
+// const { school, editingSchoolStore } = getEditingSchoolAndStore();
 const overallDiff = computed(() => {
-  return editingSchoolStore.checkDiff(["components", props.component]);
+  return schoolStore.checkDiff(["components", props.component]);
 });
 const diffs = computed(() => {
-  return school.value.components![props.component].map((_: any, index: number) =>
-    editingSchoolStore.checkDiff(["components", props.component, String(index)])
+  return schoolStore.draft.components![props.component].map((_: any, index: number) =>
+    schoolStore.checkDiff(["components", props.component, String(index)])
   );
 });
 const resetDiff = () => {
-  editingSchoolStore.resetDiff(["components", props.component]);
+  schoolStore.resetDiff(["components", props.component]);
 };
 
 const addItem = () => {
-  school.value.components ??= {}
-  school.value.components[props.component] ??= []
+  schoolStore.draft.components ??= {}
+  schoolStore.draft.components[props.component] ??= []
 
-  school.value.components[props.component].push({
+  schoolStore.draft.components[props.component].push({
     attribute: '',
     descriptor: ''
   })
 }
 
 const removeItem = (index: number) => {
-  school.value.components![props.component].splice(index, 1);
+  schoolStore.draft.components![props.component].splice(index, 1);
 }
 </script>
 
@@ -67,7 +70,7 @@ const removeItem = (index: number) => {
       </TableHeader>
       <TableBody>
         <TableRow
-          v-for="(item, index) in school.components![component]"
+          v-for="(item, index) in schoolStore.draft.components![component]"
           :key="index"
           :class="diffs[index] ? 'bg-amber-100 hover:bg-amber-200!' : ''"
         >
