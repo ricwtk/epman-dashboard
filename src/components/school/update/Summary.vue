@@ -22,6 +22,7 @@ import { SquareArrowOutUpRightIcon, XIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
 import NewOrAddPopover from '@/components/NewOrAddPopover.vue';
+import { Field } from '@/components/ui/field';
 
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
@@ -127,27 +128,29 @@ const removeProgramme = (code: string) => {
 <template>
   <div class="w-full flex flex-col gap-2">
     <div class="flex flex-col sm:flex-row gap-2">
-      <div class="flex flex-col gap-1 grow">
-        <Label for="code">Code</Label>
-        <div class="flex flex-row gap-2">
-          <Input id="code" placeholder="School Code" v-model="schoolStore.draft.code" disabled/>
-          <ResetButton v-if="checkDiff(['code'])" @reset="resetDiff(['code'])" />
-        </div>
-      </div>
+      <Field class="gap-1 flex-1">
+        <Label for="code">
+          Code
+          <ResetButton :disabled="!checkDiff(['code'])" @reset="resetDiff(['code'])" />
+        </Label>
+        <Input id="code" placeholder="School Code" v-model="schoolStore.draft.code" disabled/>
+      </Field>
 
-      <div class="flex flex-col gap-1 grow">
-        <Label for="name">Name</Label>
-        <div class="flex flex-row gap-2">
-          <Input id="name" placeholder="School Name" v-model="schoolStore.draft.name"/>
-          <ResetButton v-if="checkDiff(['name'])" @reset="resetDiff(['name'])" />
-        </div>
-      </div>
+      <Field class="gap-1 flex-1">
+        <Label for="name">
+          Name
+          <ResetButton :disabled="!checkDiff(['name'])" @reset="resetDiff(['name'])" />
+        </Label>
+        <Input id="name" placeholder="School Name" v-model="schoolStore.draft.name"/>
+      </Field>
     </div>
 
-    <div class="flex flex-col gap-1">
-      <Label>Programme List</Label>
+    <Field class="gap-1 flex-1">
+      <Label for="programmes">
+        Programme List
+        <ResetButton :disabled="!checkDiff(['programmes'])" @reset="resetDiff(['programmes'])" />
+      </Label>
       <div class="flex flex-row flex-wrap gap-2">
-        <ResetButton v-if="checkDiff(['programmes'])" @reset="resetDiff(['programmes'])" />
         <!-- <div v-for="programme in 10" :key="programme" class="flex flex-row justify-center"> -->
         <template v-for="pCode in schoolStore.draft.programmes" :key="pCode">
           <div
@@ -178,6 +181,6 @@ const removeProgramme = (code: string) => {
         >
         </NewOrAddPopover>
       </div>
-    </div>
+    </Field>
   </div>
 </template>

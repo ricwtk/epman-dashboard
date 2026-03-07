@@ -57,12 +57,12 @@ const removeItem = (index: number) => {
   <div class="flex flex-col gap-4">
     <div class="font-semibold flex flex-row items-center gap-1">
       {{ title }}
-      <ResetButton v-if="overallDiff" @reset="resetDiff" />
+      <ResetButton :disabled="!overallDiff" @reset="resetDiff" />
     </div>
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead></TableHead>
+          <TableHead class="w-0 text-center"></TableHead>
           <TableHead class="w-0 text-center">#</TableHead>
           <TableHead>Attribute</TableHead>
           <TableHead>Descriptor</TableHead>
