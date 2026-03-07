@@ -16,7 +16,7 @@ import { formatRevision, formatId } from '@/utils/common';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 import { dataService } from '@/services/dataService';
-import type { SchoolsByCode, ProgrammesWithCourse } from '@/services/dataService';
+import type { SchoolsByCode, ProgrammesWithCourse, ProgrammeWithCourse } from '@/services/dataService';
 import { navigateToParent } from '@/utils/navigationHelpers'
 
 export const useCourseStore = defineStore('course', () => {
@@ -30,10 +30,14 @@ export const useCourseStore = defineStore('course', () => {
   // programme and school parameters
   const programmes = ref<ProgrammesWithCourse>({})
   const schools = ref<SchoolsByCode>({})
-  const selectedProgramme = ref<Programme | null>(null)
+  const selectedProgrammeCode = ref<string>("")
+  const selectedProgramme = computed<ProgrammeWithCourse | null>(() => {
+    return programmes.value[selectedProgrammeCode.value] || null;
+  })
+
   const selectedSchool = computed<School | null>(() => {
-    if (!selectedProgramme.value) return null;
-    const schoolCode = programmes.value[selectedProgramme.value.code]?.school;
+    if (!selectedProgrammeCode.value) return null;
+    const schoolCode = programmes.value[selectedProgrammeCode.value]?.school;
     return schoolCode ? schools.value[schoolCode] || null : null;
   });
   const notAssignedToProgramme = computed<boolean>(() => {
@@ -196,7 +200,7 @@ export const useCourseStore = defineStore('course', () => {
     loadCourseByCode, loadRevision, deleteRevision,
     clear, createDraft, resetDraft, save,
     programmes, schools,
-    selectedProgramme, selectedSchool,
+    selectedProgrammeCode, selectedProgramme, selectedSchool,
     notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
     editingTab,
     checkDiff, resetDiff,

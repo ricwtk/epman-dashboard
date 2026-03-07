@@ -21,6 +21,9 @@ import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon }
 import { get } from 'lodash-es';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import ResetButton from '@/components/ResetButton.vue';
+import { Field } from '@/components/ui/field';
+import { Label } from '@/components/ui/label';
+
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field';
@@ -319,6 +322,21 @@ const resetDiff = () => {
   </Table>
 
   <template v-if="draft.assessments.length > 0">
+    <Field orientation="horizontal" class="my-2">
+      <Label>Programme</Label>
+      <Select :modelValue="courseStore.selectedProgrammeCode" @update:modelValue="(value) => courseStore.selectedProgrammeCode = String(value)">
+        <SelectTrigger class="grow">
+          <SelectValue placeholder="Select"/>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup v-for="(progKey, index) in Object.keys(courseStore.programmes)" :key="index">
+            <SelectItem :value="progKey">{{ courseStore.programmes[progKey]?.name }}</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Select v-model="courseStore.selectedProgramme" :options="Object.keys(courseStore.programmes)" />
+    </Field>
+
     <div class="font-semibold">Assessment to WP/EA mapping</div>
 
     <EmptyComponent v-if="emptyComponent.show">

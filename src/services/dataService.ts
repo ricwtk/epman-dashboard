@@ -111,14 +111,16 @@ export interface SchoolsByCode {
   [schoolKey: string]: School;
 }
 
-export interface ProgrammesWithCourse{
-  [progKey: string]: {
-    name: string;
-    school: string;
-    structures: {
-      [structKey: string]: string
-    }
+export interface ProgrammeWithCourse {
+  name: string;
+  school: string;
+  structures: {
+    [structKey: string]: string
   }
+}
+
+export interface ProgrammesWithCourse{
+  [progKey: string]: ProgrammeWithCourse;
 }
 
 export interface CourseAssignment {

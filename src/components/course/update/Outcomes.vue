@@ -11,6 +11,9 @@ import VerticalText from '@/components/VerticalText.vue'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 import ResetButton from '@/components/ResetButton.vue'
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import { Field } from '@/components/ui/field'
+import { Label } from '@/components/ui/label'
+
 
 import { BLOOM_TAXONOMY, PO_ATTRIBUTES } from '@/constants'
 
@@ -224,6 +227,21 @@ function resetDiff() {
     </Table>
 
     <Button variant="default" class="w-full text-xs" size="sm" @click="addCo"><PlusIcon />Add Course Outcome</Button>
+
+    <Field orientation="horizontal" class="my-2">
+      <Label>Programme</Label>
+      <Select :modelValue="courseStore.selectedProgrammeCode" @update:modelValue="(value) => courseStore.selectedProgrammeCode = String(value)">
+        <SelectTrigger class="grow">
+          <SelectValue placeholder="Select"/>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup v-for="(progKey, index) in Object.keys(courseStore.programmes)" :key="index">
+            <SelectItem :value="progKey">{{ courseStore.programmes[progKey]?.name }}</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Select v-model="courseStore.selectedProgramme" :options="Object.keys(courseStore.programmes)" />
+    </Field>
 
     <EmptyComponent v-if="emptyComponent.show">
       <template #title>
