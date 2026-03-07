@@ -13,9 +13,9 @@ import ResetButton from '@/components/ResetButton.vue'
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import { Field } from '@/components/ui/field'
 import { Label } from '@/components/ui/label'
+import BadgeList from '@/components/BadgeList.vue'
 
-
-import { BLOOM_TAXONOMY, PO_ATTRIBUTES } from '@/constants'
+import { BLOOM_TAXONOMY } from '@/constants'
 
 import { useCourseStore } from '@/stores/course'
 const courseStore = useCourseStore()
@@ -74,35 +74,33 @@ const handleMappingChange = (coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', m
   }
 }
 
-const wkOptions = [
-  "Natural and Social Sciences",
-  "Mathematics and Computer Science",
-  "Engineering Fundamentals",
-  "Engineering Specialist Knowledge",
-  "Engineering Design and Operations",
-  "Engineering Practice",
-  "Engineers in Society",
-  "Research Skills",
-  "Professional and Ethical Responsibility"
-]
+const poOptions = computed(() => {
+  if (courseStore.selectedProgramme) {
+    return courseStore.selectedProgramme.poList
+  }
+  return []
+})
 
-const wpOptions = [
-  "Depth of Knowledge Required",
-  "Range of Conflicting Requirements",
-  "Depth of Analysis Required",
-  "Familiarity of Issues",
-  "Extent of Applicable Codes",
-  "Extent of Stakeholder Involvement and Conflicting Requirements",
-  "Interdependence"
-]
+const wkOptions = computed(() => {
+  if (courseStore.selectedSchool) {
+    return courseStore.selectedSchool.components?.wks
+  }
+  return []
+})
 
-const eaOptions = [
-  "Range of Resources",
-  "Level of Interactions",
-  "Innovation",
-  "Consequences to Society and the Environment",
-  "Familiarity"
-]
+const wpOptions = computed(() => {
+  if (courseStore.selectedSchool) {
+    return courseStore.selectedSchool.components?.wps
+  }
+  return []
+})
+
+const eaOptions = computed(() => {
+  if (courseStore.selectedSchool) {
+    return courseStore.selectedSchool.components?.eas
+  }
+  return []
+})
 
 const emptyComponent = computed<{
   show: boolean, title: string, description: string
@@ -260,17 +258,18 @@ function resetDiff() {
           <TableRow>
             <TableHead class="align-bottom text-center w-0">CO</TableHead>
             <TableHead class="align-bottom text-center"
-              v-for="(po, poIndex) in PO_ATTRIBUTES"
+              v-for="(po, poIndex) in poOptions"
               :key="poIndex"
+              :title="po.descriptor"
             >
-              <VerticalText :label="`PO${poIndex + 1}`" :content="po" />
+              <VerticalText :label="`PO${poIndex + 1}`" :content="po.attribute" />
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-            <TableCell v-for="(po, poIndex) in PO_ATTRIBUTES" :key="poIndex">
+            <TableCell v-for="(po, poIndex) in poOptions" :key="poIndex">
               <Checkbox
                 :modelValue="co.pos.includes(poIndex + 1)"
                 :id="`co${coIndex + 1}po${poIndex + 1}`"
@@ -291,20 +290,23 @@ function resetDiff() {
             <TableHead class="align-bottom text-center"
               v-for="(wk, wkIndex) in wkOptions"
               :key="wkIndex"
+              :title="wk.descriptor"
             >
-              <VerticalText :label="`WK${wkIndex + 1}`" :content="wk" />
+              <VerticalText :label="`WK${Number(wkIndex) + 1}`" :content="wk.attribute" />
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-            <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
+            <TableCell class="w-0">
+              <BadgeList :items="co.pos.map(pos => `PO${pos}`)" />
+            </TableCell>
             <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex">
               <Checkbox
-                :modelValue="co.wks.includes(wkIndex + 1)"
-                :id="`co${coIndex + 1}wk${wkIndex + 1}`"
-                @update:modelValue="(checked) => handleMappingChange(coIndex, 'wk', wkIndex, Boolean(checked))"
+                :modelValue="co.wks.includes(Number(wkIndex) + 1)"
+                :id="`co${coIndex + 1}wk${Number(wkIndex) + 1}`"
+                @update:modelValue="(checked) => handleMappingChange(coIndex, 'wk', Number(wkIndex), Boolean(checked))"
               />
             </TableCell>
           </TableRow>
@@ -321,20 +323,23 @@ function resetDiff() {
             <TableHead class="align-bottom text-center"
               v-for="(wp, wpIndex) in wpOptions"
               :key="wpIndex"
+              :title="wp.descriptor"
             >
-              <VerticalText :label="`WP${wpIndex + 1}`" :content="wp" />
+              <VerticalText :label="`WP${Number(wpIndex) + 1}`" :content="wp.attribute" />
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-            <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
+            <TableCell class="w-0">
+              <BadgeList :items="co.pos.map(pos => `PO${pos}`)" />
+            </TableCell>
             <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex">
               <Checkbox
-              :modelValue="co.wps.includes(wpIndex + 1)"
-              :id="`co${coIndex + 1}wp${wpIndex + 1}`"
-              @update:modelValue="(checked) => handleMappingChange(coIndex, 'wp', wpIndex, Boolean(checked))"
+              :modelValue="co.wps.includes(Number(wpIndex) + 1)"
+              :id="`co${coIndex + 1}wp${Number(wpIndex) + 1}`"
+              @update:modelValue="(checked) => handleMappingChange(coIndex, 'wp', Number(wpIndex), Boolean(checked))"
               />
             </TableCell>
           </TableRow>
@@ -351,20 +356,23 @@ function resetDiff() {
             <TableHead class="align-bottom text-center"
               v-for="(ea, eaIndex) in eaOptions"
               :key="eaIndex"
+              :title="ea.descriptor"
             >
-              <VerticalText :label="`EA${eaIndex + 1}`" :content="ea" />
+              <VerticalText :label="`EA${Number(eaIndex) + 1}`" :content="ea.attribute" />
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(co, coIndex) in draft.cos" :key="coIndex" class="text-center">
             <TableCell class="w-0">CO{{ coIndex + 1 }}</TableCell>
-            <TableCell class="w-0">{{ co.pos.map(pos => `PO${pos}`).join(', ') }}</TableCell>
+            <TableCell class="w-0">
+              <BadgeList :items="co.pos.map(pos => `PO${pos}`)" />
+            </TableCell>
             <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex">
               <Checkbox
-              :modelValue="co.eas.includes(eaIndex + 1)"
-              :id="`co${coIndex + 1}ea${eaIndex + 1}`"
-              @update:modelValue="(checked) => handleMappingChange(coIndex, 'ea', eaIndex, Boolean(checked))"
+              :modelValue="co.eas.includes(Number(eaIndex) + 1)"
+              :id="`co${coIndex + 1}ea${Number(eaIndex) + 1}`"
+              @update:modelValue="(checked) => handleMappingChange(coIndex, 'ea', Number(eaIndex), Boolean(checked))"
               />
             </TableCell>
           </TableRow>

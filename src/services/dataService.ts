@@ -111,8 +111,7 @@ export interface SchoolsByCode {
   [schoolKey: string]: School;
 }
 
-export interface ProgrammeWithCourse {
-  name: string;
+export interface ProgrammeWithCourse extends Programme {
   school: string;
   structures: {
     [structKey: string]: string
@@ -445,7 +444,7 @@ export const dataService = {
         for (const [semKey, courses] of semesterEntries) {
           if (Array.isArray(courses) && courses.includes(courseCode)) {
             if (!programmes[pCode]) programmes[pCode] = {
-              name: latestProgrammes[pCode]?.name || '',
+              ...latestProgrammes[pCode],
               school: "", structures: {}
             };
             const semesterIndex = semesterOrder.indexOf(semKey);
