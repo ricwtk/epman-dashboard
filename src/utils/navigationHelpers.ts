@@ -20,6 +20,11 @@ export function navigateToParent() {
   router.go(-1);
 }
 
+export function navigateToSchoolExternal(schoolCode: string) {
+  const url = router.resolve({ path: `/school/${schoolCode}` }).href;
+  window.open(url, '_blank');
+}
+
 export function navigateToProgrammeExternal(programmeCode: string) {
   const url = router.resolve({ path: `/programme/${programmeCode}` }).href;
   window.open(url, '_blank');

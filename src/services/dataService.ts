@@ -113,6 +113,7 @@ export interface SchoolsByCode {
 
 export interface ProgrammesWithCourse{
   [progKey: string]: {
+    name: string;
     school: string;
     structures: {
       [structKey: string]: string
@@ -420,6 +421,8 @@ export const dataService = {
       const q = query(collection(db, "structures"), orderBy("revision", "desc"));
       const structureSnap = await getDocs(q);
 
+      const latestProgrammes = await fetchLatestCollection<Programme>("programmes", "code");
+
       // Identify unique programme codes that use this course in their LATEST revision with the structure label
       const programmes: ProgrammesWithCourse = {};
       const seenPairs = new Set<string>();
@@ -435,12 +438,16 @@ export const dataService = {
         seenPairs.add(pairKey);
 
         // 2. Find which semester contains the course
-        // 'structure' is the Map: { "01": ["MATH1", "CS101"], "02": [...] }
-        const semesterEntries = Object.entries(data.structure || {});
+        const semesterEntries = Object.entries(data.semesters || {});
+        const semesterOrder = data.semesterOrder || [];
         for (const [semKey, courses] of semesterEntries) {
           if (Array.isArray(courses) && courses.includes(courseCode)) {
-            if (!programmes[pCode]) programmes[pCode] = { school: "", structures: {} };
-            programmes[pCode].structures[label] = semKey; // Store the semester key (e.g., "01")
+            if (!programmes[pCode]) programmes[pCode] = {
+              name: latestProgrammes[pCode]?.name || '',
+              school: "", structures: {}
+            };
+            const semesterIndex = semesterOrder.indexOf(semKey);
+            programmes[pCode].structures[label] = `Sem ${semesterIndex + 1}`;
             break; // Stop searching this specific structure once found
           }
         }

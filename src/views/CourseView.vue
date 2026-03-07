@@ -66,6 +66,7 @@ const updateEditing = (ev: boolean, tab?: string) => {
     <ProgrammeAllocation
       :editable="authStore.canEditCourses"
       :programmes="courseStore.programmes"
+      :schools="courseStore.schools"
       :editing="editing"
       @update:editing="(ev: boolean) => updateEditing(ev, 'summary')"
     />
