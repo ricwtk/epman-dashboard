@@ -21,8 +21,8 @@ import type { ProgrammeStructure, ProgrammeStructureInfo } from '@/types/program
 export function createNewSchool(overrides?: Partial<School>): School {
   const newSchool = {
     id: "",
-    name: 'New School',
-    code: 'NS',
+    name: "",
+    code: "",
     revision: "",
     parentRevision: "",
     committed: {
