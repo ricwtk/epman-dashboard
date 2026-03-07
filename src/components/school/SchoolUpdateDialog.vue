@@ -57,7 +57,7 @@ const saveSchool = () => { schoolStore.save(); }
           </TabsList>
         </div>
         <div>
-          <ResetButton v-if="diff" @reset="resetSchool" />
+          <ResetButton :disabled="!diff" @reset="resetSchool" />
         </div>
       </div>
       <div class="overflow-auto h-[calc(100vh-300px)]">

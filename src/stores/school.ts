@@ -130,9 +130,14 @@ export const useSchoolStore = defineStore('school', () => {
     try {
       await dataService.saveSchool(draft.value);
       commit();
+      addToRevisions();
     } catch (error) {
       console.error('Error saving school:', error);
     }
+  }
+
+  function addToRevisions(): void {
+    revisions.value.splice(0, 0, toRaw(draft.value))
   }
 
   return {
