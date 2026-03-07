@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import type { Programme } from "@/types/programme";
-import { createNewProgramme, getProgrammeByCode } from "@/utils/programmeHelpers";
+import { createNewProgramme } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
 import { dataService } from "@/services/dataService";
 import { navigateToParent } from "@/utils/navigationHelpers";

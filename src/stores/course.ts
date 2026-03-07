@@ -1,6 +1,6 @@
 import { ref, computed, toRaw, watch } from 'vue';
 import type { Course } from "@/types/course";
-import type { Programme } from "@/types/programme";
+import type { Programme, Mapping } from "@/types/programme";
 import type { School } from "@/types/school";
 import { createCourseObject } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
@@ -49,7 +49,6 @@ export const useCourseStore = defineStore('course', () => {
   const programmeNotAssigned = computed<boolean>(() => {
     return !programmeNotSelected.value && (selectedSchool.value === null);
   })
-
 
 
   watch(() => saved.value.code, async () => {
@@ -195,6 +194,61 @@ export const useCourseStore = defineStore('course', () => {
     }
   }
 
+  const recommendedMappingForCo = computed(() => {
+    return draft.value.cos.map((co) => {
+      const polist = co.pos
+      const recommended = {
+        wk: new Set<number>(),
+        wp: new Set<number>(),
+        ea: new Set<number>(),
+        sdg: false,
+      }
+      polist.forEach((poNumber) => {
+        const po = selectedProgramme.value?.poList[poNumber - 1]
+        if (po) {
+          po.mapping[draft.value.category].wk.forEach( (item) => recommended.wk.add(item) )
+          po.mapping[draft.value.category].wp.forEach( (item) => recommended.wp.add(item) )
+          po.mapping[draft.value.category].ea.forEach( (item) => recommended.ea.add(item) )
+          recommended.sdg = recommended.sdg || po.mapping[draft.value.category].sdg
+        }
+      })
+      return recommended
+    })
+  })
+
+  const recommendedMappingForAssessment = computed(() => {
+    return draft.value.assessments.map((assessment) => {
+      const colist = assessment.cos
+      const recommended = {
+        breakdown: new Array < { wp: Set<number>, ea: Set<number> } >(),
+        wp: new Set<number>(),
+        ea: new Set<number>(),
+      }
+      colist.forEach((coNumber) => {
+        const recCoMapping = recommendedMappingForCo.value?.[coNumber - 1]
+        if (recCoMapping) {
+          recCoMapping.wp.forEach( (item) => recommended.wp.add(item) )
+          recCoMapping.ea.forEach( (item) => recommended.ea.add(item) )
+        }
+      })
+
+      recommended.breakdown = assessment.breakdown.map((breakdown) => {
+        const recommended = {
+          wp: new Set<number>(),
+          ea: new Set<number>(),
+        }
+        const recCoMapping = recommendedMappingForCo.value?.[breakdown.co - 1]
+        if (recCoMapping) {
+          recCoMapping.wp.forEach((wp) => recommended.wp.add(wp))
+          recCoMapping.ea.forEach((ea) => recommended.ea.add(ea))
+        }
+        return recommended
+      })
+
+      return recommended
+    })
+  })
+
   return {
     draft, saved, revisions,
     loadCourseByCode, loadRevision, deleteRevision,
@@ -210,5 +264,6 @@ export const useCourseStore = defineStore('course', () => {
     addAssessment, deleteAssessment,
     addBreakdown, deleteBreakdown,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown,
+    recommendedMappingForCo, recommendedMappingForAssessment,
   }
 })

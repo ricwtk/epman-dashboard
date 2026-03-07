@@ -65,3 +65,5 @@ export const SLT_CATEGORIES: { short: string; long: string; key: keyof Allocatio
   { short: 'O', long: "Others", key: "others" },
   { short: 'IL', long: "Independent Learning", key: "self" },
 ]
+
+export const RECOMMENDATION_CLASS = "bg-green-100"

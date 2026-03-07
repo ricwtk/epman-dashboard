@@ -179,8 +179,28 @@ const emptyComponent = computed<{
   }
 })
 
-const resetDiff = () => {
+const resetDiff = () => {}
 
+import { RECOMMENDATION_CLASS } from '@/constants'
+function getRecommendationClass(
+  assessmentIndex: number,
+  breakdownIndex: number,
+  type: 'wp' | 'ea',
+  mappingIndex: number
+): string {
+  if (
+    (breakdownIndex === -1)
+    && (courseStore.recommendedMappingForAssessment[assessmentIndex]?.[type]?.has(mappingIndex + 1))
+  ) {
+      return RECOMMENDATION_CLASS
+  } else if (
+    (breakdownIndex !== -1)
+    && (courseStore.recommendedMappingForAssessment[assessmentIndex]?.breakdown?.[breakdownIndex]?.[type]?.has(mappingIndex + 1))
+  ) {
+      return RECOMMENDATION_CLASS
+  } else {
+    return ''
+  }
 }
 </script>
 
@@ -329,9 +349,9 @@ const resetDiff = () => {
           <SelectValue placeholder="Select"/>
         </SelectTrigger>
         <SelectContent>
-          <SelectGroup v-for="(progKey, index) in Object.keys(courseStore.programmes)" :key="index">
+          <template v-for="(progKey, index) in Object.keys(courseStore.programmes)" :key="index">
             <SelectItem :value="progKey">{{ courseStore.programmes[progKey]?.name }}</SelectItem>
-          </SelectGroup>
+          </template>
         </SelectContent>
       </Select>
       <Select v-model="courseStore.selectedProgramme" :options="Object.keys(courseStore.programmes)" />
@@ -363,6 +383,7 @@ const resetDiff = () => {
           >
             <VerticalText :label="`WP${wpIndex+1}`" :content="wp" />
           </TableHead>
+          <TableHead class="w-0 bg-border"></TableHead>
           <TableHead
             v-for="(ea, eaIndex) in eaOptions"
             :key="eaIndex"
@@ -384,25 +405,32 @@ const resetDiff = () => {
             <TableCell class="text-center">
               <BadgeList :items="getPoList(assessment)" />
             </TableCell>
-            <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
-              <div class="flex flex-col gap-0.5 items-center">
-                <span class="bg-green-600 rounded w-1 h-1"></span>
+            <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex"
+              class="text-center"
+              :class="getRecommendationClass(assessmentIndex, -1, 'wp', wpIndex)"
+            >
+              <!-- <div class="flex flex-col gap-0.5 items-center"> -->
+                <!-- <span class="bg-green-600 rounded w-1 h-1"></span> -->
                 <Checkbox
                   v-if="assessment.breakdown.length == 0"
                   :modelValue="assessment.wps?.includes(wpIndex + 1)"
                   @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'wps'], wpIndex + 1, checked)"
                 />
-              </div>
+              <!-- </div> -->
             </TableCell>
-            <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex" class="text-center">
-              <div class="flex flex-col gap-0.5 items-center">
-                <span class="bg-transparent rounded w-1 h-1"></span>
+            <TableCell class="w-4 bg-border"></TableCell>
+            <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex"
+              class="text-center"
+              :class="getRecommendationClass(assessmentIndex, -1, 'ea', eaIndex)"
+            >
+              <!-- <div class="flex flex-col gap-0.5 items-center"> -->
+                <!-- <span class="bg-transparent rounded w-1 h-1"></span> -->
                 <Checkbox
                   v-if="assessment.breakdown.length == 0"
                   :modelValue="assessment.eas?.includes(eaIndex + 1)"
                   @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'eas'], eaIndex + 1, checked)"
                 />
-              </div>
+              <!-- </div> -->
             </TableCell>
           </TableRow>
           <template v-if="assessment.breakdown.length > 0">
@@ -418,13 +446,20 @@ const resetDiff = () => {
               <TableCell class="text-center">
                 <BadgeList :items="draft.cos[breakdown.co-1]!.pos.map((po) => `PO${po}`)" />
               </TableCell>
-              <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex" class="text-center">
+              <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex"
+                class="text-center"
+                :class="getRecommendationClass(assessmentIndex, breakdownIndex, 'wp', wpIndex)"
+              >
                 <Checkbox
                   :modelValue="breakdown.wps?.includes(wpIndex + 1)"
                   @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'wps'], wpIndex + 1, isChecked)"
                 />
               </TableCell>
-              <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex" class="text-center">
+              <TableCell class="w-4 bg-border"></TableCell>
+              <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex"
+                class="text-center"
+                :class="getRecommendationClass(assessmentIndex, breakdownIndex, 'ea', eaIndex)"
+              >
                 <Checkbox
                   :modelValue="breakdown.eas?.includes(eaIndex + 1)"
                   @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'eas'], eaIndex + 1, isChecked)"

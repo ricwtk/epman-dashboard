@@ -147,8 +147,14 @@ const emptyComponent = computed<{
   }
 })
 
-function resetDiff() {
+function resetDiff() {}
 
+import { RECOMMENDATION_CLASS } from '@/constants'
+function getRecommendationClass(coIndex: number, type: 'wk' | 'wp' | 'ea', mappingIndex: number): string {
+  if (courseStore.recommendedMappingForCo[coIndex]?.[type]?.has(mappingIndex + 1)) {
+    return RECOMMENDATION_CLASS
+  }
+  return ''
 }
 </script>
 
@@ -233,9 +239,9 @@ function resetDiff() {
           <SelectValue placeholder="Select"/>
         </SelectTrigger>
         <SelectContent>
-          <SelectGroup v-for="(progKey, index) in Object.keys(courseStore.programmes)" :key="index">
+          <template v-for="(progKey, index) in Object.keys(courseStore.programmes)" :key="index">
             <SelectItem :value="progKey">{{ courseStore.programmes[progKey]?.name }}</SelectItem>
-          </SelectGroup>
+          </template>
         </SelectContent>
       </Select>
     </Field>
@@ -301,7 +307,9 @@ function resetDiff() {
             <TableCell class="w-0">
               <BadgeList :items="co.pos.map(pos => `PO${pos}`)" />
             </TableCell>
-            <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex">
+            <TableCell v-for="(wk, wkIndex) in wkOptions" :key="wkIndex"
+              :class="getRecommendationClass(coIndex, 'wk', Number(wkIndex))"
+            >
               <Checkbox
                 :modelValue="co.wks.includes(Number(wkIndex) + 1)"
                 :id="`co${coIndex + 1}wk${Number(wkIndex) + 1}`"
@@ -334,7 +342,9 @@ function resetDiff() {
             <TableCell class="w-0">
               <BadgeList :items="co.pos.map(pos => `PO${pos}`)" />
             </TableCell>
-            <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex">
+            <TableCell v-for="(wp, wpIndex) in wpOptions" :key="wpIndex"
+              :class="getRecommendationClass(coIndex, 'wp', Number(wpIndex))"
+            >
               <Checkbox
               :modelValue="co.wps.includes(Number(wpIndex) + 1)"
               :id="`co${coIndex + 1}wp${Number(wpIndex) + 1}`"
@@ -367,7 +377,9 @@ function resetDiff() {
             <TableCell class="w-0">
               <BadgeList :items="co.pos.map(pos => `PO${pos}`)" />
             </TableCell>
-            <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex">
+            <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex"
+              :class="getRecommendationClass(coIndex, 'ea', Number(eaIndex))"
+            >
               <Checkbox
               :modelValue="co.eas.includes(Number(eaIndex) + 1)"
               :id="`co${coIndex + 1}ea${Number(eaIndex) + 1}`"

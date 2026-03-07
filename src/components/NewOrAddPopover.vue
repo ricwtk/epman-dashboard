@@ -69,7 +69,7 @@ const buttonEnabled = computed(() => {
       </Button>
     </PopoverTrigger>
     <PopoverContent class="w-80">
-      {{ bannedList }}
+      <!-- {{ bannedList }} -->
       <form @submit.prevent="newOrAdd">
         <FieldSet class="gap-1">
           <FieldLegend class="mb-1">{{ title || 'Add' }}</FieldLegend>
