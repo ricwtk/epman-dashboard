@@ -47,8 +47,10 @@ export interface ProgrammeStructure {
   id: string;
   programme: string;
   label: string; // 'default' | 'direct entry' | student name
-  structure: Structure;
-  // structure: string[][];
+  semesters: {
+    [semesterKey: string]: string[];
+  };
+  semesterOrder: string[];
   committed: {
     on: Date | null;
     by: string;

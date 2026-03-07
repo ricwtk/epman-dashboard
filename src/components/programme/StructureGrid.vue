@@ -16,11 +16,17 @@ defineProps<{
 }>();
 
 /* create structure object */
-const structureObject = defineModel<{ [semesterKey: string]: string[] }>({ default: {} });
-const structureObjectWithCourseInfo = computed(
-  () => courseListStore.getCourseInfoInStructure(structureObject.value)
+const semesters = defineModel<{ [semesterKey: string]: string[] }>("semesters", { default: {} });
+const semesterOrder = defineModel<string[]>("semesterOrder", { default: [] });
+
+const semestersWithCourseInfo = computed(
+  () => courseListStore.getCourseInfoInStructure(semesters.value)
 )
-const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
+// const structureObject = defineModel<{ [semesterKey: string]: string[] }>({ default: {} });
+// const structureObjectWithCourseInfo = computed(
+//   () => courseListStore.getCourseInfoInStructure(structureObject.value)
+// )
+// const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
 // ----------
 
 /* display mode: by year or by semester */
@@ -43,8 +49,8 @@ watch(structureDisplayMode, (newMode) => {
 const col_n = computed(() =>
   structureDisplayMode.value ?
     structureDisplayMode.value == "by year" ?
-      Math.ceil(semesterKeys.value.length / NUMBER_OF_SEMESTER_PER_YEAR)
-      : semesterKeys.value.length
+      Math.ceil(semesterOrder.value.length / NUMBER_OF_SEMESTER_PER_YEAR)
+      : semesterOrder.value.length
     : 0
 )
 const row_n = computed(() =>
@@ -76,7 +82,7 @@ const sem_keys = computed(() => {
       let one_row = []
       for (let c = 0; c < col_n.value; c++) {
         const idx = c * row_n.value + r
-        one_row.push(semesterKeys.value[idx] ?? '')
+        one_row.push(semesterOrder.value[idx] ?? '')
       }
       all_sem.push(one_row)
     }
@@ -104,7 +110,7 @@ const onDrop = (event: DragEvent, semKey: string, courseIndex: number, zone: str
   const newPosition = { sem: semKey, course: courseIndex, place: zone}
 
   // 1. Remove item
-  const [item] = structureObject.value[originalPosition.sem]!.splice(originalPosition.course, 1)
+  const [item] = semesters.value[originalPosition.sem]!.splice(originalPosition.course, 1)
 
   // 2. Fix indices if removal affects destination
   if (originalPosition.sem === newPosition.sem
@@ -114,10 +120,10 @@ const onDrop = (event: DragEvent, semKey: string, courseIndex: number, zone: str
   if (newPosition.place === 'bottom') { newPosition.course += 1 }
 
   // Clamp column index
-  newPosition.course = Math.max(0, Math.min(newPosition.course, structureObject.value[newPosition.sem]!.length))
+  newPosition.course = Math.max(0, Math.min(newPosition.course, semesters.value[newPosition.sem]!.length))
 
   // 3. Insert item
-  structureObject.value[newPosition.sem]!.splice(newPosition.course, 0, item || "")
+  semesters.value[newPosition.sem]!.splice(newPosition.course, 0, item || "")
 };
 // ----------
 
@@ -126,7 +132,7 @@ const onDrop = (event: DragEvent, semKey: string, courseIndex: number, zone: str
 */
 const bannedList = computed(() => {
   let bl = new Set<{ name: string, code: string }>([]);
-  for (const sem of Object.values(structureObjectWithCourseInfo.value)) {
+  for (const sem of Object.values(semestersWithCourseInfo.value)) {
     for (const course of sem) {
       bl.add({
         name: course.name,
@@ -153,8 +159,8 @@ const errorMessageFcn = (name: string, code: string, bannedItem: { name: string,
   return `Course ${name} (${code}) already exists`
 };
 const addCourse = (code: string, semKey: string) => {
-  if (structureObject.value[semKey]) {
-    structureObject.value[semKey].push(code)
+  if (semesters.value[semKey]) {
+    semesters.value[semKey].push(code)
   }
 }
 const createCourse = async (name: string, code: string, semKey: string) => {
@@ -180,7 +186,7 @@ const createCourse = async (name: string, code: string, semKey: string) => {
 
 /* course manipulation */
 const deleteCourseFrom = (courseIndex: number, semKey: string) => {
-  structureObject.value[semKey]!.splice(courseIndex, 1)
+  semesters.value[semKey]!.splice(courseIndex, 1)
 }
 const viewCourse = (courseCode: string) => {
   navigateToCourseExternal(courseCode)
@@ -188,21 +194,18 @@ const viewCourse = (courseCode: string) => {
 // ----------
 
 import { zeroPad } from '@/utils/common';
+import { nanoid } from 'nanoid';
 const addSemester = (asSemNumber = -1) => {
-  if (asSemNumber <= 0) {
-    const newSemesterKey = `Semester ${zeroPad(semesterKeys.value.length + 1)}`
-    structureObject.value[newSemesterKey] = []
+  const newSemesterKey = nanoid()
+  semesters.value[newSemesterKey] = []
+
+  const targetSemIndex = (typeof asSemNumber === 'number' && !isNaN(asSemNumber))
+                      ? asSemNumber - 1
+                      : -1;
+  if (targetSemIndex < 0 || targetSemIndex >= semesterOrder.value.length) {
+    semesterOrder.value.push(newSemesterKey)
   } else {
-    if (asSemNumber <= semesterKeys.value.length) {
-      for (let i = semesterKeys.value.length; i >= asSemNumber; i--) {
-        const newSemesterKey = `Semester ${zeroPad(i + 1)}`
-        const oldSemesterKey = `Semester ${zeroPad(i)}`
-        structureObject.value[newSemesterKey] = structureObject.value[oldSemesterKey] || []
-        delete structureObject.value[oldSemesterKey]
-      }
-    }
-    const newSemesterKey = `Semester ${zeroPad(asSemNumber)}`
-    structureObject.value[newSemesterKey] = []
+    semesterOrder.value.splice(targetSemIndex, 0, newSemesterKey)
   }
 };
 
@@ -247,7 +250,7 @@ import NewOrAddPopover from '../NewOrAddPopover.vue';
         </SelectContent>
       </Select>
     </div>
-    <Table v-if="structureObject && semesterKeys.length > 0">
+    <Table v-if="semesters && semesterOrder.length > 0">
       <TableHeader>
         <TableRow>
           <TableHead v-if="row_header!==''"></TableHead>
@@ -265,7 +268,7 @@ import NewOrAddPopover from '../NewOrAddPopover.vue';
             class="text-center align-top flex justify-center"
           >
             <div class="flex flex-col w-36 gap-1">
-              <ContextMenu v-for="course, course_index in structureObjectWithCourseInfo[sem_key!]">
+              <ContextMenu v-for="course, course_index in semestersWithCourseInfo[sem_key!]">
                 <ContextMenuTrigger>
                   <CourseListItem
                     :draggable="editable"
@@ -309,7 +312,7 @@ import NewOrAddPopover from '../NewOrAddPopover.vue';
     <Button v-else
       v-if="editable"
       variant="secondary"
-      @click="addSemester"
+      @click="addSemester()"
     >Add Semester</Button>
   </div>
 </template>

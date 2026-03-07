@@ -46,10 +46,10 @@ export const getStructureLabelsByProgramme = (
  * @returns The structure array with course information.
  */
 export const getCourseInfoInStructure = (
-  structure: { [semesterKey: string]: string[] },
+  semesters: { [semesterKey: string]: string[] },
 ): { [semesterKey: string]: CourseInfo[] } => {
   return Object.fromEntries(
-    Object.entries(structure).map(([semesterKey, courses]) => [
+    Object.entries(semesters).map(([semesterKey, courses]) => [
       semesterKey,
       courses.map((course) => getCourseInfoByCode(course)),
     ])
@@ -112,7 +112,8 @@ export const createNewStructure = (
     id: "",
     programme: "",
     label: "",
-    structure: {},
+    semesters: {},
+    semesterOrder: [],
     committed: {
       on: null, // Automatically sets current time
       by: ""

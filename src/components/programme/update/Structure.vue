@@ -102,7 +102,10 @@ const deleteRevision = async () => {
         <ResetButton :disabled="!diffs" @reset="resetDiff" />
       </div>
 
-      <StructureGrid v-model="structure.structure" :editable="true">
+      <StructureGrid v-model:semesters="structure.semesters"
+        v-model:semesterOrder="structure.semesterOrder"
+        :editable="true"
+      >
         <template #header>
           <div class="flex flex-col gap-1">
             <Label for="label">Label</Label>

@@ -43,7 +43,8 @@ const labels = computed(() => Object.keys(props.structureList))
       </EmptyComponent>
       <StructureGrid v-else
         :editable="false"
-        v-model="structure.structure"
+        v-model:semesters="structure.semesters"
+        v-model:semesterOrder="structure.semesterOrder"
       >
         <template #header>
           <div class="flex flex-col gap-1 flex-1">
