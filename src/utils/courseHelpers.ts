@@ -131,6 +131,8 @@ export const createAssessment = (overrides?: Partial<Assessment>): Assessment =>
   weightage: 0,
   cos: [],
   breakdown: [],
+  wps: [],
+  eas: [],
   ...overrides
 });
 

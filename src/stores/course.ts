@@ -1,9 +1,9 @@
 import { ref, computed, toRaw, watch } from 'vue';
-import type { Course } from "@/types/course";
+import type { Assessment, Breakdown, Co, Course } from "@/types/course";
 import type { School } from "@/types/school";
 import { createCourseObject } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
-import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon, updateMapping as updateMappingCommon } from '@/utils/common.ts'
+import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon } from '@/utils/common.ts'
 import {
   createCo,
   createPlan,
@@ -108,9 +108,23 @@ export const useCourseStore = defineStore('course', () => {
   function resetDiff(pathArray: string[]): void { resetDiffCommon(draft.value, saved.value, pathArray) }
   function checkDiff(pathArray: string[]): boolean { return checkDiffCommon(draft.value, saved.value, pathArray) }
 
-  function updateMapping(pathArray: string[], itemIndex: number, isChecked: boolean | 'indeterminate'): void {
-    updateMappingCommon(draft.value, pathArray, itemIndex, isChecked)
+  function addCoMapping(coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', componentNumber: number): void {
+    const co = draft.value.cos[coIndex]
+    const componentKey: keyof Co = `${type}s`
+    if (co) {
+      if (!co[componentKey]?.includes(componentNumber)) {
+        co[componentKey]?.push(componentNumber)
+      }
+    }
   }
+  function removeCoMapping(coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', componentNumber: number): void {
+    const co = draft.value.cos[coIndex]
+    const componentKey: keyof Co = `${type}s`
+    if (co) {
+      co[componentKey] = co[componentKey]?.filter((n) => n !== componentNumber)
+    }
+  }
+
 
   // function checkMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): boolean {
   //   const originalPoList = originalProgramme.value.poList
@@ -153,6 +167,52 @@ export const useCourseStore = defineStore('course', () => {
   function deleteBreakdown(assessmentIndex: number, breakdownIndex: number): void {
     if (assessmentIndex >= 0 && assessmentIndex < draft.value.assessments.length) {
       draft.value.assessments[assessmentIndex]!.breakdown.splice(breakdownIndex, 1)
+    }
+  }
+
+  function addAssessmentMapping(assessmentIndex: number, breakdownIndex: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
+    const assessment = draft.value.assessments[assessmentIndex]
+    if (assessment) {
+      if (breakdownIndex == -1) {
+        const componentKey: keyof Assessment = `${type}s`
+        if (!assessment[componentKey]) assessment[componentKey] = []
+        if (!assessment[componentKey].includes(componentNumber)) {
+          assessment[componentKey].push(componentNumber)
+        }
+      } else {
+        const breakdown = assessment.breakdown[breakdownIndex]
+        if (breakdown) {
+          const componentKey: keyof Breakdown = type == "co" ? "co" : `${type}s`
+          if (componentKey == "co") {
+            breakdown.co = componentNumber
+          } else {
+            if (!breakdown[componentKey]) breakdown[componentKey] = []
+            if (!breakdown[componentKey].includes(componentNumber)) {
+              breakdown[componentKey].push(componentNumber)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function removeAssessmentMapping(assessmentIndex: number, breakdownIndex: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
+    const assessment = draft.value.assessments[assessmentIndex]
+    if (assessment) {
+      if (breakdownIndex == -1) {
+        const componentKey: keyof Assessment = `${type}s`
+        if (assessment[componentKey]) {
+          assessment[componentKey] = assessment[componentKey].filter((n) => n !== componentNumber)
+        }
+      } else {
+        const breakdown = assessment.breakdown[breakdownIndex]
+        if (breakdown && type !== "co") {
+          const componentKey: keyof Breakdown = `${type}s`
+          if (breakdown[componentKey]) {
+            breakdown[componentKey] = breakdown[componentKey].filter((n) => n !== componentNumber)
+          }
+        }
+      }
     }
   }
 
@@ -270,11 +330,13 @@ export const useCourseStore = defineStore('course', () => {
     notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
     editingTab,
     checkDiff, resetDiff,
-    updateMapping,
+    // updateMapping,
     addCo, removeCo, moveCoUp, moveCoDown,
+    addCoMapping, removeCoMapping,
     addTopic, removeTopic,
     addAssessment, deleteAssessment,
     addBreakdown, deleteBreakdown,
+    addAssessmentMapping, removeAssessmentMapping,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown,
     recommendedMappingForCo, recommendedMappingForAssessment,
   }

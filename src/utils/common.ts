@@ -1,7 +1,7 @@
 import diff from 'microdiff';
 import { get, set, cloneDeep } from 'lodash-es'
 import type { Course } from '@/types/course';
-import type { Programme, ProgrammeStructure } from '@/types/programme';
+import type { Programme } from '@/types/programme';
 
 function isPrimitive(val: unknown): val is string | number | boolean | null | undefined {
   return val === null || (typeof val !== 'object' && typeof val !== 'function');

@@ -1,29 +1,19 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import { type Co, type Assessment } from '@/types/course';
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/ui/table';
+import { type Assessment } from '@/types/course';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import BadgeList from '@/components/BadgeList.vue';
 import VerticalText from '@/components/VerticalText.vue';
 import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon } from 'lucide-vue-next';
-import { get } from 'lodash-es';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import ResetButton from '@/components/ResetButton.vue';
 import { Field } from '@/components/ui/field';
 import { Label } from '@/components/ui/label';
-
 import { Skeleton } from '@/components/ui/skeleton';
 import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field';
 
@@ -37,14 +27,18 @@ const {
 } = storeToRefs(courseStore)
 
 const componentOptions = ['Written Assessment', 'Assignment', 'Lab'];
-const updateMapping = (pathArray: string[], itemIndex: number, isChecked: boolean | 'indeterminate') => {
-  if (isChecked === 'indeterminate') { return; }
-  courseStore.updateMapping(["assessments", ...pathArray], itemIndex, isChecked)
-}
 const addAssessment = () => { courseStore.addAssessment() }
 const deleteAssessment = (index: number) => { courseStore.deleteAssessment(index) }
 const addBreakdown = (index: number) => { courseStore.addBreakdown(index) }
 const deleteBreakdown = (assessmentIndex: number, breakdownIndex: number) => { courseStore.deleteBreakdown(assessmentIndex, breakdownIndex) }
+
+const handleMappingChange = (assessmentIndex: number, breakdownIndex: number, type: 'wp' | 'ea' | 'co', mappingIndex: number, checked: boolean) => {
+  if (checked) {
+    courseStore.addAssessmentMapping(assessmentIndex, breakdownIndex, type, mappingIndex + 1)
+  } else {
+    courseStore.removeAssessmentMapping(assessmentIndex, breakdownIndex, type, mappingIndex + 1)
+  }
+}
 
 const wpOptions = computed(() => {
   if (courseStore.selectedSchool) {
@@ -202,10 +196,6 @@ function getRecommendationClass(
             </Select>
           </TableCell>
           <TableCell class="w-0 text-center">
-            <!-- <Input
-              :class="{ 'border-destructive focus-visible:ring-destructive': totalWeightage !== 100 }"
-              v-model="assessment.weightage" class="text-sm" type="number"
-            /> -->
             <NumberField v-model="assessment.weightage" class="w-full">
               <NumberFieldContent>
                 <NumberFieldInput/>
@@ -222,7 +212,7 @@ function getRecommendationClass(
           >
             <Checkbox
               :modelValue="assessment.cos.includes(coIndex + 1)"
-              @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'cos'], coIndex + 1, isChecked)"
+              @update:modelValue="(isChecked) => handleMappingChange(assessmentIndex, -1, 'co', coIndex, Boolean(isChecked))"
             />
           </TableCell>
         </TableRow>
@@ -235,7 +225,6 @@ function getRecommendationClass(
             <Input v-model="breakdown.description" class="text-sm" />
           </TableCell>
           <TableCell class="w-0">
-            <!-- <Input v-model="breakdown.weightage" class="text-sm w-20" type="number" /> -->
             <NumberField v-model="breakdown.weightage" class="w-full">
               <NumberFieldContent>
                 <NumberFieldInput/>
@@ -253,7 +242,7 @@ function getRecommendationClass(
           >
             <Checkbox
               :modelValue="breakdown.co == coIndex + 1"
-              @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(index), 'co'], coIndex + 1, isChecked)"
+              @update:modelValue="(isChecked) => handleMappingChange(assessmentIndex, index, 'co', coIndex, Boolean(isChecked))"
             />
           </TableCell>
         </TableRow>
@@ -351,28 +340,22 @@ function getRecommendationClass(
               class="text-center"
               :class="getRecommendationClass(assessmentIndex, -1, 'wp', Number(wpIndex))"
             >
-              <!-- <div class="flex flex-col gap-0.5 items-center"> -->
-                <!-- <span class="bg-green-600 rounded w-1 h-1"></span> -->
-                <Checkbox
-                  v-if="assessment.breakdown.length == 0"
-                  :modelValue="assessment.wps?.includes(Number(wpIndex) + 1)"
-                  @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'wps'], Number(wpIndex) + 1, checked)"
-                />
-              <!-- </div> -->
+              <Checkbox
+                v-if="assessment.breakdown.length == 0"
+                :modelValue="assessment.wps?.includes(Number(wpIndex) + 1)"
+                @update:modelValue="(checked) => handleMappingChange(assessmentIndex, -1, 'wp', Number(wpIndex), Boolean(checked))"
+              />
             </TableCell>
             <TableCell class="w-4 bg-border"></TableCell>
             <TableCell v-for="(ea, eaIndex) in eaOptions" :key="eaIndex"
               class="text-center"
               :class="getRecommendationClass(assessmentIndex, -1, 'ea', Number(eaIndex))"
             >
-              <!-- <div class="flex flex-col gap-0.5 items-center"> -->
-                <!-- <span class="bg-transparent rounded w-1 h-1"></span> -->
-                <Checkbox
-                  v-if="assessment.breakdown.length == 0"
-                  :modelValue="assessment.eas?.includes(Number(eaIndex) + 1)"
-                  @update:modelValue="(checked) => updateMapping([String(assessmentIndex), 'eas'], Number(eaIndex) + 1, checked)"
-                />
-              <!-- </div> -->
+              <Checkbox
+                v-if="assessment.breakdown.length == 0"
+                :modelValue="assessment.eas?.includes(Number(eaIndex) + 1)"
+                @update:modelValue="(checked) => handleMappingChange(assessmentIndex, -1, 'ea', Number(eaIndex), Boolean(checked))"
+              />
             </TableCell>
           </TableRow>
           <template v-if="assessment.breakdown.length > 0">
@@ -394,7 +377,7 @@ function getRecommendationClass(
               >
                 <Checkbox
                   :modelValue="breakdown.wps?.includes(Number(wpIndex) + 1)"
-                  @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'wps'], Number(wpIndex) + 1, isChecked)"
+                  @update:modelValue="(isChecked) => handleMappingChange(assessmentIndex, breakdownIndex, 'wp', Number(wpIndex), Boolean(isChecked))"
                 />
               </TableCell>
               <TableCell class="w-4 bg-border"></TableCell>
@@ -404,7 +387,7 @@ function getRecommendationClass(
               >
                 <Checkbox
                   :modelValue="breakdown.eas?.includes(Number(eaIndex) + 1)"
-                  @update:modelValue="(isChecked) => updateMapping([String(assessmentIndex), 'breakdown', String(breakdownIndex), 'eas'], Number(eaIndex) + 1, isChecked)"
+                  @update:modelValue="(isChecked) => handleMappingChange(assessmentIndex, breakdownIndex, 'ea', Number(eaIndex), Boolean(isChecked))"
                 />
               </TableCell>
             </TableRow>

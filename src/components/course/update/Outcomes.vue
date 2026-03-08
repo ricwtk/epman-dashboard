@@ -44,33 +44,10 @@ const updateBloomTaxonomy = (coIndex: number, newBloomTaxonomy: string) => {
 const addCo = () => courseStore.addCo();
 
 const handleMappingChange = (coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', mappingIndex: number, checked: boolean) => {
-  const co = draft.value.cos[coIndex]
-  if (co) {
-    if (type === 'po') {
-      if (checked) {
-        co.pos.push(mappingIndex + 1)
-      } else {
-        co.pos = co.pos.filter((pos) => pos !== mappingIndex + 1)
-      }
-    } else if (type === 'wk') {
-      if (checked) {
-        co.wks.push(mappingIndex + 1)
-      } else {
-        co.wks = co.wks.filter((wk) => wk !== mappingIndex + 1)
-      }
-    } else if (type === 'wp') {
-      if (checked) {
-        co.wps.push(mappingIndex + 1)
-      } else {
-        co.wps = co.wps.filter((wp) => wp !== mappingIndex + 1)
-      }
-    } else if (type === 'ea') {
-      if (checked) {
-        co.eas.push(mappingIndex + 1)
-      } else {
-        co.eas = co.eas.filter((ea) => ea !== mappingIndex + 1)
-      }
-    }
+  if (checked) {
+    courseStore.addCoMapping(coIndex, type, mappingIndex + 1)
+  } else {
+    courseStore.removeCoMapping(coIndex, type, mappingIndex + 1)
   }
 }
 
