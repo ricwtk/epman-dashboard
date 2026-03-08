@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, toRaw, watch } from 'vue';
-import { Badge } from '@/components/ui/badge';
+import { onMounted, ref, computed } from 'vue';
 import NavIndicator from '@/components/NavIndicator.vue';
 import { RevisionDropdown, RevisionDeleteButton } from '@/components/revision';
 
@@ -31,8 +30,7 @@ onMounted(() => {
   structureStore.programmeCode = props.code
 });
 
-// import { useEditingProgrammeStore } from "@/stores/editingprogramme";
-// const editingProgrammeStore = useEditingProgrammeStore();
+const loading = computed(() => programmeStore.loading || structureStore.loading);
 
 const editing = ref(false);
 const updateEditing = (ev: boolean, tab?: string) => {
@@ -64,30 +62,35 @@ const updateEditing = (ev: boolean, tab?: string) => {
       <RevisionDeleteButton @delete="programmeStore.deleteRevision()" v-if="authStore.canEditProgrammes"/>
     </div>
     <ProgrammeSummary
+      :loading="loading"
       :editable="authStore.canEditProgrammes"
       :programme="programmeStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
     />
     <ProgrammePeo
+      :loading="loading"
       :editable="authStore.canEditProgrammes"
       :peoList="programmeStore.saved.peoList"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'peo')"
     />
     <ProgrammePo
+      :loading="loading"
       :editable="authStore.canEditProgrammes"
       :poList="programmeStore.saved.poList"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'po')"
     />
     <PoMapping
+      :loading="loading"
       :editable="authStore.canEditProgrammes"
       :poList="programmeStore.saved.poList"
       :editing="editing"
       @editMapping="(courseType) => updateEditing(true, courseType)"
     />
     <ProgrammeStructure
+      :loading="loading"
       :editable="authStore.canEditProgrammes"
       :structureList="structureListStore.labelToInfoMap"
       :editing="editing"

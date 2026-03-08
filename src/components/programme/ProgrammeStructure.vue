@@ -6,12 +6,14 @@ import { Label } from '@/components/ui/label';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import StructureGrid from '@/components/programme/StructureGrid.vue';
 import type { ProgrammeStructureInfo } from '@/types/programme';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 defineEmits(['update:editing']);
 
 const props = defineProps<{
   structureList: { [label: string]: ProgrammeStructureInfo };
   editing: boolean;
+  loading?: boolean;
 }>();
 
 import { storeToRefs } from 'pinia';
@@ -33,6 +35,7 @@ const labels = computed(() => Object.keys(props.structureList))
       Programme Structure
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="labels.length === 0">
         <template #title>
           No Programme Structure

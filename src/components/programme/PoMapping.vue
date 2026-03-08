@@ -14,11 +14,13 @@ import EmptyComponent from '@/components/EmptyComponent.vue';
 import { COURSE_TYPES } from '@/constants';
 import { PenIcon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 const props = defineProps<{
   poList: Po[];
   editing: boolean;
   editable?: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits<{
@@ -33,6 +35,7 @@ defineEmits<{
       Program Outcomes (POs) Mapping Recommendations
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="poList.length === 0">
         <template #title>
           No Programme Outcomes

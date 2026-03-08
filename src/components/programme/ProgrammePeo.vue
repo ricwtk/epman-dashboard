@@ -9,10 +9,12 @@ import {
   TableCell
 } from '@/components/ui/table';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 const props = defineProps<{
   peoList: string[];
   editing: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
@@ -24,6 +26,7 @@ defineEmits(['update:editing']);
       Programme Education Outcomes (PEOs)
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="peoList.length === 0">
         <template #title>
           No Programme Education Outcomes

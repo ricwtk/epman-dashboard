@@ -10,10 +10,12 @@ import {
   TableCell
 } from '@/components/ui/table';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 const props = defineProps<{
   poList: Po[];
   editing: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
@@ -25,6 +27,7 @@ defineEmits(['update:editing']);
       Programme Outcomes (POs)
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="poList.length === 0">
         <template #title>
           No Programme Outcomes
