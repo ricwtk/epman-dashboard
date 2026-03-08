@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
-// import { getEditingSchoolAndStore } from '@/composables/school';
-// const { school, editingSchoolStore } = getEditingSchoolAndStore();
-// const { programmeToSchoolMap } = storeToRefs(editingSchoolStore);
 
 import { useSchoolStore } from '@/stores/school';
 const schoolStore = useSchoolStore();
 const { programmeToSchoolMap } = storeToRefs(schoolStore);
 
 import { formatRevision } from '@/utils/common';
-import { dataService, type MappedProgramme } from '@/services/dataService';
+import { dataService } from '@/services/dataService';
 import { createNewProgramme } from '@/utils/programmeHelpers';
 import { navigateToProgrammeExternal } from '@/utils/navigationHelpers';
 
@@ -20,7 +17,6 @@ import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import { SquareArrowOutUpRightIcon, XIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
-import CreateNewPopover from '@/components/CreateNewPopover.vue';
 import NewOrAddPopover from '@/components/NewOrAddPopover.vue';
 import { Field } from '@/components/ui/field';
 

@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import Summary from './update/Summary.vue'
 import Component from './update/Component.vue'
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -31,9 +32,6 @@ const toggleDialog = () => {
 import { useSchoolStore } from '@/stores/school';
 const schoolStore = useSchoolStore();
 
-// import { getEditingSchoolAndStore } from "@/composables/school";
-// const { editingSchoolStore } = getEditingSchoolAndStore();
-
 const diff = computed(() => schoolStore.checkDiff([]))
 const resetSchool = () => { schoolStore.resetDraft(); }
 const saveSchool = () => { schoolStore.save(); }
@@ -46,7 +44,8 @@ const saveSchool = () => { schoolStore.save(); }
       <DialogTitle>School Details Update</DialogTitle>
       <DialogDescription>Update school level details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden" v-model="schoolStore.editingTab">
+    <Tabs default-value="summary" class="overflow-hidden relative" v-model="schoolStore.editingTab">
+      <LoadingComponent :show="schoolStore.loading" class="z-50" />
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>
@@ -87,7 +86,7 @@ const saveSchool = () => { schoolStore.save(); }
     <div class="justify-end flex flex-row grow gap-1">
       <!-- <Button variant="destructive">Commit</Button> -->
       <div class="grow"></div>
-       <Button variant="default" @click="saveSchool">Save</Button>
+       <Button variant="default" @click="saveSchool" :disabled="schoolStore.loading || !diff">Save</Button>
       <Button variant="ghost" @click="toggleDialog">Cancel</Button>
     </div>
   </DialogContent>
