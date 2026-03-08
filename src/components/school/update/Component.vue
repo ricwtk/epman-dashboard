@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import ResetButton from '@/components/ResetButton.vue';
 import { PlusIcon, MinusIcon, RotateCcwIcon } from 'lucide-vue-next';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 import { useSchoolStore } from '@/stores/school';
 const schoolStore = useSchoolStore();
@@ -51,6 +52,12 @@ const addItem = () => {
 const removeItem = (index: number) => {
   schoolStore.draft.components![props.component].splice(index, 1);
 }
+
+const showEmpty = computed(() => {
+  return !schoolStore.draft.components
+    ||  !schoolStore.draft.components[props.component]
+    ||  schoolStore.draft.components[props.component].length === 0
+})
 </script>
 
 <template>
@@ -59,7 +66,15 @@ const removeItem = (index: number) => {
       {{ title }}
       <ResetButton :disabled="!overallDiff" @reset="resetDiff" />
     </div>
-    <Table>
+    <EmptyComponent v-if="showEmpty">
+      <template #title>
+        No {{ title }} available
+      </template>
+      <template #description>
+        <Button variant="default" @click="addItem"><PlusIcon /> Click to add an item</Button>
+      </template>
+    </EmptyComponent>
+    <Table v-else>
       <TableHeader>
         <TableRow>
           <TableHead class="w-0 text-center"></TableHead>
@@ -89,7 +104,7 @@ const removeItem = (index: number) => {
         </TableRow>
         <TableRow>
           <TableCell colspan="4">
-            <Button variant="default" class="w-full" @click="addItem">
+            <Button variant="default" class="w-full text-xs" size="sm" @click="addItem">
               <PlusIcon />
               Add {{ shortlabel }}
             </Button>

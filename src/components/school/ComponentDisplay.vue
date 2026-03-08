@@ -9,6 +9,7 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
+import EmptyComponent from '@/components/EmptyComponent.vue';
 
 const props = defineProps<{
   title: string,
@@ -26,7 +27,15 @@ defineEmits(['update:editing']);
       {{ title }}
     </template>
     <template #body>
-    <Table class="">
+    <EmptyComponent v-if="items.length === 0">
+      <template #title>
+        No {{ title }}
+      </template>
+      <template #description>
+        Add item to display
+      </template>
+    </EmptyComponent>
+    <Table class="" v-else>
       <TableHeader>
         <TableRow>
           <TableHead class="text-center">#</TableHead>
