@@ -12,10 +12,12 @@ import {
 } from '@/components/ui/table';
 import { CheckIcon, MinusIcon } from "lucide-vue-next";
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 defineProps<{
   cos: Co[] | [];
   editing: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
@@ -27,6 +29,7 @@ defineEmits(['update:editing']);
       Course Outcomes
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="cos.length === 0">
         <template #title>
           No Course Outcomes

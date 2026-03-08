@@ -19,14 +19,8 @@ const authStore = useAuthStore();
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
 
-// import { useViewingCourseStore } from '@/stores/viewingcourse';
-// const viewingCourseStore = useViewingCourseStore();
-
 const props = defineProps<{ code: string }>();
 onMounted(() => { courseStore.loadCourseByCode(props.code); });
-
-// import { useEditingCourseStore } from "@/stores/editingcourse";
-// const editingCourseStore = useEditingCourseStore();
 
 const editing = ref(false);
 const updateEditing = (ev: boolean, tab?: string) => {
@@ -58,12 +52,14 @@ const updateEditing = (ev: boolean, tab?: string) => {
       <RevisionDeleteButton @delete="courseStore.deleteRevision()" v-if="authStore.canEditCourses"/>
     </div>
     <CourseSummary
+      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
     />
     <ProgrammeAllocation
+      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :programmes="courseStore.programmes"
       :schools="courseStore.schools"
@@ -71,12 +67,14 @@ const updateEditing = (ev: boolean, tab?: string) => {
       @update:editing="(ev: boolean) => updateEditing(ev, 'summary')"
     />
     <CourseOutcomes
+      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :cos="courseStore.saved.cos || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'outcomes')"
     />
     <CourseAssessments
+      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :assessments="courseStore.saved.assessments"
       :coCount="courseStore.saved.cos?.length || 0"
@@ -84,18 +82,21 @@ const updateEditing = (ev: boolean, tab?: string) => {
       @update:editing="(ev) => updateEditing(ev, 'assessments')"
     />
     <CEPCEAImplementation
+      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'assessments')"
     />
     <CoursePlan
+      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'teachingplan')"
     />
     <CourseReferences
+      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :references="courseStore.saved.references || []"
       :editing="editing"

@@ -2,15 +2,16 @@
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import ContentItem from '@/components/contentcard/ContentItem.vue';
 import ContentItemBadges from '@/components/contentcard/ContentItemBadges.vue';
-import { Button } from '@/components/ui/button';
 import { type Course } from '@/types/course';
 import { COURSE_TYPES } from '@/constants';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Badge } from '@/components/ui/badge';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 defineProps<{
   course: Course;
   editing: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
@@ -22,6 +23,7 @@ defineEmits(['update:editing']);
       Course Summary
     </template>
     <template #body="{ editing }">
+      <LoadingComponent :show="loading" />
       <div class="flex flex-col gap-3">
         <div class="flex flex-wrap gap-3">
           <ContentItem title="Code">

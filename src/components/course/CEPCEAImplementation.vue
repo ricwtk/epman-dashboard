@@ -12,8 +12,13 @@ import {
 import BadgeList from '@/components/BadgeList.vue';
 import { CheckIcon, MinusIcon } from 'lucide-vue-next';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
-defineProps<{ course: Course; editing: boolean }>();
+defineProps<{
+  course: Course;
+  editing: boolean
+  loading?: boolean;
+}>();
 
 defineEmits(['update:editing']);
 
@@ -67,6 +72,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
       CEP and CEA Implementation
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="course.assessments.length === 0">
         <template #title>
           No Assessments

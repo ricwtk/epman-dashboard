@@ -21,7 +21,7 @@ defineProps({
 @reference '@/assets/base.css';
 
 .root {
-  @apply left-0 right-0 top-0 bottom-0 absolute rounded-md bg-white;
+  @apply left-0 right-0 top-0 bottom-0 absolute rounded-md bg-white z-50;
   background-color: rgba(255,255,255,0.9);
 }
 .loading {

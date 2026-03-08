@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button';
 import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 const props = defineProps<{
   assessments: Assessment[];
   coCount: number;
   editing: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
@@ -35,6 +37,7 @@ const toggleBreakdown = () => {
       Assessments
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="assessments.length === 0">
         <template #title>
           No Assessments

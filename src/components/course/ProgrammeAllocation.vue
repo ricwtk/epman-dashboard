@@ -7,12 +7,14 @@ import { SquareArrowOutUpRightIcon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { navigateToSchoolExternal, navigateToProgrammeExternal } from '@/utils/navigationHelpers';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 defineProps<{
   programmes: ProgrammesWithCourse;
   schools: SchoolsByCode;
   editing: boolean;
   editable?: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
@@ -24,6 +26,7 @@ defineEmits(['update:editing']);
       Programme Allocation
     </template>
     <template #body="{ editing }">
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="Object.keys(programmes).length === 0">
         <template #title>
           Not Programme Allocation

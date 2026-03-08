@@ -9,8 +9,7 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { CheckIcon, EyeIcon, EyeOffIcon } from 'lucide-vue-next';
+import { CheckIcon } from 'lucide-vue-next';
 
 const props = defineProps<{
   assessments: Assessment[] | undefined,

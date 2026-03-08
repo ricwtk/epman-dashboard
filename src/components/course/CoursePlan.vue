@@ -11,8 +11,13 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
-const props = defineProps<{ course: Course; editing: boolean }>();
+const props = defineProps<{
+  course: Course;
+  editing: boolean;
+  loading?: boolean;
+}>();
 defineEmits(['update:editing']);
 
 import {
@@ -33,6 +38,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
       Teaching Plan
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="course.teachingPlan.length === 0">
         <template #title>
           No Teaching Plan

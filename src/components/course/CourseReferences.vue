@@ -9,8 +9,14 @@ import {
   TableCell
 } from '@/components/ui/table';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
-const props = defineProps<{ references: Reference[]; editing: boolean; editable?: boolean }>();
+const props = defineProps<{
+  references: Reference[];
+  editing: boolean;
+  editable?: boolean;
+  loading?: boolean;
+}>();
 const emit = defineEmits(['update:editing']);
 
 const mainReferences = computed(() => props.references.filter(reference => reference.label === 'main'));
@@ -23,6 +29,7 @@ const additionalReferences = computed(() => props.references.filter(reference =>
       Main Reference
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="mainReferences.length === 0">
         <template #title>
           No Main References
@@ -46,6 +53,7 @@ const additionalReferences = computed(() => props.references.filter(reference =>
       Additional References
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="additionalReferences.length === 0">
         <template #title>
           No Additional References
