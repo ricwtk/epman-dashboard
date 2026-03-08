@@ -20,15 +20,17 @@ const viewingProgrammeStore = useViewingProgrammeStore();
 import { useStructureListStore } from '@/stores/structurelist';
 const structureListStore = useStructureListStore();
 
-import { useViewingStructureStore } from '@/stores/viewingstructure';
-const viewingStructureStore = useViewingStructureStore();
+// import { useViewingStructureStore } from '@/stores/viewingstructure';
+// const viewingStructureStore = useViewingStructureStore();
+import { useStructureStore } from '@/stores/structure';
+const structureStore = useStructureStore();
 
 const props = defineProps<{ code: string }>();
 onMounted(() => {
   viewingProgrammeStore.loadProgrammeByCode(props.code);
   console.log(viewingProgrammeStore.programmeRevisions)
   structureListStore.updateLabelToInfoMap(props.code)
-  viewingStructureStore.programmeCode = props.code
+  structureStore.programmeCode = props.code
 });
 
 import { useEditingProgrammeStore } from "@/stores/editingprogramme";

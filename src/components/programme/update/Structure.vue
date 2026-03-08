@@ -21,24 +21,24 @@ import { useStructureListStore } from '@/stores/structurelist';
 const structureListStore = useStructureListStore();
 const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
 
-import { getEditingProgrammeAndStore, getEditingStructureAndStore } from '@/composables/programme';
+import { getEditingProgrammeAndStore } from '@/composables/programme';
 const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
-const { structure, editingStructureStore } = getEditingStructureAndStore();
+// const { structure, editingStructureStore } = getEditingStructureAndStore();
+
+import { useStructureStore } from '@/stores/structure';
+const structureStore = useStructureStore();
+
 const {
   selectedStructureLabel,
-  structureRevisions,
   selectedRevision,
   revisions
-} = storeToRefs(editingStructureStore);
-onMounted(() => {
-  editingStructureStore.programmeCode = programme.value.code;
-})
+} = storeToRefs(structureStore);
 
 const diffs = computed(() => {
-  return editingStructureStore.checkDiff()
+  return structureStore.checkDiff()
 })
 // const diffContent = computed(() => editingStructureStore.getDiff())
-const resetDiff = () => editingStructureStore.resetDiff()
+const resetDiff = () => structureStore.resetDiff()
 
 const addNewStructure = async (newLabel: string) => {
   const newStructureParameters = {
@@ -52,25 +52,25 @@ const addNewStructure = async (newLabel: string) => {
   }
   const newStructure = createNewStructure(newStructureParameters);
   saveStructure(newStructure)
+  structureStore.copyStructureFrom(newStructure)
 };
 
 const saveRevision = async () => {
-  editingStructureStore.saveStructure()
-  saveStructure(structure.value)
+  structureStore.save()
+  saveStructure(structureStore.draft)
 }
 
 const saveStructure = async (struc: ProgrammeStructure) => {
   structureListStore.saveStructure(struc);
-  editingStructureStore.copyStructureFrom(struc)
   await dataService.saveStructure(struc);
 }
 
 const deleteRevision = async () => {
-  const idToDelete = structure.value.id
-  await dataService.deleteItem("structures", idToDelete)
-  editingStructureStore.deleteRevision()
-  if (editingStructureStore.revisions.length == 0) {
-    structureListStore.deleteStructure(structure.value)
+  // const idToDelete = structure.value.id
+  // await dataService.deleteItem("structures", idToDelete)
+  structureStore.deleteRevision()
+  if (structureStore.revisions.length == 0) {
+    structureListStore.deleteStructure(structureStore.draft)
   }
 };
 
@@ -102,14 +102,14 @@ const deleteRevision = async () => {
         <ResetButton :disabled="!diffs" @reset="resetDiff" />
       </div>
 
-      <StructureGrid v-model:semesters="structure.semesters"
-        v-model:semesterOrder="structure.semesterOrder"
+      <StructureGrid v-model:semesters="structureStore.draft.semesters"
+        v-model:semesterOrder="structureStore.draft.semesterOrder"
         :editable="true"
       >
         <template #header>
           <div class="flex flex-col gap-1">
             <Label for="label">Label</Label>
-            <Input id="label" placeholder="Label for Programme Structure" v-model="structure.label" disabled/>
+            <Input id="label" placeholder="Label for Programme Structure" v-model="structureStore.draft.label" disabled/>
           </div>
           <div class="flex flex-col gap-1 grow">
             <Label for="revision">Revision</Label>

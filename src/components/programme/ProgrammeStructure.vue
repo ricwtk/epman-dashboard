@@ -14,15 +14,15 @@ const props = defineProps<{
   editing: boolean;
 }>();
 
-import { useViewingStructureStore } from '@/stores/viewingstructure';
 import { storeToRefs } from 'pinia';
-const viewingStructureStore = useViewingStructureStore();
+import { useStructureStore } from '@/stores/structure';
+const structureStore = useStructureStore();
 const {
-  structure,
+  saved,
   selectedStructureLabel,
   selectedRevision,
   revisions
-} = storeToRefs(viewingStructureStore)
+} = storeToRefs(structureStore)
 
 const labels = computed(() => Object.keys(props.structureList))
 </script>
@@ -43,8 +43,8 @@ const labels = computed(() => Object.keys(props.structureList))
       </EmptyComponent>
       <StructureGrid v-else
         :editable="false"
-        v-model:semesters="structure.semesters"
-        v-model:semesterOrder="structure.semesterOrder"
+        v-model:semesters="saved.semesters"
+        v-model:semesterOrder="saved.semesterOrder"
       >
         <template #header>
           <div class="flex flex-col gap-1 flex-1">

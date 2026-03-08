@@ -1,6 +1,6 @@
 import { storeToRefs } from 'pinia';
 import { useEditingProgrammeStore } from '@/stores/editingprogramme';
-import { useEditingStructureStore } from '@/stores/editingstructure';
+// import { useEditingStructureStore } from '@/stores/editingstructure';
 
 export function getEditingProgrammeAndStore() {
   const editingProgrammeStore = useEditingProgrammeStore();
@@ -8,8 +8,8 @@ export function getEditingProgrammeAndStore() {
   return { programme, editingProgrammeStore };
 }
 
-export function getEditingStructureAndStore() {
-  const editingStructureStore = useEditingStructureStore();
-  const { structure } = storeToRefs(editingStructureStore);
-  return { structure, editingStructureStore };
-}
+// export function getEditingStructureAndStore() {
+//   const editingStructureStore = useEditingStructureStore();
+//   const { structure } = storeToRefs(editingStructureStore);
+//   return { structure, editingStructureStore };
+// }
