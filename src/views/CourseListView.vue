@@ -6,6 +6,7 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 import { navigateToCourse } from '@/utils/navigationHelpers';
 import { formatRevision } from '@/utils/common';
@@ -16,7 +17,6 @@ const authStore = useAuthStore();
 
 import { useCourseListStore } from '@/stores/courselist';
 const courseListStore = useCourseListStore();
-
 const { codeToInfoMap: courses } = storeToRefs(courseListStore);
 const courseList = computed(() => Object.keys(courses.value).sort((a, b) => a.localeCompare(b)));
 const addNewCourse = async (newName: string, newCode: string) => {
@@ -31,11 +31,13 @@ const addNewCourse = async (newName: string, newCode: string) => {
   };
   const newCourse = createCourseObject(newCourseParameters);
   try {
+    courseListStore.loading = true;
     await dataService.saveCourse(newCourse);
     courseListStore.saveCourseUpdate(newCourse);
   } catch (error) {
     console.error('Error saving course:', error);
   }
+  courseListStore.loading = false;
 }
 </script>
 
@@ -50,6 +52,7 @@ const addNewCourse = async (newName: string, newCode: string) => {
       Course List
     </template>
     <template #body>
+      <LoadingComponent :show="courseListStore.loading" />
       <div class="
         grid
         grid-cols-1

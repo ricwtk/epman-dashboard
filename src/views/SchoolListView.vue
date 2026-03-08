@@ -5,6 +5,7 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 import { navigateToSchool } from '@/utils/navigationHelpers';
 import { formatRevision, getSortedUniqueLatestPartial } from '@/utils/common';
@@ -14,8 +15,12 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 
 const schools = ref<{ code: string, name: string }[]>([]);
+const loading = ref(false);
+
 async function updateSchoolList() {
+  loading.value = true;
   schools.value = getSortedUniqueLatestPartial(await dataService.getSchools(), ["code", "name"]);
+  loading.value = false;
 }
 onMounted(async () => {
   await updateSchoolList();
@@ -33,11 +38,13 @@ const addNewSchool = async (newName: string, newCode: string) => {
   };
   const newSchool = createNewSchool(newSchoolParameters);
   try {
+    loading.value = true;
     await dataService.saveSchool(newSchool);
     await updateSchoolList();
   } catch (error) {
     console.error('Error saving school:', error);
   }
+  loading.value = false;
 };
 </script>
 
@@ -52,6 +59,7 @@ const addNewSchool = async (newName: string, newCode: string) => {
       Schools
     </template>
     <template #body>
+    <LoadingComponent :show="loading" />
     <div class="
       grid
       grid-cols-1

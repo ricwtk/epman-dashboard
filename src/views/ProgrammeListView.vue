@@ -5,6 +5,7 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 import { navigateToProgramme } from '@/utils/navigationHelpers';
 import { formatRevision, getSortedUniqueLatestPartial } from '@/utils/common';
@@ -14,10 +15,14 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 
 const programmes = ref<{ code: string, name: string }[]>([]);
+const loading = ref(false);
+
 async function updateProgrammeList() {
+  loading.value = true;
   programmes.value = Object.entries(await dataService.getProgrammes())
     .map(([code, programme]) => ({ code, name: programme.name }))
     .sort((a, b) => a.code.localeCompare(b.code));
+  loading.value = false;
 }
 onMounted(async () => {
   await updateProgrammeList();
@@ -35,11 +40,13 @@ const addNewProgramme = async (newName: string, newCode: string) => {
   };
   const newProgramme = createNewProgramme(newProgrammeParameters);
   try {
+    loading.value = true;
     await dataService.saveProgramme(newProgramme);
     await updateProgrammeList();
   } catch (error) {
     console.error('Error saving programme:', error);
   }
+  loading.value = false;
 }
 </script>
 
@@ -54,6 +61,7 @@ const addNewProgramme = async (newName: string, newCode: string) => {
       Programme List
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <div class="
         grid
         grid-cols-1

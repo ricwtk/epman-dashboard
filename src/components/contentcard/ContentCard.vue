@@ -54,7 +54,7 @@ const toggleEditing = () => {
     }
   }
   .card-structure-body {
-    @apply py-2 px-4 bg-card rounded-md border-border border shadow-md;
+    @apply py-2 px-4 bg-card rounded-md border-border border shadow-md relative;
   }
 }
 </style>
