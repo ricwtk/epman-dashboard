@@ -10,12 +10,14 @@ import {
   TableCell
 } from '@/components/ui/table';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 const props = defineProps<{
   title: string,
   shortlabel?: string,
   items: AttrDesc[],
   editing: boolean,
+  loading?: boolean,
 }>();
 
 defineEmits(['update:editing']);
@@ -27,6 +29,7 @@ defineEmits(['update:editing']);
       {{ title }}
     </template>
     <template #body>
+    <LoadingComponent :show="loading" />
     <EmptyComponent v-if="items.length === 0">
       <template #title>
         No {{ title }}

@@ -7,6 +7,7 @@ import SchoolSummary from '@/components/school/SchoolSummary.vue';
 import SchoolListOfProgramme from '@/components/school/SchoolListOfProgramme.vue';
 import ComponentDisplay from '@/components/school/ComponentDisplay.vue';
 import SchoolUpdateDialog from '@/components/school/SchoolUpdateDialog.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
@@ -16,16 +17,9 @@ const schoolStore = useSchoolStore();
 
 const props = defineProps<{ code: string }>();
 
-// import { useViewingSchoolStore } from "@/stores/viewingschoool";
-// const viewingSchoolStore = useViewingSchoolStore();
-
 onMounted(async () => {
   schoolStore.loadSchoolByCode(props.code);
-  // console.log(viewingSchoolStore.schoolRevisions);
 });
-
-// import { useEditingSchoolStore } from "@/stores/editingschoool";
-// const editingSchoolStore = useEditingSchoolStore();
 
 const editing = ref(false);
 const updateEditing = (ev: boolean, tab?: string) => {
@@ -46,7 +40,8 @@ const updateEditing = (ev: boolean, tab?: string) => {
   ]"/>
 
   <template v-if="schoolStore.saved">
-    <div class="card-plain px-4 text-muted-foreground text-sm flex flex-row justify-start items-center gap-2">
+    <div class="card-plain px-4 text-muted-foreground text-sm flex flex-row justify-start items-center gap-2 relative">
+      <LoadingComponent v-if="schoolStore.loading" />
       {{ schoolStore.saved.code }} {{ schoolStore.saved.name }}
       <RevisionDropdown
         :current="schoolStore.saved.revision"
@@ -57,18 +52,21 @@ const updateEditing = (ev: boolean, tab?: string) => {
       <RevisionDeleteButton @delete="schoolStore.deleteRevision()" v-if="authStore.canEditSchools"/>
     </div>
     <SchoolSummary
+      :loading="schoolStore.loading"
       :editable="authStore.canEditSchools"
       :school="schoolStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
     />
     <SchoolListOfProgramme
+      :loading="schoolStore.loading"
       :editable="authStore.canEditSchools"
       :programmes="schoolStore.saved.programmes.map(p => ({ code: p, name: schoolStore.programmeToSchoolMap[p]?.name || '' }))"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'programmes')"
     />
     <ComponentDisplay
+      :loading="schoolStore.loading"
       :editable="authStore.canEditSchools"
       title="Washington Accord Knowledge & Attribute Profile (WK)"
       shortlabel="WK"
@@ -77,6 +75,7 @@ const updateEditing = (ev: boolean, tab?: string) => {
       @update:editing="(ev) => updateEditing(ev, 'wk')"
     />
     <ComponentDisplay
+      :loading="schoolStore.loading"
       :editable="authStore.canEditSchools"
       title="Washington Accord Problem Identification & Solving (WP)"
       shortlabel="WP"
@@ -85,6 +84,7 @@ const updateEditing = (ev: boolean, tab?: string) => {
       @update:editing="(ev) => updateEditing(ev, 'wp')"
     />
     <ComponentDisplay
+      :loading="schoolStore.loading"
       :editable="authStore.canEditSchools"
       title="Complex Engineering Activities (EA)"
       shortlabel="EA"

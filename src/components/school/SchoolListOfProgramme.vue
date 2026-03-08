@@ -3,17 +3,17 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 import { SquareArrowOutUpRightIcon } from 'lucide-vue-next';
 import { navigateToProgrammeExternal } from '@/utils/navigationHelpers';
 
 const props = defineProps<{
   programmes: { code: string; name: string; }[];
   editing: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
-
-import { dataService } from '@/services/dataService';
 </script>
 
 <template>
@@ -22,6 +22,7 @@ import { dataService } from '@/services/dataService';
       Programme List
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <EmptyComponent v-if="programmes.length === 0">
         <template #title>
           No Programmes

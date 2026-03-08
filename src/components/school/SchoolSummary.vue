@@ -2,10 +2,12 @@
 import type { School } from '@/types/school';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import ContentItem from '@/components/contentcard/ContentItem.vue';
+import LoadingComponent from '../LoadingComponent.vue';
 
 const props = defineProps<{
   school: School;
   editing: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits(['update:editing']);
@@ -17,6 +19,7 @@ defineEmits(['update:editing']);
       School Summary
     </template>
     <template #body>
+      <LoadingComponent :show="loading" />
       <div class="flex flex-col gap-3">
         <div class="flex flex-wrap gap-3">
           <ContentItem title="Code">

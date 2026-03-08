@@ -1,8 +1,6 @@
 import { ref, toRaw, computed } from 'vue';
-import { computedAsync } from '@vueuse/core';
 
 import type { School } from "@/types/school";
-import type { Programme } from "@/types/programme";
 import type { ProgrammeToSchoolMap } from "@/services/dataService";
 
 import { createNewSchool } from "@/utils/schoolHelpers";
@@ -19,23 +17,30 @@ export const useSchoolStore = defineStore('school', () => {
   const draft = ref<School>(structuredClone(createNewSchool()))
   const saved = ref<School>(structuredClone(createNewSchool()))
   const revisions = ref<School[]>([])
+  const loading_flags = ref<{ [key: string]: boolean }>({})
+  const loading = computed(() => Object.values(loading_flags.value).some(flag => flag))
 
   async function loadSchoolByCode(code: string) {
+    loading_flags.value[loadSchoolByCode.name] = true;
     clear();
     revisions.value = await dataService.getSchool(code);
     revisions.value.sort((a, b) => b.revision.localeCompare(a.revision));
     if (revisions.value.length > 0) {
       saved.value = revisions.value[0]!;
     }
+    loading_flags.value[loadSchoolByCode.name] = false;
   }
   function loadRevision(revision: string) {
+    loading_flags.value[loadRevision.name] = true;
     clear();
     const revIndex = revisions.value.findIndex(sch => sch.revision === revision);
     if (revIndex !== -1) {
       saved.value = revisions.value[revIndex]!;
     }
+    loading_flags.value[loadRevision.name] = false;
   }
   async function deleteRevision() {
+    loading_flags.value[deleteRevision.name] = true;
     if (saved.value.id !== "") {
       await dataService.deleteItem('schools', saved.value.id);
       const revIndex = revisions.value.findIndex(sch => sch.id === saved.value.id)
@@ -49,6 +54,7 @@ export const useSchoolStore = defineStore('school', () => {
         navigateToParent();
       }
     }
+    loading_flags.value[deleteRevision.name] = false;
   }
 
   const editingTab = ref<string>('summary')
@@ -62,7 +68,9 @@ export const useSchoolStore = defineStore('school', () => {
   })
 
   async function updateProgrammeToSchoolMap(): Promise<void> {
+    loading_flags.value[updateProgrammeToSchoolMap.name] = true;
     programmeToSchoolMap.value = await dataService.getProgrammeToSchoolMap()
+    loading_flags.value[updateProgrammeToSchoolMap.name] = false;
   }
   updateProgrammeToSchoolMap();
 
@@ -81,8 +89,10 @@ export const useSchoolStore = defineStore('school', () => {
   }
 
   function resetDiff(pathArray: string[]): void {
+    loading_flags.value[resetDiff.name] = true;
     const original = get(saved.value, pathArray)
     set(draft.value, pathArray, original)
+    loading_flags.value[resetDiff.name] = false;
   }
 
   function checkDiff(pathArray: string[]): boolean {
@@ -114,12 +124,8 @@ export const useSchoolStore = defineStore('school', () => {
     return original !== current;
   }
 
-  function loadSchool(sch: School): void {
-    saved.value = structuredClone(sch)
-    draft.value = structuredClone(sch)
-  }
-
   async function save(): Promise<void> {
+    loading_flags.value[save.name] = true;
     draft.value.parentRevision = draft.value.revision
     draft.value.revision = formatRevision()
     draft.value.committed = {
@@ -134,6 +140,7 @@ export const useSchoolStore = defineStore('school', () => {
     } catch (error) {
       console.error('Error saving school:', error);
     }
+    loading_flags.value[save.name] = false;
   }
 
   function addToRevisions(): void {
@@ -141,12 +148,13 @@ export const useSchoolStore = defineStore('school', () => {
   }
 
   return {
+    loading, loading_flags,
     draft, saved, revisions,
     editingTab,
     loadSchoolByCode, loadRevision, deleteRevision,
     addedProgrammes, removedProgrammes,
     clear, createDraft, resetDraft,
-    commit, loadSchool, save,
+    commit, save,
     programmeToSchoolMap, updateProgrammeToSchoolMap,
     getDiff, checkDiff, resetDiff
   }
