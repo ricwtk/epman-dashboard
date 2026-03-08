@@ -29,6 +29,8 @@ const semestersWithCourseInfo = computed(
 // const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
 // ----------
 
+const loading = ref(false);
+
 /* display mode: by year or by semester */
 import { STRUCTURE_DISPLAY_MODES, NUMBER_OF_SEMESTER_PER_YEAR } from '@/constants'
 const structureDisplayMode = ref<string | null>(null)
@@ -164,6 +166,7 @@ const addCourse = (code: string, semKey: string) => {
   }
 }
 const createCourse = async (name: string, code: string, semKey: string) => {
+  loading.value = true;
   const newCourseParameters = {
     name: name,
     code: code.toUpperCase(),
@@ -181,6 +184,7 @@ const createCourse = async (name: string, code: string, semKey: string) => {
   } catch (error) {
     console.error('Error saving course:', error);
   }
+  loading.value = false;
 }
 // ----------
 
@@ -196,6 +200,7 @@ const viewCourse = (courseCode: string) => {
 import { zeroPad } from '@/utils/common';
 import { nanoid } from 'nanoid';
 const addSemester = (asSemNumber = -1) => {
+  loading.value = true;
   const newSemesterKey = nanoid()
   semesters.value[newSemesterKey] = []
 
@@ -207,6 +212,7 @@ const addSemester = (asSemNumber = -1) => {
   } else {
     semesterOrder.value.splice(targetSemIndex, 0, newSemesterKey)
   }
+  loading.value = false;
 };
 
 import {
@@ -230,10 +236,12 @@ import { Button } from '@/components/ui/button';
 import { XIcon, EyeIcon } from 'lucide-vue-next'
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
 import NewOrAddPopover from '../NewOrAddPopover.vue';
+import LoadingComponent from '../LoadingComponent.vue';
 </script>
 
 <template>
-  <div class="flex flex-col gap-1">
+  <div class="flex flex-col gap-1 relative">
+    <LoadingComponent :show="loading" class="z-50"/>
     <div class="flex flex-row justify-between gap-1 items-end">
       <slot name="header"></slot>
       <Select v-model="structureDisplayMode">

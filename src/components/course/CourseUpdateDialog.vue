@@ -20,6 +20,7 @@ import Assessments from './update/Assessments.vue'
 import TeachingPlan from './update/TeachingPlan.vue'
 import References from './update/References.vue'
 import ResetButton from '@/components/ResetButton.vue'
+import LoadingComponent from '@/components/LoadingComponent.vue'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -34,9 +35,6 @@ const toggleDialog = () => {
 import { useCourseStore } from '@/stores/course'
 const courseStore = useCourseStore()
 
-// import { getEditingCourseAndStore } from "@/composables/course";
-// const { editingCourseStore } = getEditingCourseAndStore();
-
 const diff = computed(() => courseStore.checkDiff([]))
 const resetCourse = () => { courseStore.resetDraft(); }
 const saveCourse = () => { courseStore.save(); }
@@ -49,7 +47,8 @@ const saveCourse = () => { courseStore.save(); }
       <DialogTitle>Course Details Update</DialogTitle>
       <DialogDescription>Update course details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden" v-model="courseStore.editingTab">
+    <Tabs default-value="summary" class="overflow-hidden relative" v-model="courseStore.editingTab">
+      <LoadingComponent :show="courseStore.loading" class="z-50" />
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>
@@ -85,7 +84,7 @@ const saveCourse = () => { courseStore.save(); }
     <div class="justify-end flex flex-row grow gap-1">
       <!-- <Button variant="destructive">Commit</Button> -->
       <div class="grow"></div>
-      <Button variant="default" @click="saveCourse">Save</Button>
+      <Button variant="default" @click="saveCourse" :disabled="courseStore.loading || !diff">Save</Button>
       <Button variant="ghost" @click="toggleDialog">Cancel</Button>
     </div>
   </DialogContent>

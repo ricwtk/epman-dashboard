@@ -21,6 +21,7 @@ import Po from './update/Po.vue'
 import PoMapping from './update/PoMapping.vue'
 import Structure from './update/Structure.vue'
 import { COURSE_TYPES } from '@/constants';
+import LoadingComponent from '@/components/LoadingComponent.vue';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -32,10 +33,11 @@ const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
 
-// import { getEditingProgrammeAndStore } from "@/composables/programme";
-// const { editingProgrammeStore } = getEditingProgrammeAndStore();
 import { useProgrammeStore } from '@/stores/programme';
 const programmeStore = useProgrammeStore();
+
+import { useStructureStore } from '@/stores/structure';
+const structureStore = useStructureStore();
 
 const diff = computed(() => programmeStore.checkDiff([]))
 const resetProgramme = () => { programmeStore.resetDraft(); }
@@ -49,7 +51,8 @@ const saveProgramme = () => { programmeStore.save(); }
       <DialogTitle>Programme Details Update</DialogTitle>
       <DialogDescription>Update programme details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden" v-model="programmeStore.editingTab">
+    <Tabs default-value="summary" class="overflow-hidden relative" v-model="programmeStore.editingTab">
+      <LoadingComponent :show="programmeStore.loading || structureStore.loading" class="z-50" />
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>
@@ -89,7 +92,7 @@ const saveProgramme = () => { programmeStore.save(); }
     <div class="justify-end flex flex-row grow gap-1">
       <!-- <Button variant="destructive">Commit</Button> -->
       <div class="grow"></div>
-      <Button variant="default" @click="saveProgramme">Save</Button>
+      <Button variant="default" @click="saveProgramme" :disabled="programmeStore.loading || structureStore.loading || !diff">Save</Button>
       <Button variant="ghost" @click="toggleDialog">Cancel</Button>
     </div>
   </DialogContent>

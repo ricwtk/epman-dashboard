@@ -131,7 +131,7 @@ const deleteRevision = async () => {
             </Select>
           </div>
           <Button variant="destructive" @click="deleteRevision">Delete revision</Button>
-          <Button variant="default" @click="saveRevision">Save structure</Button>
+          <Button variant="default" @click="saveRevision" :disabled="structureStore.loading || !diffs">Save structure</Button>
         </template>
       </StructureGrid>
 
