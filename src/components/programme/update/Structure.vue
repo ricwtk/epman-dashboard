@@ -21,9 +21,12 @@ import { useStructureListStore } from '@/stores/structurelist';
 const structureListStore = useStructureListStore();
 const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
 
-import { getEditingProgrammeAndStore } from '@/composables/programme';
-const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+// import { getEditingProgrammeAndStore } from '@/composables/programme';
+// const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
 // const { structure, editingStructureStore } = getEditingStructureAndStore();
+
+import { useProgrammeStore } from '@/stores/programme';
+const programmeStore = useProgrammeStore();
 
 import { useStructureStore } from '@/stores/structure';
 const structureStore = useStructureStore();
@@ -42,7 +45,7 @@ const resetDiff = () => structureStore.resetDiff()
 
 const addNewStructure = async (newLabel: string) => {
   const newStructureParameters = {
-    programme: programme.value.code,
+    programme: programmeStore.draft.code,
     label: newLabel,
     revision: formatRevision(),
     committed: {

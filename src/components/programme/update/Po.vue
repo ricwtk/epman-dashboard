@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getEditingProgrammeAndStore } from '@/composables/programme';
+// import { getEditingProgrammeAndStore } from '@/composables/programme';
 
 import {
   Table,
@@ -21,34 +21,38 @@ import EmptyComponent from '@/components/EmptyComponent.vue';
 
 import { createNewPo } from '@/utils/programmeHelpers';
 
-const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+// const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+
+import { useProgrammeStore } from '@/stores/programme';
+const programmeStore = useProgrammeStore();
+
 const overallDiff = computed(() => {
-  return editingProgrammeStore.checkDiff(["poList"]);
+  return programmeStore.checkDiff(["poList"]);
 });
 const diffs = computed(() => {
-  return programme.value.poList.map((_: any, index: number) =>
-    editingProgrammeStore.checkDiff(["poList", String(index)])
+  return programmeStore.draft.poList.map((_: any, index: number) =>
+    programmeStore.checkDiff(["poList", String(index)])
   );
 });
 const resetDiff = () => {
-  editingProgrammeStore.resetDiff(["poList"]);
+  programmeStore.resetDiff(["poList"]);
 };
 
 const addItem = () => {
-  programme.value.poList.push(createNewPo());
+  programmeStore.draft.poList.push(createNewPo());
 }
 
 const removeItem = (index: number) => {
-  programme.value.poList.splice(index, 1);
+  programmeStore.draft.poList.splice(index, 1);
 }
 
 const resetItem = (index: number) => {
-  editingProgrammeStore.resetDiff(["poList", String(index)]);
+  programmeStore.resetDiff(["poList", String(index)]);
 }
 
 const togglePeo = (poIndex: number, peoIndex: number) => {
-  if (programme.value.poList[poIndex]) {
-    programme.value.poList[poIndex].mapping.peo = peoIndex + 1;
+  if (programmeStore.draft.poList[poIndex]) {
+    programmeStore.draft.poList[poIndex].mapping.peo = peoIndex + 1;
   }
 }
 </script>
@@ -59,7 +63,7 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
     <ResetButton :disabled="!overallDiff" @reset="resetDiff" />
   </div>
 
-  <EmptyComponent v-if="programme.poList.length == 0">
+  <EmptyComponent v-if="programmeStore.draft.poList.length == 0">
     <template #title>
       No programme outcomes available
     </template>
@@ -75,9 +79,9 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
         <TableHead class="w-0 text-center align-bottom">#</TableHead>
         <TableHead class="align-bottom">Attribute</TableHead>
         <TableHead class="align-bottom">Descriptor</TableHead>
-        <TableHead class="w-0 text-center" v-if="programme.peoList.length == 0">No PEO defined</TableHead>
+        <TableHead class="w-0 text-center" v-if="programmeStore.draft.peoList.length == 0">No PEO defined</TableHead>
         <TableHead class="w-0 text-center align-bottom" v-else
-          v-for="(item, index) in programme.peoList"
+          v-for="(item, index) in programmeStore.draft.peoList"
           :key="index"
         >
           <VerticalText :label="`PEO${Number(index) + 1}`" :content="item"/>
@@ -87,7 +91,7 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
     </TableHeader>
     <TableBody>
       <TableRow
-        v-for="(item, index) in programme.poList"
+        v-for="(item, index) in programmeStore.draft.poList"
         :key="index"
         :class="diffs[index] ? 'bg-amber-100 hover:bg-amber-200' : ''"
       >
@@ -103,9 +107,9 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
         <TableCell>
           <Textarea v-model="item.descriptor"></Textarea>
         </TableCell>
-        <TableCell class="w-0" v-if="programme.peoList.length == 0"></TableCell>
+        <TableCell class="w-0" v-if="programmeStore.draft.peoList.length == 0"></TableCell>
         <TableCell class="w-0 text-center align-middle" v-else
-          v-for="(peo, peoIndex) in programme.peoList"
+          v-for="(peo, peoIndex) in programmeStore.draft.peoList"
           :key="peoIndex"
         >
           <Checkbox
@@ -119,7 +123,7 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell :colspan="4 + (programme.peoList.length == 0 ? 1 : programme.peoList.length) + 1">
+        <TableCell :colspan="4 + (programmeStore.draft.peoList.length == 0 ? 1 : programmeStore.draft.peoList.length) + 1">
           <Button variant="default" class="w-full text-xs" size="sm" @click="addItem">
             <PlusIcon />
             Add PO

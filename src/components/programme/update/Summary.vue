@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { getEditingProgrammeAndStore } from '@/composables/programme';
-const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+// import { getEditingProgrammeAndStore } from '@/composables/programme';
+// const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+
+import { useProgrammeStore } from '@/stores/programme';
+const programmeStore = useProgrammeStore();
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import ResetButton from '@/components/ResetButton.vue';
 
 const checkDiff = (fields: string[]) => {
-  return editingProgrammeStore.checkDiff(fields);
+  return programmeStore.checkDiff(fields);
 };
 const resetDiff = (fields: string[]) => {
-  editingProgrammeStore.resetDiff(fields);
+  programmeStore.resetDiff(fields);
 };
 </script>
 
@@ -22,7 +25,7 @@ const resetDiff = (fields: string[]) => {
           Code
           <ResetButton :disabled="!checkDiff(['code'])" @reset="resetDiff(['code'])" />
         </Label>
-        <Input disabled id="code" placeholder="Programme Code" v-model="programme.code"/>
+        <Input disabled id="code" placeholder="Programme Code" v-model="programmeStore.draft.code"/>
       </div>
 
       <div class="flex flex-col gap-1 grow">
@@ -30,7 +33,7 @@ const resetDiff = (fields: string[]) => {
           Name
           <ResetButton :disabled="!checkDiff(['name'])" @reset="resetDiff(['name'])" />
         </Label>
-        <Input id="name" placeholder="Programme Name" v-model="programme.name"/>
+        <Input id="name" placeholder="Programme Name" v-model="programmeStore.draft.name"/>
       </div>
     </div>
   </div>

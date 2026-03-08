@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { getSchoolList, createNewSchool } from '@/utils/schoolHelpers';
+import { createNewSchool } from '@/utils/schoolHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';

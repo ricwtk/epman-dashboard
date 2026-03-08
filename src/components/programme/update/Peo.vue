@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getEditingProgrammeAndStore } from '@/composables/programme';
+// import { getEditingProgrammeAndStore } from '@/composables/programme';
 
 import {
   Table,
@@ -17,29 +17,33 @@ import { PlusIcon, MinusIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 
-const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+// const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+
+import { useProgrammeStore } from '@/stores/programme';
+const programmeStore = useProgrammeStore();
+
 const overallDiff = computed(() => {
-  return editingProgrammeStore.checkDiff(["peoList"]);
+  return programmeStore.checkDiff(["peoList"]);
 });
 const diffs = computed(() => {
-  return programme.value.peoList.map((_: any, index: number) =>
-    editingProgrammeStore.checkDiff(["peoList", String(index)])
+  return programmeStore.draft.peoList.map((_: any, index: number) =>
+    programmeStore.checkDiff(["peoList", String(index)])
   );
 });
 const resetDiff = () => {
-  editingProgrammeStore.resetDiff(["peoList"]);
+  programmeStore.resetDiff(["peoList"]);
 };
 
 const addItem = () => {
-  programme.value.peoList.push("");
+  programmeStore.draft.peoList.push("");
 }
 
 const removeItem = (index: number) => {
-  programme.value.peoList.splice(index, 1);
+  programmeStore.draft.peoList.splice(index, 1);
 }
 
 const resetItem = (index: number) => {
-  editingProgrammeStore.resetDiff(["peoList", String(index)]);
+  programmeStore.resetDiff(["peoList", String(index)]);
 }
 </script>
 
@@ -50,7 +54,7 @@ const resetItem = (index: number) => {
       <ResetButton :disabled="!overallDiff" @reset="resetDiff" />
     </div>
 
-    <EmptyComponent v-if="programme.peoList.length == 0">
+    <EmptyComponent v-if="programmeStore.draft.peoList.length == 0">
       <template #title>
         No programme education outcomes available
       </template>
@@ -70,7 +74,7 @@ const resetItem = (index: number) => {
       </TableHeader>
       <TableBody>
         <TableRow
-          v-for="(item, index) in programme.peoList"
+          v-for="(item, index) in programmeStore.draft.peoList"
           :key="index"
           :class="diffs[index] ? 'bg-amber-100 hover:bg-amber-200' : ''"
         >
@@ -81,7 +85,7 @@ const resetItem = (index: number) => {
           </TableCell>
           <TableCell class="text-center">{{ `PEO${Number(index) + 1}` }}</TableCell>
           <TableCell>
-            <Textarea v-model="programme.peoList[index]"></Textarea>
+            <Textarea v-model="programmeStore.draft.peoList[index]"></Textarea>
           </TableCell>
           <TableCell>
             <ResetButton :disabled="!diffs[index]" @reset="resetItem(index)" />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getEditingProgrammeAndStore } from '@/composables/programme';
+// import { getEditingProgrammeAndStore } from '@/composables/programme';
 import { storeToRefs } from 'pinia';
 import ResetButton from '@/components/ResetButton.vue';
 import { type CourseType } from '@/types/course';
@@ -9,8 +9,11 @@ const props = defineProps<{
   coursetype: CourseType
 }>();
 
-const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
-const { school } = storeToRefs(editingProgrammeStore);
+// const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
+// const { school } = storeToRefs(editingProgrammeStore);
+
+import { useProgrammeStore } from '@/stores/programme';
+const programmeStore = useProgrammeStore();
 
 import {
   Table,
@@ -26,7 +29,7 @@ import EmptyComponent from '@/components/EmptyComponent.vue';
 import { computed } from 'vue';
 
 const mapping = computed(() => {
-  return programme.value.poList.map((po) => po.mapping[props.coursetype]);
+  return programmeStore.draft.poList.map((po) => po.mapping[props.coursetype]);
 });
 
 const handleMappingChange = (poIndex: number, component: "wk" | "wp" | "ea", compValue: number, isChecked: boolean | 'indeterminate') => {
@@ -42,30 +45,30 @@ const handleMappingChange = (poIndex: number, component: "wk" | "wp" | "ea", com
   }
 };
 
-const wkMappingDiff = computed(() => editingProgrammeStore.checkMappingDiff(props.coursetype, 'wk'))
-const wpMappingDiff = computed(() => editingProgrammeStore.checkMappingDiff(props.coursetype, 'wp'))
-const eaMappingDiff = computed(() => editingProgrammeStore.checkMappingDiff(props.coursetype, 'ea'))
+const wkMappingDiff = computed(() => programmeStore.checkMappingDiff(props.coursetype, 'wk'))
+const wpMappingDiff = computed(() => programmeStore.checkMappingDiff(props.coursetype, 'wp'))
+const eaMappingDiff = computed(() => programmeStore.checkMappingDiff(props.coursetype, 'ea'))
 
 const resetMapping = (component: "wk" | "wp" | "ea") => {
-  editingProgrammeStore.resetMappingDiff(props.coursetype, component);
+  programmeStore.resetMappingDiff(props.coursetype, component);
 };
 
 const emptyComponent = computed<{
   show: boolean, title: string, description: string
 }>(() => {
-  if (!programme.value.poList) return {
+  if (!programmeStore.draft.poList) return {
     show: true,
     title: 'Programme object not ready',
     description: 'Wait for the programme object to be ready'
   }
-  else if (programme.value.poList.length === 0) {
+  else if (programmeStore.draft.poList.length === 0) {
     return {
       show: true,
       title: 'No programme outcomes available',
       description: 'Define programme outcomes to display mapping matrices'
     }
   }
-  else if (!school.value) {
+  else if (!programmeStore.school) {
     return {
       show: true,
       title: 'Programme not assigned to any school',
@@ -108,7 +111,7 @@ const emptyComponent = computed<{
         <TableRow>
           <TableHead class="align-bottom text-center w-0">PO</TableHead>
           <TableHead class="align-bottom text-center"
-            v-for="(wk, wkIndex) in school?.components?.wks"
+            v-for="(wk, wkIndex) in programmeStore.school?.components?.wks"
             :key="wkIndex"
           >
             <VerticalText :label="`WK${Number(wkIndex) + 1}`" :content="wk.attribute" />
@@ -116,9 +119,9 @@ const emptyComponent = computed<{
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(po, poIndex) in programme.poList" :key="poIndex" class="text-center">
+        <TableRow v-for="(po, poIndex) in programmeStore.draft.poList" :key="poIndex" class="text-center">
           <TableCell class="w-0">PO{{ poIndex + 1 }}</TableCell>
-          <TableCell v-for="(_, wkIndex) in school?.components?.wks" :key="wkIndex">
+          <TableCell v-for="(_, wkIndex) in programmeStore.school?.components?.wks" :key="wkIndex">
             <Checkbox
               :id="`po-${poIndex}-wk-${wkIndex}`"
               :modelValue="mapping[poIndex]!.wk.includes(Number(wkIndex) + 1)"
@@ -143,14 +146,14 @@ const emptyComponent = computed<{
           <TableHead class="align-bottom text-center w-0">PO</TableHead>
           <TableHead class="w-0 bg-border"></TableHead>
           <TableHead class="align-bottom text-center"
-            v-for="(wp, wpIndex) in school?.components?.wps"
+            v-for="(wp, wpIndex) in programmeStore.school?.components?.wps"
             :key="wpIndex"
           >
             <VerticalText :label="`WP${Number(wpIndex) + 1}`" :content="wp.attribute" />
           </TableHead>
           <TableHead class="w-0 bg-border"></TableHead>
           <TableHead class="align-bottom text-center"
-            v-for="(ea, eaIndex) in school?.components?.eas"
+            v-for="(ea, eaIndex) in programmeStore.school?.components?.eas"
             :key="eaIndex"
           >
             <VerticalText :label="`EA${Number(eaIndex) + 1}`" :content="ea.attribute" />
@@ -158,10 +161,10 @@ const emptyComponent = computed<{
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(po, poIndex) in programme.poList" :key="poIndex" class="text-center">
+        <TableRow v-for="(po, poIndex) in programmeStore.draft.poList" :key="poIndex" class="text-center">
           <TableCell class="w-0">PO{{ poIndex + 1 }}</TableCell>
           <TableCell class="w-0 bg-border"></TableCell>
-          <TableCell v-for="(_, wpIndex) in school?.components?.wps" :key="wpIndex">
+          <TableCell v-for="(_, wpIndex) in programmeStore.school?.components?.wps" :key="wpIndex">
             <Checkbox
               :id="`po-${poIndex}-wp-${wpIndex}`"
               :modelValue="mapping[poIndex]!.wp.includes(Number(wpIndex) + 1)"
@@ -169,7 +172,7 @@ const emptyComponent = computed<{
             />
           </TableCell>
           <TableCell class="w-0 bg-border"></TableCell>
-          <TableCell v-for="(_, eaIndex) in school?.components?.eas" :key="eaIndex">
+          <TableCell v-for="(_, eaIndex) in programmeStore.school?.components?.eas" :key="eaIndex">
             <Checkbox
               :id="`po-${poIndex}-ea-${eaIndex}`"
               :modelValue="mapping[poIndex]!.ea.includes(Number(eaIndex) + 1)"

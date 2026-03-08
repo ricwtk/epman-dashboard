@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from 'vue';
-import { getProgrammeList, createNewProgramme } from '@/utils/programmeHelpers';
+import { createNewProgramme } from '@/utils/programmeHelpers';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';

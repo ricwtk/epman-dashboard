@@ -32,11 +32,14 @@ const toggleDialog = () => {
   emit('update:isOpen', !props.isOpen);
 };
 
-import { getEditingProgrammeAndStore } from "@/composables/programme";
-const { editingProgrammeStore } = getEditingProgrammeAndStore();
-const diff = computed(() => editingProgrammeStore.checkDiff([]))
-const resetProgramme = () => { editingProgrammeStore.resetProgramme(); }
-const saveProgramme = () => { editingProgrammeStore.saveProgramme(); }
+// import { getEditingProgrammeAndStore } from "@/composables/programme";
+// const { editingProgrammeStore } = getEditingProgrammeAndStore();
+import { useProgrammeStore } from '@/stores/programme';
+const programmeStore = useProgrammeStore();
+
+const diff = computed(() => programmeStore.checkDiff([]))
+const resetProgramme = () => { programmeStore.resetDraft(); }
+const saveProgramme = () => { programmeStore.save(); }
 </script>
 
 <template>
@@ -46,7 +49,7 @@ const saveProgramme = () => { editingProgrammeStore.saveProgramme(); }
       <DialogTitle>Programme Details Update</DialogTitle>
       <DialogDescription>Update programme details</DialogDescription>
     </DialogHeader>
-    <Tabs default-value="summary" class="overflow-hidden" v-model="editingProgrammeStore.selectedTab">
+    <Tabs default-value="summary" class="overflow-hidden" v-model="programmeStore.editingTab">
       <div class="flex flex-row overflow-hidden justify-between">
         <div class="overflow-auto">
           <TabsList>
