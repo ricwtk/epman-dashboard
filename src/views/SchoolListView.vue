@@ -65,8 +65,11 @@ const addNewSchool = async (newName: string, newCode: string) => {
         <Button
           variant="default"
           @click="navigateToSchool(school.code)"
+          :title="school.code + ' ' + school.name"
         >
+          <span class="truncate">
           {{ school.code }} {{ school.name }}
+          </span>
         </Button>
       </template>
       <CreateNewPopover v-if="authStore.canEditSchools"

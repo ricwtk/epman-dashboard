@@ -67,8 +67,11 @@ const addNewProgramme = async (newName: string, newCode: string) => {
           <Button
             variant="default"
             @click="navigateToProgramme(programme.code)"
+            :title="programme.code + ' ' + programme.name"
           >
-            {{ programme.code }} {{ programme.name }}
+            <span class="truncate">
+              {{ programme.code }} {{ programme.name }}
+            </span>
           </Button>
         </template>
         <CreateNewPopover v-if="authStore.canEditProgrammes"
