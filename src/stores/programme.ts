@@ -16,6 +16,8 @@ export const useProgrammeStore = defineStore('programme', () => {
   const draft= ref<Programme>(createNewProgramme())
   const saved = ref<Programme>(createNewProgramme())
   const revisions = ref<Programme[]>([])
+  const loading_flags = ref<{ [key: string]: boolean }>({})
+  const loading = computed(() => Object.values(loading_flags.value).some(flag => flag))
 
   const editingTab = ref<string>('summary')
 
@@ -25,23 +27,28 @@ export const useProgrammeStore = defineStore('programme', () => {
   // })
 
   async function loadProgrammeByCode(code: string) {
+    loading_flags.value[loadProgrammeByCode.name] = true;
     clear();
     revisions.value = await dataService.getProgramme(code);
     revisions.value.sort((a, b) => b.revision.localeCompare(a.revision));
     if (revisions.value.length > 0) {
       saved.value = revisions.value[0]!;
     }
+    loading_flags.value[loadProgrammeByCode.name] = false;
   }
 
   function loadRevision(revision: string) {
+    loading_flags.value[loadRevision.name] = true;
     clear();
     const revIndex = revisions.value.findIndex(prog => prog.revision === revision);
     if (revIndex !== -1) {
       saved.value = revisions.value[revIndex]!;
     }
+    loading_flags.value[loadRevision.name] = false;
   }
 
   async function deleteRevision() {
+    loading_flags.value[deleteRevision.name] = true;
     if (saved.value.id !== "") {
       await dataService.deleteItem('programmes', saved.value.id);
       const revIndex = revisions.value.findIndex(prog => prog.id === saved.value.id)
@@ -55,6 +62,7 @@ export const useProgrammeStore = defineStore('programme', () => {
         navigateToParent();
       }
     }
+    loading_flags.value[deleteRevision.name] = false;
   }
 
   const school = computedAsync(async () => {
@@ -67,6 +75,7 @@ export const useProgrammeStore = defineStore('programme', () => {
   function commit(): void { saved.value = structuredClone(toRaw(draft.value)); }
 
   function resetDiff(pathArray: string[]): void {
+    loading_flags.value[resetDiff.name] = true;
     const existsInOriginal = has(saved.value, pathArray);
     if (!existsInOriginal) {
       const parentPath = pathArray.slice(0, -1);
@@ -81,12 +90,12 @@ export const useProgrammeStore = defineStore('programme', () => {
           delete parent[key];
         }
       }
-
-      return;
+    } else {
+      // Field exists → reset to original value
+      const original = get(saved.value, pathArray);
+      set(draft.value, pathArray, original);
     }
-    // Field exists → reset to original value
-    const original = get(saved.value, pathArray);
-    set(draft.value, pathArray, original);
+    loading_flags.value[resetDiff.name] = false;
   }
 
   function checkDiff(pathArray: string[]): boolean {
@@ -128,6 +137,7 @@ export const useProgrammeStore = defineStore('programme', () => {
   }
 
   function resetMappingDiff(courseType: CourseType, component: "wk" | "wp" | "ea"): void {
+    loading_flags.value[resetMappingDiff.name] = true;
     const originalPoList = saved.value.poList
     const original = originalPoList.map(po => get(po, ['mapping', courseType, component]))
 
@@ -137,14 +147,11 @@ export const useProgrammeStore = defineStore('programme', () => {
     if (original && current) {
       currentPoList.map((po, index) => set(po, ['mapping', courseType, component], structuredClone(toRaw(original[index]))))
     }
+    loading_flags.value[resetMappingDiff.name] = false;
   }
 
-  // function loadProgramme(prog: Programme): void {
-  //   originalProgramme.value = structuredClone(prog)
-  //   programme.value = structuredClone(prog)
-  // }
-
   async function save(): Promise<void> {
+    loading_flags.value[save.name] = true;
     draft.value.parentRevision = draft.value.revision
     draft.value.revision = formatRevision()
     draft.value.committed = {
@@ -159,6 +166,7 @@ export const useProgrammeStore = defineStore('programme', () => {
     } catch (error) {
       console.error('Error saving programme:', error);
     }
+    loading_flags.value[save.name] = false;
   }
 
   function addToRevisions(): void {
@@ -166,6 +174,7 @@ export const useProgrammeStore = defineStore('programme', () => {
   }
 
   return {
+    loading, loading_flags,
     school, revisions,
     loadProgrammeByCode, loadRevision, deleteRevision,
     draft, saved,

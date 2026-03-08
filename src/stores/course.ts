@@ -1,6 +1,5 @@
 import { ref, computed, toRaw, watch } from 'vue';
 import type { Course } from "@/types/course";
-import type { Programme, Mapping } from "@/types/programme";
 import type { School } from "@/types/school";
 import { createCourseObject } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
@@ -23,6 +22,8 @@ export const useCourseStore = defineStore('course', () => {
   const draft = ref<Course>(createCourseObject())
   const saved = ref<Course>(createCourseObject())
   const revisions = ref<Course[]>([])
+  const loading_flags = ref<{ [key: string]: boolean }>({})
+  const loading = computed(() => Object.values(loading_flags.value).some(flag => flag))
 
   // parameters for editing ui
   const editingTab = ref<string>('summary')
@@ -50,13 +51,15 @@ export const useCourseStore = defineStore('course', () => {
     return !programmeNotSelected.value && (selectedSchool.value === null);
   })
 
-
-  watch(() => saved.value.code, async () => {
+  async function traceCourseUsage(): Promise<void> {
+    loading_flags.value[traceCourseUsage.name] = true
     if (!saved.value.code) return;
     const usage = await dataService.traceCourseUsageAcrossProgrammes(saved.value.code)
     programmes.value = usage.programmes
     schools.value = usage.schools
-  })
+    loading_flags.value[traceCourseUsage.name] = false
+  }
+  watch(() => saved.value.code, traceCourseUsage)
 
   function clear(): void { draft.value = createCourseObject(); saved.value = createCourseObject(); }
   function createDraft(): void { draft.value = structuredClone(toRaw(saved.value)); }
@@ -64,23 +67,28 @@ export const useCourseStore = defineStore('course', () => {
   function commit(): void { saved.value = structuredClone(toRaw(draft.value)); }
 
   async function loadCourseByCode(code: string): Promise<void> {
+    loading_flags.value[loadCourseByCode.name] = true
     clear()
     revisions.value = await dataService.getCourse(code)
     revisions.value.sort((a, b) => b.revision.localeCompare(a.revision));
     if (revisions.value.length > 0) {
       saved.value = revisions.value[0]!;
     }
+    loading_flags.value[loadCourseByCode.name] = false
   }
 
   function loadRevision(revision: string) {
+    loading_flags.value[loadRevision.name] = true
     clear();
     const revIndex = revisions.value.findIndex(cour => cour.revision === revision);
     if (revIndex !== -1) {
       saved.value = revisions.value[revIndex]!;
     }
+    loading_flags.value[loadRevision.name] = false
   }
 
   async function deleteRevision() {
+    loading_flags.value[deleteRevision.name] = true
     if (saved.value.id !== "") {
       await dataService.deleteItem('courses', saved.value.id);
       const revIndex = revisions.value.findIndex(cour => cour.id === saved.value.id)
@@ -94,6 +102,7 @@ export const useCourseStore = defineStore('course', () => {
         navigateToParent();
       }
     }
+    loading_flags.value[deleteRevision.name] = false
   }
 
   function resetDiff(pathArray: string[]): void { resetDiffCommon(draft.value, saved.value, pathArray) }
@@ -156,6 +165,7 @@ export const useCourseStore = defineStore('course', () => {
   function moveReferenceDown(index: number): void { moveDown('references', index); }
 
   async function save(): Promise<void> {
+    loading_flags.value[save.name] = true
     draft.value.parentRevision = draft.value.revision
     draft.value.revision = formatRevision()
     draft.value.committed = {
@@ -170,6 +180,7 @@ export const useCourseStore = defineStore('course', () => {
     } catch (error) {
       console.error('Error saving course:', error);
     }
+    loading_flags.value[save.name] = false
   }
 
   function addToRevisions(): void {
@@ -250,6 +261,7 @@ export const useCourseStore = defineStore('course', () => {
   })
 
   return {
+    loading, loading_flags,
     draft, saved, revisions,
     loadCourseByCode, loadRevision, deleteRevision,
     clear, createDraft, resetDraft, save,

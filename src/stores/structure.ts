@@ -13,13 +13,17 @@ export const useStructureStore = defineStore('structure', () => {
   const programmeCode = ref<string>("")
   const structureRevisions = ref<{ [revision: string]: ProgrammeStructure }>({})
   const revisions = computed<string[]>(() => Object.keys(structureRevisions.value).sort((a, b) => b.localeCompare(a)))
+  const loading_flags = ref<{ [key: string]: boolean }>({})
+  const loading = computed(() => Object.values(loading_flags.value).some(flag => flag))
 
   const selectedStructureLabel = ref<string>("")
   const draft = ref<ProgrammeStructure>(createNewStructure())
   const saved = ref<ProgrammeStructure>(createNewStructure())
 
   async function loadStructureRevisionsByProgrammeAndLabel(programme: string, label: string) {
+    loading_flags.value[loadStructureRevisionsByProgrammeAndLabel.name] = true
     structureRevisions.value = await dataService.getStructureRevisionsByProgrammeAndLabel(programme, label)
+    loading_flags.value[loadStructureRevisionsByProgrammeAndLabel.name] = false
   }
   watch([programmeCode, selectedStructureLabel], () => {
     if (programmeCode.value && selectedStructureLabel.value) {
@@ -66,6 +70,7 @@ export const useStructureStore = defineStore('structure', () => {
   }
 
   async function save(): Promise<void> {
+    loading_flags.value[save.name] = true
     draft.value.parentRevision = draft.value.revision
     draft.value.revision = formatRevision()
     draft.value.committed = {
@@ -74,9 +79,11 @@ export const useStructureStore = defineStore('structure', () => {
     }
     draft.value.id = formatStructureId(draft.value)
     commit()
+    loading_flags.value[save.name] = false
   }
 
   async function deleteRevision() {
+    loading_flags.value[deleteRevision.name] = true
     if (draft.value.id !== "") {
       const idToDelete = draft.value.id
       await dataService.deleteItem("structures", idToDelete)
@@ -94,9 +101,11 @@ export const useStructureStore = defineStore('structure', () => {
         selectedRevision.value = revisions.value[revIndex - 1]!
       }
     }
+    loading_flags.value[deleteRevision.name] = false
   }
 
   return {
+    loading, loading_flags,
     programmeCode,
     draft, saved,
     selectedStructureLabel,
