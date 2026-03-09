@@ -84,7 +84,7 @@ const processFiles = () => {
 }
 
 const removeFile = (index: number) => {
-
+  files.value.splice(index, 1)
 }
 </script>
 
@@ -147,7 +147,7 @@ const removeFile = (index: number) => {
       <Accordion type="single" collapsible class="w-full">
         <AccordionItem v-for="(file, fileIndex) in files" :value="`${fileIndex}-${file.object.name}`" :key="`${fileIndex}-${file.object.name}`">
           <AccordionTrigger class="items-center">
-            <Button variant="ghost" size="icon" :title="removeFile(fileIndex)" @click.stop="console.log"><ListXIcon /></Button>
+            <Button variant="ghost" size="icon" title="remove file" @click.stop="removeFile(fileIndex)"><ListXIcon /></Button>
             <div class="relative w-10 h-full flex justify-center items-center">
               <LoadingComponent :show="file.inQueue||file.isReading||file.inSaveQueue||file.isSaving" style="backgroundColor: rgba(255, 255, 255, 0.7)"/>
               <Button variant="ghost" size="icon" @click.stop="console.log"><SaveIcon /></Button>
