@@ -85,6 +85,13 @@ function parseSemesterYear(raw: string): { semester: number; year: number } {
 }
 
 /**
+ * Parse a string like "Analytical Skills, Problem-Solving and Scientific Skills" into ["Analytical Skills", "Problem-Solving", "Scientific Skills"]
+ */
+function parseItemList(raw: string): string[] {
+  return raw.replace(" and ", " , ").split(",").map(s => s.trim()).filter(Boolean)
+}
+
+/**
  * Extract all tables from the raw HTML output of mammoth.
  * Returns an array of tables, each table being an array of rows of cell strings.
  */
@@ -131,35 +138,44 @@ function extractTables(html: string): Table[] {
  * Parse Section 1 (Course Summary) from plain text.
  * Looks for label:value pairs in the text.
  */
-function parseSection1(text: string): CourseSummary {
+// function parseSection1(text: string): CourseSummary {
+function parseSection1(tables: Table[]): CourseSummary {
   const get = (label: string): string => {
-    const regex = new RegExp(`${label}[:\\s]+([^\\n]+)`, 'i');
-    const m = text.match(regex);
-    return m ? m[1]!.trim() : '';
+    if (!summaryTable) return ''
+    const regex = new RegExp(`${label}`);
+    const idx = summaryTable.findIndex(r => r.some(c => regex.test(c.trim())))
+    if (idx == -1) return ''
+    const m = summaryTable[idx]![1];
+    return m ? m.trim() : '';
   };
 
-  const semYear = parseSemesterYear(get('Semester/Year Offered') || get('Semester.Year'));
+  const summaryTable = tables.find((rows) =>
+    rows.some(r => r.some((c) => /^Course Name$/.test(c.trim())))
+  )
 
-  const synopsisMatch = text.match(/Synopsis\s+([\s\S]+?)(?:Transferable Skills|Delivery Method)/i);
-  const synopsis = synopsisMatch ? synopsisMatch[1]!.replace(/\s+/g, ' ').trim() : '';
+  const semYear = parseSemesterYear(get('Semester/Year Offered'));
 
-  const transferableRaw = text.match(/Transferable\s+Skills\s+([\s\S]+?)(?:Delivery Method|$)/i);
-  const transferableSkills = transferableRaw
-    ? transferableRaw[1]!.trim().split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
-    : [];
+  const transferableRaw = get('Transferable Skills').replace(/^and\s+/i, ',');
+  const transferableSkills = parseItemList(transferableRaw)
+  // const transferableSkills = transferableRaw
+  //   ? transferableRaw[1]!.trim().split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
+  //   : [];
 
-  const deliveryRaw = text.match(/Delivery Method\s+([\s\S]+?)(?:Section 2|$)/i);
-  const deliveryMethods = deliveryRaw
-    ? deliveryRaw[1]!.trim().split(/[,\n]/).map((s) => s.replace(/^and\s+/i, '').trim()).filter(Boolean)
-    : [];
+  const deliveryRaw = get('Delivery Method').replace(/^and\s+/i, ',');
+  const deliveryMethods = parseItemList(deliveryRaw)
+  // const deliveryMethods = deliveryRaw
+  //   ? deliveryRaw[1]!.trim().split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
+  //   : [];
 
-  const lecturersRaw = get('Lecturer') || get('Lecturers');
-  const lecturers = lecturersRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
+  const lecturersRaw = get('Lecturer');
+  const lecturers = parseItemList(lecturersRaw)
+  // const lecturers = lecturersRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
 
-  const prereqRaw = get('Pre-requisite') || get('Prerequisites');
-  const prerequisites = prereqRaw
-    ? prereqRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
-    : [];
+  const prereqRaw = get('Pre-requisite');
+  const prerequisites = parseItemList(prereqRaw)
+  // const prerequisites = prereqRaw
+  //   ? prereqRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
+  //   : [];
 
   return {
     name: get('Course Name'),
@@ -168,7 +184,7 @@ function parseSection1(text: string): CourseSummary {
     semester: semYear.semester,
     year: semYear.year,
     credits: parseInt(get('SLT Credit Hours') || get('Credit Hours') || '3', 10),
-    synopsis,
+    synopsis: get('Synopsis'),
     transferableSkills,
     deliveryMethods,
     lecturers,
@@ -423,7 +439,8 @@ export async function parseCourseOutline(
   console.log(tables)
 
   // ── 3. Parse each section ─────────────────────────────────────────────────
-  const summary  = parseSection1(text);
+  // const summary  = parseSection1(text);
+  const summary  = parseSection1(tables);
   const code     = summary.code;
 
   const cos          = parseSection2(tables);

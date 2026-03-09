@@ -66,9 +66,10 @@ const processFiles = () => {
         file.content = await parseCourseOutline(arrayBuffer, { isBrowser: true })
         file.content.revision = formatRevision()
         file.content.id = formatId(file.content)
-      } catch {
+      } catch (e) {
         file.hasError = true
         file.message = "Error extracting information"
+        console.error(e)
       }
       file.isReading = false
     }
@@ -140,7 +141,6 @@ const processFiles = () => {
               <Overview :course="file.content"></Overview>
             </ScrollArea>
             {{ file.content }}
-            {{ file.html }}
           </AccordionContent>
         </AccordionItem>
       </Accordion>
