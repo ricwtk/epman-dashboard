@@ -43,6 +43,7 @@ defineEmits(['update:editing']);
           <TableRow>
             <TableHead class="text-center">#</TableHead>
             <TableHead class="">CO</TableHead>
+            <TableHead class="text-center">BT</TableHead>
             <TableHead class="text-center">PO</TableHead>
             <TableHead class="text-center">WK</TableHead>
             <TableHead class="text-center">WP</TableHead>
@@ -54,6 +55,9 @@ defineEmits(['update:editing']);
           <TableRow v-for="(co, index) in cos" :key="index">
             <TableCell class="text-center">{{ index + 1 }}</TableCell>
             <TableCell>{{ co.description }}</TableCell>
+            <TableCell class="text-center">
+              <BadgeList :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]" />
+            </TableCell>
             <TableCell class="text-center">
               <BadgeList :items="co.pos.map((po) => 'PO'+po)" />
             </TableCell>
