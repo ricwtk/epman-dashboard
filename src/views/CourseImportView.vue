@@ -5,7 +5,7 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@/components/ui/empty'
 import { Button } from '@/components/ui/button';
-import { UploadIcon, EyeIcon, CheckIcon, XIcon } from 'lucide-vue-next';
+import { UploadIcon, EyeIcon, CheckIcon, XIcon, SaveIcon, ListXIcon } from 'lucide-vue-next';
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Overview from '@/components/courseimport/Overview.vue';
@@ -16,6 +16,9 @@ const files = ref<{
   object: File;
   isReading: boolean;
   inQueue: boolean;
+  inSaveQueue: boolean;
+  isSaving: boolean;
+  isSaved: boolean;
   hasError: boolean;
   message: string;
   content: any;
@@ -41,6 +44,9 @@ const addToFiles = (uploadedFiles: FileList) => {
     object: f,
     isReading: false,
     inQueue: true,
+    inSaveQueue: false,
+    isSaving: false,
+    isSaved: false,
     hasError: false,
     message: "",
     content: null
@@ -75,6 +81,10 @@ const processFiles = () => {
       file.isReading = false
     }
   })
+}
+
+const removeFile = (index: number) => {
+
 }
 </script>
 
@@ -136,14 +146,25 @@ const processFiles = () => {
     <template #body>
       <Accordion type="single" collapsible class="w-full">
         <AccordionItem v-for="(file, fileIndex) in files" :value="`${fileIndex}-${file.object.name}`" :key="`${fileIndex}-${file.object.name}`">
-          <AccordionTrigger>
-            {{ file.object.name }}
+          <AccordionTrigger class="items-center">
+            <Button variant="ghost" size="icon" :title="removeFile(fileIndex)" @click.stop="console.log"><ListXIcon /></Button>
+            <div class="relative w-10 h-full flex justify-center items-center">
+              <LoadingComponent :show="file.inQueue||file.isReading||file.inSaveQueue||file.isSaving" style="backgroundColor: rgba(255, 255, 255, 0.7)"/>
+              <Button variant="ghost" size="icon" @click.stop="console.log"><SaveIcon /></Button>
+              <div class="absolute w-full h-full flex justify-center items-center" style="backgroundColor: rgba(255, 255, 255, 0.7)" v-if="file.hasError || file.isSaved">
+                <XIcon v-if="file.hasError" :title="file.message" class="text-red-500 absolute "/>
+                <CheckIcon v-if="file.isSaved" class="text-green-500 absolute "/>
+              </div>
+            </div>
+            <div>{{ file.object.name }}</div>
             <div class="grow"></div>
             <div class="relative w-10 h-full flex justify-center items-center">
-              <EyeIcon v-if="file.isReading"/>
-              <LoadingComponent :show="file.inQueue||file.isReading"/>
-              <CheckIcon v-if="!file.inQueue && !file.isReading && !file.hasError" class="text-green-500"/>
-              <XIcon v-if="!file.inQueue && !file.isReading && file.hasError" :title="file.message" class="text-red-500"/>
+              <EyeIcon />
+              <LoadingComponent :show="file.inQueue||file.isReading" style="backgroundColor: rgba(255, 255, 255, 0.7)"/>
+              <div class="absolute w-full h-full flex justify-center items-center" style="backgroundColor: rgba(255, 255, 255, 0.7)" v-if="!file.inQueue && !file.isReading">
+                <CheckIcon v-if="!file.hasError" class="text-green-500"/>
+                <XIcon v-if="file.hasError" :title="file.message" class="text-red-500"/>
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent>
@@ -153,6 +174,9 @@ const processFiles = () => {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+    </template>
+    <template #actions>
+      <Button variant="secondary">Save all</Button>
     </template>
   </ContentCard>
 </template>
