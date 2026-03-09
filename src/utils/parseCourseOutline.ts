@@ -249,9 +249,9 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
     r.some((c) => /^CO\s*\d+$/i.test(c) || /^Weightage/i.test(c))
   );
 
-  const header = headerIdx >= 0 ? assessTable[headerIdx] : [];
+  const header = assessTable[headerIdx] ?? [];
   const coColIndices: Record<number, number> = {};
-  header!.forEach((cell, idx) => {
+  header.forEach((cell, idx) => {
     const m = cell.match(/^CO\s*(\d+)$/i);
     if (m) coColIndices[parseInt(m[1]!, 10)] = idx;
   });
@@ -260,57 +260,88 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   let currentComponent = '';
   let currentBreakdowns: Breakdown[] = [];
 
-  const flush = (): void => {
-    if (currentComponent && currentBreakdowns.length > 0) {
-      assessments.push({
-        description: currentComponent,
-        component: currentComponent,
-        weightage: currentBreakdowns.reduce((s, b) => s + b.weightage, 0),
-        cos: [...new Set(currentBreakdowns.map((b) => b.co))].sort((a, b) => a - b),
-        breakdown: currentBreakdowns,
-      });
-      currentBreakdowns = [];
-    }
-  };
-
   for (let i = headerIdx + 1; i < assessTable.length; i++) {
     const row = assessTable[i]!;
     if (row.length < 3) continue;
-
-    const compCell = row[0]!.trim();
-    const methodCell = row[1]!.trim();
-    const weightStr = row[2]!.replace(/[^0-9]/g, '').trim();
+    const idxAdj = row.length == header.length ? 0 : -1;
+    const compCell = idxAdj == -1 ? assessments[assessments.length-1]!.component : row[0]!.trim()
+    const descCell = row[1 + idxAdj]!.trim()
+    const weightStr = row[2 + idxAdj]!.replace(/[^0-9]/g, '').trim();
     const weightage = weightStr ? parseInt(weightStr, 10) : 0;
-
-    if (!methodCell || !weightage) continue;
-
-    if (compCell) {
-      flush();
-      currentComponent = compCell;
-    }
 
     const rowCos: number[] = [];
     if (Object.keys(coColIndices).length > 0) {
       for (const [co, idx] of Object.entries(coColIndices)) {
-        if ((row[idx] ?? '').trim().toUpperCase() === 'X') {
+        if ((row[idx + idxAdj] ?? '').trim().toUpperCase() === 'X') {
           rowCos.push(parseInt(co, 10));
         }
       }
     } else {
       for (let c = 3; c < row.length; c++) {
-        if (row[c]!.trim().toUpperCase() === 'X') rowCos.push(c - 2);
+        if (row[c + idxAdj]!.trim().toUpperCase() === 'X') rowCos.push(c - 2);
       }
     }
 
-    currentBreakdowns.push({
-      description: methodCell,
-      weightage,
-      co: rowCos[0] ?? 0,
-      wps: [],
-      eas: [],
+    assessments.push({
+      description: descCell,
+      component: compCell,
+      weightage: weightage,
+      cos: rowCos,
+      breakdown: [],
     });
   }
-  flush();
+
+  // const flush = (): void => {
+  //   if (currentComponent && currentBreakdowns.length > 0) {
+  //     assessments.push({
+  //       description: currentComponent,
+  //       component: currentComponent,
+  //       weightage: currentBreakdowns.reduce((s, b) => s + b.weightage, 0),
+  //       cos: [...new Set(currentBreakdowns.map((b) => b.co))].sort((a, b) => a - b),
+  //       breakdown: currentBreakdowns,
+  //     });
+  //     currentBreakdowns = [];
+  //   }
+  // };
+
+  // for (let i = headerIdx + 1; i < assessTable.length; i++) {
+  //   const row = assessTable[i]!;
+  //   if (row.length < 3) continue;
+
+  //   const compCell = row[0]!.trim();
+  //   const methodCell = row[1]!.trim();
+  //   const weightStr = row[2]!.replace(/[^0-9]/g, '').trim();
+  //   const weightage = weightStr ? parseInt(weightStr, 10) : 0;
+
+  //   if (!methodCell || !weightage) continue;
+
+  //   if (compCell) {
+  //     flush();
+  //     currentComponent = compCell;
+  //   }
+
+  //   const rowCos: number[] = [];
+  //   if (Object.keys(coColIndices).length > 0) {
+  //     for (const [co, idx] of Object.entries(coColIndices)) {
+  //       if ((row[idx] ?? '').trim().toUpperCase() === 'X') {
+  //         rowCos.push(parseInt(co, 10));
+  //       }
+  //     }
+  //   } else {
+  //     for (let c = 3; c < row.length; c++) {
+  //       if (row[c]!.trim().toUpperCase() === 'X') rowCos.push(c - 2);
+  //     }
+  //   }
+
+  //   currentBreakdowns.push({
+  //     description: methodCell,
+  //     weightage,
+  //     co: rowCos[0] ?? 0,
+  //     wps: [],
+  //     eas: [],
+  //   });
+  // }
+  // flush();
 
   return assessments;
 }
