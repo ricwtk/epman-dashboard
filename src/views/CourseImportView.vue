@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { UploadIcon } from 'lucide-vue-next';
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { extractInfo } from '@/utils/importHelpers';
+import Overview from '@/components/courseimport/Overview.vue';
 import { parseCourseOutline } from '@/utils/parseCourseOutline.js'
 import { formatRevision, formatId } from '@/utils/common';
 
@@ -137,6 +137,7 @@ const processFiles = () => {
           <AccordionTrigger>{{ file.object.name }}</AccordionTrigger>
           <AccordionContent>
             <ScrollArea class="h-96">
+              <Overview :course="file.content"></Overview>
               {{ file.content }}
             </ScrollArea>
           </AccordionContent>
