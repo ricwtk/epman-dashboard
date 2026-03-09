@@ -1,0 +1,455 @@
+/**
+ * parseCourseOutline.ts
+ *
+ * Converts a course outline .docx file (Sunway University format)
+ * into a Course object that matches the Course interface in course.ts.
+ *
+ * Usage (Node.js):
+ *   import { parseCourseOutline } from './parseCourseOutline';
+ *   const course = await parseCourseOutline('./202301_ETC2073_Artificial_Intelligence.docx');
+ *
+ * Browser usage:
+ *   Pass an ArrayBuffer instead of a file path.
+ *   const course = await parseCourseOutline(arrayBuffer, { isBrowser: true });
+ *
+ * Dependencies:
+ *   npm install mammoth
+ *   npm install --save-dev @types/mammoth
+ */
+
+import mammoth from 'mammoth';
+import type { Co, Assessment, Breakdown, Plan, Reference, Course } from '@/types/course';
+
+// ─── Internal types ──────────────────────────────────────────────────────────
+
+interface ParseOptions {
+  /** Set to true when passing an ArrayBuffer (browser environment). */
+  isBrowser?: boolean;
+  /** Original filename — used to extract revision code and course code. */
+  filename?: string;
+}
+
+interface CourseSummary {
+  name: string;
+  code: string;
+  category: string;
+  semester: number;
+  year: number;
+  credits: number;
+  synopsis: string;
+  transferableSkills: string[];
+  deliveryMethods: string[];
+  lecturers: string[];
+  prerequisites: string[];
+}
+
+type Table = string[][];
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Parse a Bloom's Taxonomy string like "C3" or "A2" into ['c', 3].
+ * Domain letters: C = Cognitive, A = Affective, P = Psychomotor
+ */
+function parseBloomTax(raw: string): [string, number] {
+  const match = raw.trim().match(/^([A-Za-z])(\d+)$/);
+  if (!match) return ['c', 1];
+  return [match[1]!.toLowerCase(), parseInt(match[2]!, 10)];
+}
+
+/**
+ * Parse a cell like "WK1\nWK2\nWK3" or "WK1 WK2 WK3" into [1, 2, 3].
+ */
+function parseIndexList(raw: string, prefix = ''): number[] {
+  if (!raw) return [];
+  const regex = prefix ? new RegExp(`${prefix}(\\d+)`, 'gi') : /(\d+)/g;
+  const matches: number[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(raw)) !== null) {
+    const n = parseInt(m[1]!, 10);
+    if (!matches.includes(n)) matches.push(n);
+  }
+  return matches.sort((a, b) => a - b);
+}
+
+/**
+ * Determine semester/year from a string like "Semester 3 / Year 2".
+ */
+function parseSemesterYear(raw: string): { semester: number; year: number } {
+  const semMatch = raw.match(/semester\s*(\d+)/i);
+  const yearMatch = raw.match(/year\s*(\d+)/i);
+  return {
+    semester: semMatch ? parseInt(semMatch[1]!, 10) : 1,
+    year: yearMatch ? parseInt(yearMatch[1]!, 10) : 1,
+  };
+}
+
+/**
+ * Extract all tables from the raw HTML output of mammoth.
+ * Returns an array of tables, each table being an array of rows of cell strings.
+ */
+function extractTables(html: string): Table[] {
+  const tables: Table[] = [];
+  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+  let tableMatch: RegExpExecArray | null;
+
+  while ((tableMatch = tableRegex.exec(html)) !== null) {
+    const rows: string[][] = [];
+    const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+    let rowMatch: RegExpExecArray | null;
+
+    while ((rowMatch = rowRegex.exec(tableMatch[1]!)) !== null) {
+      const cells: string[] = [];
+      const cellRegex = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi;
+      let cellMatch: RegExpExecArray | null;
+
+      while ((cellMatch = cellRegex.exec(rowMatch[1]!)) !== null) {
+        const text = cellMatch[1]!
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&#x2019;/g, "'")
+          .replace(/&#x201C;/g, '"')
+          .replace(/&#x201D;/g, '"')
+          .replace(/[ \t]+/g, ' ')
+          .trim();
+        cells.push(text);
+      }
+      if (cells.length > 0) rows.push(cells);
+    }
+    if (rows.length > 0) tables.push(rows);
+  }
+  return tables;
+}
+
+// ─── Section parsers ────────────────────────────────────────────────────────
+
+/**
+ * Parse Section 1 (Course Summary) from plain text.
+ * Looks for label:value pairs in the text.
+ */
+function parseSection1(text: string): CourseSummary {
+  const get = (label: string): string => {
+    const regex = new RegExp(`${label}[:\\s]+([^\\n]+)`, 'i');
+    const m = text.match(regex);
+    return m ? m[1]!.trim() : '';
+  };
+
+  const semYear = parseSemesterYear(get('Semester/Year Offered') || get('Semester.Year'));
+
+  const synopsisMatch = text.match(/Synopsis\s+([\s\S]+?)(?:Transferable Skills|Delivery Method)/i);
+  const synopsis = synopsisMatch ? synopsisMatch[1]!.replace(/\s+/g, ' ').trim() : '';
+
+  const transferableRaw = text.match(/Transferable\s+Skills\s+([\s\S]+?)(?:Delivery Method|$)/i);
+  const transferableSkills = transferableRaw
+    ? transferableRaw[1]!.trim().split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  const deliveryRaw = text.match(/Delivery Method\s+([\s\S]+?)(?:Section 2|$)/i);
+  const deliveryMethods = deliveryRaw
+    ? deliveryRaw[1]!.trim().split(/[,\n]/).map((s) => s.replace(/^and\s+/i, '').trim()).filter(Boolean)
+    : [];
+
+  const lecturersRaw = get('Lecturer') || get('Lecturers');
+  const lecturers = lecturersRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
+
+  const prereqRaw = get('Pre-requisite') || get('Prerequisites');
+  const prerequisites = prereqRaw
+    ? prereqRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  return {
+    name: get('Course Name'),
+    code: get('Course Code'),
+    category: (get('Category') || 'core').toLowerCase(),
+    semester: semYear.semester,
+    year: semYear.year,
+    credits: parseInt(get('SLT Credit Hours') || get('Credit Hours') || '3', 10),
+    synopsis,
+    transferableSkills,
+    deliveryMethods,
+    lecturers,
+    prerequisites,
+  };
+}
+
+/**
+ * Parse Section 2 (Course Outcomes) from the CO table.
+ *
+ * Expected columns: CO | Description | LD/BT | PO | WK | WP | EA
+ */
+function parseSection2(tables: Table[]): Co[] {
+  const coTable = tables.find((rows) => {
+    const dataRows = rows.filter(
+      (r) => /^CO\s*\d+$/i.test(r[0]!) || /^\d+$/.test(r[0]!)
+    );
+    return dataRows.length >= 1 && rows[0]!.length >= 5;
+  });
+
+  if (!coTable) return [];
+
+  const cos: Co[] = [];
+
+  for (const row of coTable) {
+    if (!/^CO\s*\d+$/i.test(row[0]!) && !/^\d+$/.test(row[0]!)) continue;
+
+    const description = (row[1] ?? '').replace(/\s+/g, ' ').trim();
+    const bloomRaw = (row[2] ?? '').trim();
+
+    cos.push({
+      description,
+      bloomtax: parseBloomTax(bloomRaw),
+      pos: parseIndexList(row[3] ?? '', 'PO'),
+      wks: parseIndexList(row[4] ?? '', 'WK'),
+      wps: parseIndexList(row[5] ?? '', 'WP'),
+      eas: parseIndexList(row[6] ?? '', 'EA'),
+      sdg: false,
+    });
+  }
+
+  return cos;
+}
+
+/**
+ * Parse Section 3 (Assessment Strategy) from the assessment table.
+ *
+ * Expected columns: Component | Method | Weightage | CO1 | CO2 | CO3 | CO4 ...
+ */
+function parseSection3(tables: Table[], _coCount: number): Assessment[] {
+  const assessTable = tables.find((rows) =>
+    rows.some(
+      (r) =>
+        r.some((c) => /^\d+$/.test(c.trim())) &&
+        r.some((c) => /CO\d+|Assessment/i.test(c))
+    )
+  );
+
+  if (!assessTable) return [];
+
+  const headerIdx = assessTable.findIndex((r) =>
+    r.some((c) => /^CO\s*\d+$/i.test(c) || /^Weightage/i.test(c))
+  );
+
+  const header = headerIdx >= 0 ? assessTable[headerIdx] : [];
+  const coColIndices: Record<number, number> = {};
+  header!.forEach((cell, idx) => {
+    const m = cell.match(/^CO\s*(\d+)$/i);
+    if (m) coColIndices[parseInt(m[1]!, 10)] = idx;
+  });
+
+  const assessments: Assessment[] = [];
+  let currentComponent = '';
+  let currentBreakdowns: Breakdown[] = [];
+
+  const flush = (): void => {
+    if (currentComponent && currentBreakdowns.length > 0) {
+      assessments.push({
+        description: currentComponent,
+        component: currentComponent,
+        weightage: currentBreakdowns.reduce((s, b) => s + b.weightage, 0),
+        cos: [...new Set(currentBreakdowns.map((b) => b.co))].sort((a, b) => a - b),
+        breakdown: currentBreakdowns,
+      });
+      currentBreakdowns = [];
+    }
+  };
+
+  for (let i = headerIdx + 1; i < assessTable.length; i++) {
+    const row = assessTable[i]!;
+    if (row.length < 3) continue;
+
+    const compCell = row[0]!.trim();
+    const methodCell = row[1]!.trim();
+    const weightStr = row[2]!.replace(/[^0-9]/g, '').trim();
+    const weightage = weightStr ? parseInt(weightStr, 10) : 0;
+
+    if (!methodCell || !weightage) continue;
+
+    if (compCell) {
+      flush();
+      currentComponent = compCell;
+    }
+
+    const rowCos: number[] = [];
+    if (Object.keys(coColIndices).length > 0) {
+      for (const [co, idx] of Object.entries(coColIndices)) {
+        if ((row[idx] ?? '').trim().toUpperCase() === 'X') {
+          rowCos.push(parseInt(co, 10));
+        }
+      }
+    } else {
+      for (let c = 3; c < row.length; c++) {
+        if (row[c]!.trim().toUpperCase() === 'X') rowCos.push(c - 2);
+      }
+    }
+
+    currentBreakdowns.push({
+      description: methodCell,
+      weightage,
+      co: rowCos[0] ?? 0,
+      wps: [],
+      eas: [],
+    });
+  }
+  flush();
+
+  return assessments;
+}
+
+/**
+ * Parse Section 4 (Teaching Plan) from the topic SLT table.
+ *
+ * Expected columns: Topic | L | T | P | A | O | IL | Total
+ */
+function parseSection4(tables: Table[]): Plan[] {
+  const planTable = tables.find((rows) =>
+    rows.some((r) => r.some((c) => /^L$/.test(c)) && r.some((c) => /^T$/.test(c)))
+  );
+
+  if (!planTable) return [];
+
+  const headerIdx = planTable.findIndex(
+    (r) => r.some((c) => /^L$/.test(c)) && r.some((c) => /^T$/.test(c))
+  );
+  if (headerIdx < 0) return [];
+
+  const header = planTable[headerIdx]!;
+  const colL  = header.indexOf('L');
+  const colT  = header.indexOf('T');
+  const colP  = header.indexOf('P');
+  const colA  = header.indexOf('A');
+  const colO  = header.findIndex((c) => /^O$/.test(c));
+  const colIL = header.findIndex((c) => /^IL$/i.test(c));
+
+  const plans: Plan[] = [];
+
+  for (let i = headerIdx + 1; i < planTable.length; i++) {
+    const row = planTable[i]!;
+    const description = (row[0] ?? '').replace(/\s+/g, ' ').trim();
+    if (!description) continue;
+    if (/^(Sub-total|Total SLT|SLT Credit)/i.test(description)) continue;
+
+    const n = (idx: number): number =>
+      idx >= 0 && row[idx] ? parseInt(row[idx], 10) || 0 : 0;
+
+    plans.push({
+      description,
+      hours: {
+        lecture:    { online: 0, f2f: n(colL) },
+        tutorial:   { online: 0, f2f: n(colT) },
+        practical:  { online: 0, f2f: n(colP) },
+        assessment: { online: 0, f2f: n(colA) },
+        others:     { online: 0, f2f: n(colO) },
+        self:       { online: 0, f2f: n(colIL) },
+      },
+    });
+  }
+
+  return plans;
+}
+
+/**
+ * Parse references from the references table.
+ * Expected: two-column table with "Main Reference" / "Additional References".
+ */
+function parseReferences(tables: Table[]): Reference[] {
+  const refTable = tables.find((rows) =>
+    rows.some((r) => /main\s+reference/i.test(r[0] ?? ''))
+  );
+
+  if (!refTable) return [];
+
+  const refs: Reference[] = [];
+
+  for (const row of refTable) {
+    const labelCell = (row[0] ?? '').toLowerCase();
+    const descCell  = (row[1] ?? '').replace(/\s+/g, ' ').trim();
+
+    if (!descCell) continue;
+
+    if (/main/.test(labelCell)) {
+      refs.push({ description: descCell, label: 'main' });
+    } else if (/additional/.test(labelCell)) {
+      const entries = descCell
+        .split(/\n{2,}|(?=\s{2,}[A-Z])/)
+        .map((s) => s.replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+      for (const entry of entries) {
+        refs.push({ description: entry, label: 'additional' });
+      }
+    }
+  }
+
+  return refs;
+}
+
+// ─── Main export ─────────────────────────────────────────────────────────────
+
+/**
+ * Parse a course outline .docx file and return a fully-typed Course object.
+ *
+ * @param source   File path string (Node.js) or ArrayBuffer (browser).
+ * @param options  Parsing options.
+ */
+export async function parseCourseOutline(
+  source: string | ArrayBuffer,
+  options: ParseOptions = {}
+): Promise<Course> {
+  const { isBrowser = false, filename = '' } = options;
+
+  // ── 1. Extract HTML (preserves table structure) and raw text ──────────────
+  const [htmlResult, textResult] = await (isBrowser
+    ? Promise.all([
+        mammoth.convertToHtml({ arrayBuffer: source as ArrayBuffer }),
+        mammoth.extractRawText({ arrayBuffer: source as ArrayBuffer }),
+      ])
+    : Promise.all([
+        mammoth.convertToHtml({ path: source as string }),
+        mammoth.extractRawText({ path: source as string }),
+      ]));
+
+  const html = htmlResult.value;
+  const text = textResult.value;
+
+  // ── 2. Extract all tables from HTML ───────────────────────────────────────
+  const tables = extractTables(html);
+
+  // ── 3. Parse each section ─────────────────────────────────────────────────
+  const summary  = parseSection1(text);
+  const code     = summary.code;
+
+  const cos          = parseSection2(tables);
+  const assessments  = parseSection3(tables, cos.length);
+  const teachingPlan = parseSection4(tables);
+  const references   = parseReferences(tables);
+
+  // ── 4. Assemble the Course object ─────────────────────────────────────────
+  const course: Course = {
+    id: "",
+    code,
+    name: summary.name,
+    prerequisites: summary.prerequisites,
+    lecturers: summary.lecturers,
+    category: "examBased",
+    semester: summary.semester,
+    year: summary.year,
+    credits: summary.credits,
+    synopsis: summary.synopsis,
+    transferableSkills: summary.transferableSkills,
+    deliveryMethods: summary.deliveryMethods,
+    cos,
+    startFrom: ["", ""],
+    assessments,
+    teachingPlan,
+    references,
+    gradingScheme: 'default',
+    committed: { on: null, by: '' },
+    revision: "",
+    parentRevision: '',
+  };
+
+  return course;
+}

@@ -7,7 +7,10 @@ import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyCont
 import { Button } from '@/components/ui/button';
 import { UploadIcon } from 'lucide-vue-next';
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@/components/ui/accordion';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { extractInfo } from '@/utils/importHelpers';
+import { parseCourseOutline } from '@/utils/parseCourseOutline.js'
+import { formatRevision, formatId } from '@/utils/common';
 
 const files = ref<{
   object: File;
@@ -55,11 +58,14 @@ const checkValidity = () => {
   })
 }
 const processFiles = () => {
-  files.value.forEach(file => {
+  files.value.forEach(async (file) => {
     if (file.inQueue) {
       try {
         file.isReading = true
-        file.content = extractInfo(file.object)
+        const arrayBuffer = await file.object.arrayBuffer()
+        file.content = await parseCourseOutline(arrayBuffer, { isBrowser: true })
+        file.content.revision = formatRevision()
+        file.content.id = formatId(file.content)
       } catch {
         file.hasError = true
         file.message = "Error extracting information"
@@ -92,6 +98,7 @@ const processFiles = () => {
           multiple
           class="hidden"
           ref="fileInput"
+          accept=".docx"
           @change="onFileChange"
         />
         <Empty class="border-dashed border"
@@ -128,7 +135,11 @@ const processFiles = () => {
       <Accordion type="single" collapsible class="w-full">
         <AccordionItem v-for="(file, fileIndex) in files" :value="`${fileIndex}-${file.object.name}`" :key="`${fileIndex}-${file.object.name}`">
           <AccordionTrigger>{{ file.object.name }}</AccordionTrigger>
-          <AccordionContent>{{ file.content }}</AccordionContent>
+          <AccordionContent>
+            <ScrollArea class="h-96">
+              {{ file.content }}
+            </ScrollArea>
+          </AccordionContent>
         </AccordionItem>
       </Accordion>
     </template>
