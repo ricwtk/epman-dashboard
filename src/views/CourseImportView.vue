@@ -138,8 +138,9 @@ const processFiles = () => {
           <AccordionContent>
             <ScrollArea class="h-96">
               <Overview :course="file.content"></Overview>
-              {{ file.content }}
             </ScrollArea>
+            {{ file.content }}
+            {{ file.html }}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

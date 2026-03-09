@@ -307,6 +307,7 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
 function parseSection4(tables: Table[]): Plan[] {
   const planTable = tables.find((rows) =>
     rows.some((r) => r.some((c) => /^L$/.test(c)) && r.some((c) => /^T$/.test(c)))
+    && rows.some((r) => r.some((c) => /^TopicSLT$/.test(c)))
   );
 
   if (!planTable) return [];
@@ -317,12 +318,14 @@ function parseSection4(tables: Table[]): Plan[] {
   if (headerIdx < 0) return [];
 
   const header = planTable[headerIdx]!;
-  const colL  = header.indexOf('L');
-  const colT  = header.indexOf('T');
-  const colP  = header.indexOf('P');
-  const colA  = header.indexOf('A');
-  const colO  = header.findIndex((c) => /^O$/.test(c));
-  const colIL = header.findIndex((c) => /^IL$/i.test(c));
+  const colL  = header.indexOf('L')+1;
+  const colT  = header.indexOf('T')+1;
+  const colP  = header.indexOf('P')+1;
+  const colA = header.indexOf('A') + 1;
+  const colO  = header.indexOf('O')+1;
+  const colIL = header.indexOf('IL')+1;
+  // const colO  = header.findIndex((c) => /^O$/.test(c))+1;
+  // const colIL = header.findIndex((c) => /^IL$/i.test(c))+1;
 
   const plans: Plan[] = [];
 
@@ -416,6 +419,8 @@ export async function parseCourseOutline(
 
   // ── 2. Extract all tables from HTML ───────────────────────────────────────
   const tables = extractTables(html);
+
+  console.log(tables)
 
   // ── 3. Parse each section ─────────────────────────────────────────────────
   const summary  = parseSection1(text);
