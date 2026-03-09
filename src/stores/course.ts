@@ -277,10 +277,10 @@ export const useCourseStore = defineStore('course', () => {
       polist.forEach((poNumber) => {
         const po = selectedProgramme.value?.poList[poNumber - 1]
         if (po) {
-          po.mapping[draft.value.category].wk.forEach( (item) => recommended.wk.add(item) )
-          po.mapping[draft.value.category].wp.forEach( (item) => recommended.wp.add(item) )
-          po.mapping[draft.value.category].ea.forEach( (item) => recommended.ea.add(item) )
-          recommended.sdg = recommended.sdg || po.mapping[draft.value.category].sdg
+          po.mapping[draft.value.courseType].wk.forEach( (item) => recommended.wk.add(item) )
+          po.mapping[draft.value.courseType].wp.forEach( (item) => recommended.wp.add(item) )
+          po.mapping[draft.value.courseType].ea.forEach( (item) => recommended.ea.add(item) )
+          recommended.sdg = recommended.sdg || po.mapping[draft.value.courseType].sdg
         }
       })
       return recommended

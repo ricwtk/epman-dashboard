@@ -27,6 +27,7 @@ const diffs = computed(() => {
       'prerequisites',
       'lecturers',
       'category',
+      'courseType',
       'semester',
       'year',
       'credits',
@@ -102,7 +103,15 @@ const resetDiff = (key: string) => {
           Category
           <ResetButton :disabled="!diffs.category" @reset="resetDiff('category')" />
         </Label>
-        <Select :modelValue="draft.category" @update:modelValue="(value) => draft.category = value as CourseType">
+        <Input id="category" placeholder="Category" v-model="draft.category"/>
+      </Field>
+
+      <Field class="gap-1 flex-1">
+        <Label for="coursetype">
+          Course Type
+          <ResetButton :disabled="!diffs.courseType" @reset="resetDiff('courseType')" />
+        </Label>
+        <Select :modelValue="draft.courseType" @update:modelValue="(value) => draft.courseType = value as CourseType">
           <SelectTrigger class="grow">
             <SelectValue placeholder="Select"/>
           </SelectTrigger>

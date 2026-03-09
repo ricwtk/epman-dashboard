@@ -55,7 +55,8 @@ export interface Course {
   name: string;
   prerequisites: string[];
   lecturers: string[];
-  category: CourseType;
+  category: string;
+  courseType: CourseType;
   semester: number;
   year: number;
   credits: number;
