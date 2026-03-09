@@ -11,14 +11,16 @@ import { Field } from '@/components/ui/field'
 import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import { useCourseStore } from '@/stores/course'
-import type { Course, CourseType } from '@/types/course'
+import type { CourseType } from '@/types/course'
 import { COURSE_TYPES } from '@/constants'
+
+import { useCourseStore } from '@/stores/course'
 const courseStore = useCourseStore()
 const { draft } = storeToRefs(courseStore)
 
-// import { getEditingCourseAndStore } from '@/composables/course'
-// const { course, editingCourseStore } = getEditingCourseAndStore()
+import { useCourseListStore } from '@/stores/courselist'
+const courseListStore = useCourseListStore()
+
 const diffs = computed(() => {
   return Object.fromEntries(
     [
@@ -146,7 +148,7 @@ const deleteItem = (key: 'transferableSkills' | 'prerequisites' | 'deliveryMetho
           @delete="item => deleteItem('prerequisites', item)"
           input-id="prerequisites"
           label="Select Prerequisites"
-          :options="['Option 1', 'Option 2', 'Option 3']"
+          :options="courseListStore.courseCodes || []"
           :selected="draft.prerequisites"
           emptymessage="No Prerequisites"
         />

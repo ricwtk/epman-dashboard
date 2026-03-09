@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { CourseInfo, Course } from '@/types/course';
 import { dataService } from "@/services/dataService";
 import { createCourseInfo } from "@/utils/courseHelpers";
@@ -7,6 +7,7 @@ import { createCourseInfo } from "@/utils/courseHelpers";
 export const useCourseListStore = defineStore('course-list', () => {
   const loading = ref(false);
   const codeToInfoMap = ref<{ [courseCode: string]: CourseInfo }>({});
+  const courseCodes = computed(() => Object.keys(codeToInfoMap.value))
 
   async function init(): Promise<void> {
     await updateCodeToInfoMap()
@@ -47,6 +48,7 @@ export const useCourseListStore = defineStore('course-list', () => {
 
   return {
     loading,
+    courseCodes,
     codeToInfoMap,
     updateCodeToInfoMap,
     getCourseInfoInStructure,
