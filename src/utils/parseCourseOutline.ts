@@ -112,6 +112,8 @@ function extractTables(html: string): Table[] {
 
       while ((cellMatch = cellRegex.exec(rowMatch[1]!)) !== null) {
         const text = cellMatch[1]!
+          .replace(/<\/p>/gi, '\n')
+          .replace(/<\/li>/gi, '\n')
           .replace(/<br\s*\/?>/gi, '\n')
           .replace(/<[^>]+>/g, '')
           .replace(/&amp;/g, '&')
@@ -146,7 +148,7 @@ function parseSection1(tables: Table[]): CourseSummary {
     const idx = summaryTable.findIndex(r => r.some(c => regex.test(c.trim())))
     if (idx == -1) return ''
     const m = summaryTable[idx]![1];
-    return m ? m.trim() : '';
+    return m ? m.replace(/\s+/g, ' ').trim() : '';
   };
 
   const summaryTable = tables.find((rows) =>
@@ -257,8 +259,6 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   });
 
   const assessments: Assessment[] = [];
-  let currentComponent = '';
-  let currentBreakdowns: Breakdown[] = [];
 
   for (let i = headerIdx + 1; i < assessTable.length; i++) {
     const row = assessTable[i]!;
@@ -283,65 +283,13 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
     }
 
     assessments.push({
-      description: descCell,
-      component: compCell,
+      description: descCell.replace(/\s+/g, ' ').trim(),
+      component: compCell.replace(/\s+/g, ' ').trim(),
       weightage: weightage,
       cos: rowCos,
       breakdown: [],
     });
   }
-
-  // const flush = (): void => {
-  //   if (currentComponent && currentBreakdowns.length > 0) {
-  //     assessments.push({
-  //       description: currentComponent,
-  //       component: currentComponent,
-  //       weightage: currentBreakdowns.reduce((s, b) => s + b.weightage, 0),
-  //       cos: [...new Set(currentBreakdowns.map((b) => b.co))].sort((a, b) => a - b),
-  //       breakdown: currentBreakdowns,
-  //     });
-  //     currentBreakdowns = [];
-  //   }
-  // };
-
-  // for (let i = headerIdx + 1; i < assessTable.length; i++) {
-  //   const row = assessTable[i]!;
-  //   if (row.length < 3) continue;
-
-  //   const compCell = row[0]!.trim();
-  //   const methodCell = row[1]!.trim();
-  //   const weightStr = row[2]!.replace(/[^0-9]/g, '').trim();
-  //   const weightage = weightStr ? parseInt(weightStr, 10) : 0;
-
-  //   if (!methodCell || !weightage) continue;
-
-  //   if (compCell) {
-  //     flush();
-  //     currentComponent = compCell;
-  //   }
-
-  //   const rowCos: number[] = [];
-  //   if (Object.keys(coColIndices).length > 0) {
-  //     for (const [co, idx] of Object.entries(coColIndices)) {
-  //       if ((row[idx] ?? '').trim().toUpperCase() === 'X') {
-  //         rowCos.push(parseInt(co, 10));
-  //       }
-  //     }
-  //   } else {
-  //     for (let c = 3; c < row.length; c++) {
-  //       if (row[c]!.trim().toUpperCase() === 'X') rowCos.push(c - 2);
-  //     }
-  //   }
-
-  //   currentBreakdowns.push({
-  //     description: methodCell,
-  //     weightage,
-  //     co: rowCos[0] ?? 0,
-  //     wps: [],
-  //     eas: [],
-  //   });
-  // }
-  // flush();
 
   return assessments;
 }
@@ -354,7 +302,7 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
 function parseSection4(tables: Table[]): Plan[] {
   const planTable = tables.find((rows) =>
     rows.some((r) => r.some((c) => /^L$/.test(c)) && r.some((c) => /^T$/.test(c)))
-    && rows.some((r) => r.some((c) => /^TopicSLT$/.test(c)))
+    && rows.some((r) => r.some((c) => /^Topic\s+SLT$/.test(c)))
   );
 
   if (!planTable) return [];
@@ -371,14 +319,16 @@ function parseSection4(tables: Table[]): Plan[] {
   const colA = header.indexOf('A') + 1;
   const colO  = header.indexOf('O')+1;
   const colIL = header.indexOf('IL')+1;
-  // const colO  = header.findIndex((c) => /^O$/.test(c))+1;
-  // const colIL = header.findIndex((c) => /^IL$/i.test(c))+1;
 
   const plans: Plan[] = [];
 
   for (let i = headerIdx + 1; i < planTable.length; i++) {
     const row = planTable[i]!;
-    const description = (row[0] ?? '').replace(/\s+/g, ' ').trim();
+    // const description = (row[0] ?? '').replace(/\s+/g, ' ').trim();
+    const description = (row[0] ?? '')
+      // .split(/\r?\n/)
+      // .map(l => l.trim())
+      // .filter(l => l !== '')
     if (!description) continue;
     if (/^(Sub-total|Total SLT|SLT Credit)/i.test(description)) continue;
 
@@ -416,21 +366,26 @@ function parseReferences(tables: Table[]): Reference[] {
 
   for (const row of refTable) {
     const labelCell = (row[0] ?? '').toLowerCase();
-    const descCell  = (row[1] ?? '').replace(/\s+/g, ' ').trim();
+    // const descCell  = (row[1] ?? '').replace(/\s+/g, ' ').trim();
+    const descCells = (row[1] ?? '')
+      .split(/\n/g)
+      .map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
 
-    if (!descCell) continue;
+    if (descCells.length < 1) continue;
 
-    if (/main/.test(labelCell)) {
-      refs.push({ description: descCell, label: 'main' });
-    } else if (/additional/.test(labelCell)) {
-      const entries = descCell
-        .split(/\n{2,}|(?=\s{2,}[A-Z])/)
-        .map((s) => s.replace(/\s+/g, ' ').trim())
-        .filter(Boolean);
-      for (const entry of entries) {
-        refs.push({ description: entry, label: 'additional' });
+    descCells.forEach(descStr => {
+      if (/main/.test(labelCell)) {
+        refs.push({ description: descStr, label: 'main' });
+      } else if (/additional/.test(labelCell)) {
+        // const entries = descStr
+        //   .split(/\n{2,}|(?=\s{2,}[A-Z])/)
+        //   .map((s) => s.replace(/\s+/g, ' ').trim())
+        //   .filter(Boolean);
+        // for (const entry of entries) {
+        refs.push({ description: descStr, label: 'additional' });
+        // }
       }
-    }
+    })
   }
 
   return refs;
@@ -464,6 +419,7 @@ export async function parseCourseOutline(
   const html = htmlResult.value;
   const text = textResult.value;
 
+  console.log(html)
   // ── 2. Extract all tables from HTML ───────────────────────────────────────
   const tables = extractTables(html);
 

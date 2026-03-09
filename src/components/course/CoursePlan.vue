@@ -65,7 +65,7 @@ const creditHours = computed(() => getCreditHours(totalSLT.value))
         </TableHeader>
         <TableBody>
           <TableRow v-for="plan in course.teachingPlan">
-            <TableCell>{{ plan.description }}</TableCell>
+            <TableCell><span v-html="plan.description.replace(/\n/g,'<br>')"></span></TableCell>
             <TableCell class="text-center">{{ getTotalHours(plan.hours.lecture) }}</TableCell>
             <TableCell class="text-center">{{ getTotalHours(plan.hours.tutorial) }}</TableCell>
             <TableCell class="text-center">{{ getTotalHours(plan.hours.practical) }}</TableCell>
