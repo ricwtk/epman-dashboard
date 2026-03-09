@@ -25,6 +25,10 @@ defineProps<{
   selected: string[];
   emptymessage?: string;
 }>()
+
+defineEmits<{
+  (e: "delete", value: string): void
+}>()
 </script>
 
 <template>
@@ -39,6 +43,8 @@ defineProps<{
     <ContentItemBadges
       :badges="selected || []"
       :elsemessage="emptymessage"
+      :editable="true"
+      @delete="(ev) => $emit('delete', ev)"
     >
       <Popover>
         <PopoverTrigger>

@@ -12,7 +12,7 @@ import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useCourseStore } from '@/stores/course'
-import type { CourseType } from '@/types/course'
+import type { Course, CourseType } from '@/types/course'
 import { COURSE_TYPES } from '@/constants'
 const courseStore = useCourseStore()
 const { draft } = storeToRefs(courseStore)
@@ -41,6 +41,10 @@ const diffs = computed(() => {
 })
 const resetDiff = (key: string) => {
   courseStore.resetDiff([key])
+}
+const deleteItem = (key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', item: string) => {
+  const idx = courseStore.draft[key].indexOf(item)
+  if (idx >= 0) courseStore.draft[key].splice(idx, 1)
 }
 </script>
 
@@ -139,6 +143,7 @@ const resetDiff = (key: string) => {
           <ResetButton :disabled="!diffs.prerequisites" @reset="resetDiff('prerequisites')" />
         </Label>
         <MultiSelect
+          @delete="item => deleteItem('prerequisites', item)"
           input-id="prerequisites"
           label="Select Prerequisites"
           :options="['Option 1', 'Option 2', 'Option 3']"
@@ -153,6 +158,7 @@ const resetDiff = (key: string) => {
           <ResetButton :disabled="!diffs.transferableSkills" @reset="resetDiff('transferableSkills')" />
         </Label>
         <MultiSelect
+          @delete="item => deleteItem('transferableSkills', item)"
           input-id="transferable"
           label="Select Transferable Skills"
           :options="['Option 1', 'Option 2', 'Option 3']"
@@ -166,6 +172,7 @@ const resetDiff = (key: string) => {
           <ResetButton :disabled="!diffs.deliveryMethods" @reset="resetDiff('deliveryMethods')" />
         </Label>
         <MultiSelect
+          @delete="item => deleteItem('deliveryMethods', item)"
           input-id="delivery"
           label="Select Delivery Method"
           :options="['Option 1', 'Option 2', 'Option 3']"
