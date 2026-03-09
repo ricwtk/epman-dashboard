@@ -5,7 +5,7 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@/components/ui/empty'
 import { Button } from '@/components/ui/button';
-import { UploadIcon } from 'lucide-vue-next';
+import { UploadIcon, EyeIcon, CheckIcon, XIcon } from 'lucide-vue-next';
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Overview from '@/components/courseimport/Overview.vue';
@@ -62,6 +62,7 @@ const processFiles = () => {
     if (file.inQueue) {
       try {
         file.isReading = true
+        file.inQueue = false
         const arrayBuffer = await file.object.arrayBuffer()
         file.content = await parseCourseOutline(arrayBuffer, { isBrowser: true })
         file.content.revision = formatRevision()
@@ -135,12 +136,20 @@ const processFiles = () => {
     <template #body>
       <Accordion type="single" collapsible class="w-full">
         <AccordionItem v-for="(file, fileIndex) in files" :value="`${fileIndex}-${file.object.name}`" :key="`${fileIndex}-${file.object.name}`">
-          <AccordionTrigger>{{ file.object.name }}</AccordionTrigger>
+          <AccordionTrigger>
+            {{ file.object.name }}
+            <div class="grow"></div>
+            <div class="relative w-10 h-full flex justify-center items-center">
+              <EyeIcon v-if="file.isReading"/>
+              <LoadingComponent :show="file.inQueue||file.isReading"/>
+              <CheckIcon v-if="!file.inQueue && !file.isReading && !file.hasError" class="text-green-500"/>
+              <XIcon v-if="!file.inQueue && !file.isReading && file.hasError" :title="file.message" class="text-red-500"/>
+            </div>
+          </AccordionTrigger>
           <AccordionContent>
             <ScrollArea class="h-96">
               <Overview :course="file.content"></Overview>
             </ScrollArea>
-            {{ file.content }}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

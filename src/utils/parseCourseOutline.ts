@@ -419,11 +419,8 @@ export async function parseCourseOutline(
   const html = htmlResult.value;
   const text = textResult.value;
 
-  console.log(html)
   // ── 2. Extract all tables from HTML ───────────────────────────────────────
   const tables = extractTables(html);
-
-  console.log(tables)
 
   // ── 3. Parse each section ─────────────────────────────────────────────────
   // const summary  = parseSection1(text);
