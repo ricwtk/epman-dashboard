@@ -11,8 +11,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Overview from '@/components/courseimport/Overview.vue';
 import { parseCourseOutline } from '@/utils/parseCourseOutline.js'
 import { formatRevision, formatId } from '@/utils/common';
+import { dataService } from '@/services/dataService';
 
-const files = ref<{
+interface FileObject {
   object: File;
   isReading: boolean;
   inQueue: boolean;
@@ -22,7 +23,8 @@ const files = ref<{
   hasError: boolean;
   message: string;
   content: any;
-}[]>([])
+}
+const files = ref<FileObject[]>([])
 const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
 const isDragging = ref(false)
 const isReading = computed(() => files.value.some(f => f.isReading))
@@ -85,6 +87,25 @@ const processFiles = () => {
 
 const removeFile = (index: number) => {
   files.value.splice(index, 1)
+}
+const saveFile = async (file: FileObject) => {
+  if (file) {
+    file.isSaving = true
+    file.inSaveQueue = false
+    try {
+      await dataService.saveCourse(file.content)
+      file.isSaved = true
+    } catch (e) {
+      file.hasError = true
+      file.message = String(e)
+    }
+    file.isSaving = false
+  }
+}
+const saveAll = async () => {
+  const unSavedFiles = files.value.filter(f => !f.isSaved)
+  unSavedFiles.forEach(f => { f.inSaveQueue = true })
+  await Promise.all(unSavedFiles.map(f => saveFile(f)))
 }
 </script>
 
@@ -150,7 +171,7 @@ const removeFile = (index: number) => {
             <Button variant="ghost" size="icon" title="remove file" @click.stop="removeFile(fileIndex)"><ListXIcon /></Button>
             <div class="relative w-10 h-full flex justify-center items-center">
               <LoadingComponent :show="file.inQueue||file.isReading||file.inSaveQueue||file.isSaving" style="backgroundColor: rgba(255, 255, 255, 0.7)"/>
-              <Button variant="ghost" size="icon" @click.stop="console.log"><SaveIcon /></Button>
+              <Button variant="ghost" size="icon" @click.stop="saveFile(file)"><SaveIcon /></Button>
               <div class="absolute w-full h-full flex justify-center items-center" style="backgroundColor: rgba(255, 255, 255, 0.7)" v-if="file.hasError || file.isSaved">
                 <XIcon v-if="file.hasError" :title="file.message" class="text-red-500 absolute "/>
                 <CheckIcon v-if="file.isSaved" class="text-green-500 absolute "/>
@@ -176,7 +197,7 @@ const removeFile = (index: number) => {
       </Accordion>
     </template>
     <template #actions>
-      <Button variant="secondary">Save all</Button>
+      <Button variant="secondary" @click="saveAll">Save all</Button>
     </template>
   </ContentCard>
 </template>
