@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<Props>(), {
       {{ user.name }}
     </TableCell>
     <TableCell v-else>
-      <Input v-model="user.name" :disabled="props.disabled.name"></Input>
+      <Input v-model="user.name" :disabled="props.disabled.name" class="min-w-50"></Input>
     </TableCell>
     <TableCell>{{ user.email }}</TableCell>
     <TableCell>
