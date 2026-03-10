@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import { getEditingProgrammeAndStore } from '@/composables/programme';
-import { storeToRefs } from 'pinia';
 import ResetButton from '@/components/ResetButton.vue';
 import { type CourseType } from '@/types/course';
 
@@ -8,9 +6,6 @@ const props = defineProps<{
   title: string,
   coursetype: CourseType
 }>();
-
-// const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
-// const { school } = storeToRefs(editingProgrammeStore);
 
 import { useProgrammeStore } from '@/stores/programme';
 const programmeStore = useProgrammeStore();
@@ -23,9 +18,9 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
-import VerticalText from '@/components/VerticalText.vue';
 import { Checkbox } from '@/components/ui/checkbox';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import AttributeHeader from '@/components/AttributeHeader.vue';
 import { computed } from 'vue';
 
 const mapping = computed(() => {
@@ -112,9 +107,8 @@ const emptyComponent = computed<{
           <TableHead class="align-bottom text-center w-0">PO</TableHead>
           <TableHead class="align-bottom text-center"
             v-for="(wk, wkIndex) in programmeStore.school?.components?.wks"
-            :key="wkIndex"
           >
-            <VerticalText :label="`WK${Number(wkIndex) + 1}`" :content="wk.attribute" />
+            <AttributeHeader :label="`WK${Number(wkIndex) + 1}`" :attrDesc="wk" />
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -149,14 +143,14 @@ const emptyComponent = computed<{
             v-for="(wp, wpIndex) in programmeStore.school?.components?.wps"
             :key="wpIndex"
           >
-            <VerticalText :label="`WP${Number(wpIndex) + 1}`" :content="wp.attribute" />
+            <AttributeHeader :label="`WP${Number(wpIndex) + 1}`" :attrDesc="wp" />
           </TableHead>
           <TableHead class="w-0 bg-border"></TableHead>
           <TableHead class="align-bottom text-center"
             v-for="(ea, eaIndex) in programmeStore.school?.components?.eas"
             :key="eaIndex"
           >
-            <VerticalText :label="`EA${Number(eaIndex) + 1}`" :content="ea.attribute" />
+            <AttributeHeader :label="`EA${Number(eaIndex) + 1}`" :attrDesc="ea" />
           </TableHead>
         </TableRow>
       </TableHeader>

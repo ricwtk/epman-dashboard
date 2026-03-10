@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-// import { getEditingProgrammeAndStore } from '@/composables/programme';
-
 import {
   Table,
   TableBody,
@@ -15,13 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusIcon, MinusIcon } from 'lucide-vue-next';
 import ResetButton from '@/components/ResetButton.vue';
-import VerticalText from '@/components/VerticalText.vue';
 import { Checkbox } from '@/components/ui/checkbox';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import AttributeHeader from '@/components/AttributeHeader.vue';
 
 import { createNewPo } from '@/utils/programmeHelpers';
-
-// const { programme, editingProgrammeStore } = getEditingProgrammeAndStore();
 
 import { useProgrammeStore } from '@/stores/programme';
 const programmeStore = useProgrammeStore();
@@ -84,7 +80,7 @@ const togglePeo = (poIndex: number, peoIndex: number) => {
           v-for="(item, index) in programmeStore.draft.peoList"
           :key="index"
         >
-          <VerticalText :label="`PEO${Number(index) + 1}`" :content="item"/>
+          <AttributeHeader :label="`PEO${Number(index) + 1}`" :attrDesc="{ attribute: item, descriptor: '' }" />
         </TableHead>
         <TableHead class="w-0"></TableHead>
       </TableRow>

@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import BadgeList from '@/components/BadgeList.vue';
-import VerticalText from '@/components/VerticalText.vue';
 import { CornerDownRightIcon, PlusIcon, MinusIcon, ListPlusIcon, ListMinusIcon } from 'lucide-vue-next';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import ResetButton from '@/components/ResetButton.vue';
@@ -16,6 +15,7 @@ import { Field } from '@/components/ui/field';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NumberField, NumberFieldContent, NumberFieldInput } from '@/components/ui/number-field';
+import AttributeHeader from '@/components/AttributeHeader.vue';
 
 import { useCourseStore } from '@/stores/course'
 const courseStore = useCourseStore()
@@ -309,18 +309,16 @@ function getRecommendationClass(
             v-for="(wp, wpIndex) in wpOptions"
             :key="wpIndex"
             class="align-bottom text-center"
-            :title="wp.descriptor"
           >
-            <VerticalText :label="`WP${Number(wpIndex)+1}`" :content="wp.attribute" />
+            <AttributeHeader :label="`WP${Number(wpIndex)+1}`" :attrDesc="wp" />
           </TableHead>
           <TableHead class="w-0 bg-border"></TableHead>
           <TableHead
             v-for="(ea, eaIndex) in eaOptions"
             :key="eaIndex"
             class="align-bottom text-center"
-            :title="ea.descriptor"
           >
-            <VerticalText :label="`EA${Number(eaIndex)+1}`" :content="ea.attribute" />
+            <AttributeHeader :label="`EA${Number(eaIndex)+1}`" :attrDesc="ea" />
           </TableHead>
         </TableRow>
       </TableHeader>

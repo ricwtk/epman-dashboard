@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import VerticalText from '@/components/VerticalText.vue'
 import { ChevronUpIcon, ChevronDownIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 import ResetButton from '@/components/ResetButton.vue'
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import { Field } from '@/components/ui/field'
 import { Label } from '@/components/ui/label'
 import BadgeList from '@/components/BadgeList.vue'
+import AttributeHeader from '@/components/AttributeHeader.vue'
 
 import { BLOOM_TAXONOMY } from '@/constants'
 
@@ -242,9 +242,8 @@ function getRecommendationClass(coIndex: number, type: 'wk' | 'wp' | 'ea', mappi
             <TableHead class="align-bottom text-center"
               v-for="(po, poIndex) in poOptions"
               :key="poIndex"
-              :title="po.descriptor"
             >
-              <VerticalText :label="`PO${poIndex + 1}`" :content="po.attribute" />
+              <AttributeHeader :label="`PO${poIndex + 1}`" :attrDesc="po" />
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -272,9 +271,8 @@ function getRecommendationClass(coIndex: number, type: 'wk' | 'wp' | 'ea', mappi
             <TableHead class="align-bottom text-center"
               v-for="(wk, wkIndex) in wkOptions"
               :key="wkIndex"
-              :title="wk.descriptor"
             >
-              <VerticalText :label="`WK${Number(wkIndex) + 1}`" :content="wk.attribute" />
+              <AttributeHeader :label="`WK${Number(wkIndex) + 1}`" :attrDesc="wk" />
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -307,9 +305,8 @@ function getRecommendationClass(coIndex: number, type: 'wk' | 'wp' | 'ea', mappi
             <TableHead class="align-bottom text-center"
               v-for="(wp, wpIndex) in wpOptions"
               :key="wpIndex"
-              :title="wp.descriptor"
             >
-              <VerticalText :label="`WP${Number(wpIndex) + 1}`" :content="wp.attribute" />
+              <AttributeHeader :label="`WP${Number(wpIndex) + 1}`" :attrDesc="wp" />
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -342,9 +339,8 @@ function getRecommendationClass(coIndex: number, type: 'wk' | 'wp' | 'ea', mappi
             <TableHead class="align-bottom text-center"
               v-for="(ea, eaIndex) in eaOptions"
               :key="eaIndex"
-              :title="ea.descriptor"
             >
-              <VerticalText :label="`EA${Number(eaIndex) + 1}`" :content="ea.attribute" />
+              <AttributeHeader :label="`EA${Number(eaIndex) + 1}`" :attrDesc="ea" />
             </TableHead>
           </TableRow>
         </TableHeader>
