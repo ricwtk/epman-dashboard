@@ -14,7 +14,9 @@ const { sidebarstatus } = useSidebarStatusStore();
     </div>
     <!-- <div class="grow text-left"> -->
     <template v-if="sidebarstatus.showText">
-      <slot name="text"></slot>
+      <span class="truncate">
+        <slot name="text"></slot>
+      </span>
     </template>
     <!-- </div> -->
   </Button>
