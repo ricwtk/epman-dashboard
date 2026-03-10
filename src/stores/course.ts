@@ -18,6 +18,9 @@ import { dataService } from '@/services/dataService';
 import type { SchoolsByCode, ProgrammesWithCourse, ProgrammeWithCourse } from '@/services/dataService';
 import { navigateToParent } from '@/utils/navigationHelpers'
 
+import { useCourseListStore } from './courselist';
+const courseListStore = useCourseListStore()
+
 export const useCourseStore = defineStore('course', () => {
   const draft = ref<Course>(createCourseObject())
   const saved = ref<Course>(createCourseObject())
@@ -99,6 +102,7 @@ export const useCourseStore = defineStore('course', () => {
         saved.value = revisions.value[revisions.value.length - 1]!;
       } else {
         clear();
+        courseListStore.removeCourseByCode(saved.value.code)
         navigateToParent();
       }
     }

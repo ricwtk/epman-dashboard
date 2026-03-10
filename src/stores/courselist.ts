@@ -63,6 +63,11 @@ export const useCourseListStore = defineStore('course-list', () => {
     loading.value = false;
   }
 
+  function removeCourseByCode(code: string): void {
+    delete codeToInfoMap.value[code]
+    updateSelections()
+  }
+
   function getCourseInfoInStructure(
     structure: { [semesterKey: string]: string[] }
   ): { [semesterKey: string]: CourseInfo[] } {
@@ -92,6 +97,7 @@ export const useCourseListStore = defineStore('course-list', () => {
     updateCodeToInfoMap,
     getCourseInfoInStructure,
     saveCourseUpdate,
+    removeCourseByCode,
     getDisplayLabel,
   }
 })
