@@ -101,8 +101,8 @@ export const useCourseStore = defineStore('course', () => {
       } else if (revisions.value.length > 0) {
         saved.value = revisions.value[revisions.value.length - 1]!;
       } else {
-        clear();
         courseListStore.removeCourseByCode(saved.value.code)
+        clear();
         navigateToParent();
       }
     }
