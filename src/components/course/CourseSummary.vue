@@ -44,10 +44,10 @@ defineEmits(['update:editing']);
         <div class="flex flex-wrap gap-3">
           <ContentItem title="Offering">
             <ButtonGroup class="gap-0!">
-              <ButtonGroupText>
+              <ButtonGroupText class="border-0 rounded-full text-xs py-0.5">
                 <span>{{ "Year " + course.year }}</span>
               </ButtonGroupText>
-              <ButtonGroupText>
+              <ButtonGroupText class="border-0 rounded-full text-xs py-0.5">
                 <span>{{ "Semester " + course.semester }}</span>
               </ButtonGroupText>
             </ButtonGroup>
