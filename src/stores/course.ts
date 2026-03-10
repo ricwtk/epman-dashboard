@@ -108,6 +108,37 @@ export const useCourseStore = defineStore('course', () => {
   function resetDiff(pathArray: string[]): void { resetDiffCommon(draft.value, saved.value, pathArray) }
   function checkDiff(pathArray: string[]): boolean { return checkDiffCommon(draft.value, saved.value, pathArray) }
 
+  function checkListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): boolean {
+    return draft.value[key].includes(value)
+  }
+  function addListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): void {
+    if (!checkListItem(key, value)) {
+      draft.value[key].push(value)
+    }
+  }
+  function removeListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): void {
+    if (checkListItem(key, value)) {
+      const idx = draft.value[key].indexOf(value)
+      draft.value[key].splice(idx, 1)
+    }
+  }
+  function toggleListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): void {
+    if (checkListItem(key, value)) {
+      removeListItem(key, value)
+    } else {
+      addListItem(key, value)
+    }
+  }
+  function addTransferableSkill(value: string): void { addListItem('transferableSkills', value) }
+  function removeTransferableSkill(value: string): void { removeListItem('transferableSkills', value) }
+  function toggleTransferableSkill(value: string): void { toggleListItem('transferableSkills', value) }
+  function addPrerequisite(value: string): void { addListItem('prerequisites', value) }
+  function removePrerequisite(value: string): void { removeListItem('prerequisites', value) }
+  function togglePrerequisite(value: string): void { toggleListItem('prerequisites', value) }
+  function addDeliveryMethod(value: string): void { addListItem('deliveryMethods', value) }
+  function removeDeliveryMethod(value: string): void { removeListItem('deliveryMethods', value) }
+  function toggleDeliveryMethod(value: string): void { toggleListItem('deliveryMethods', value) }
+
   function addCoMapping(coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', componentNumber: number): void {
     const co = draft.value.cos[coIndex]
     const componentKey: keyof Co = `${type}s`
@@ -331,6 +362,9 @@ export const useCourseStore = defineStore('course', () => {
     editingTab,
     checkDiff, resetDiff,
     // updateMapping,
+    addTransferableSkill, removeTransferableSkill, toggleTransferableSkill,
+    addPrerequisite, removePrerequisite, togglePrerequisite,
+    addDeliveryMethod, removeDeliveryMethod, toggleDeliveryMethod,
     addCo, removeCo, moveCoUp, moveCoDown,
     addCoMapping, removeCoMapping,
     addTopic, removeTopic,

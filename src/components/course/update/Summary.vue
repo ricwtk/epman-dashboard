@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import { Input } from '@/components/ui/input'
@@ -44,10 +44,17 @@ const diffs = computed(() => {
 const resetDiff = (key: string) => {
   courseStore.resetDiff([key])
 }
-const deleteItem = (key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', item: string) => {
-  const idx = courseStore.draft[key].indexOf(item)
-  if (idx >= 0) courseStore.draft[key].splice(idx, 1)
-}
+
+watch(courseStore.draft.transferableSkills, () => {
+  courseStore.draft.transferableSkills.forEach((value) => {
+    courseListStore.addTransferableSkill(value)
+  })
+})
+watch(courseStore.draft.deliveryMethods, () => {
+  courseStore.draft.deliveryMethods.forEach((value) => {
+    courseListStore.addDeliveryMethod(value)
+  })
+})
 </script>
 
 <template>
@@ -145,13 +152,17 @@ const deleteItem = (key: 'transferableSkills' | 'prerequisites' | 'deliveryMetho
           <ResetButton :disabled="!diffs.prerequisites" @reset="resetDiff('prerequisites')" />
         </Label>
         <MultiSelect
-          @delete="item => deleteItem('prerequisites', item)"
+          allow-add
+          @delete="item => courseStore.removePrerequisite(item)"
           input-id="prerequisites"
           label="Select Prerequisites"
-          :options="courseListStore.courseCodes || []"
+          :options="courseListStore.courseSelections || []"
           :selected="draft.prerequisites"
           emptymessage="No Prerequisites"
+          @select="courseStore.togglePrerequisite($event)"
+          @add="courseStore.togglePrerequisite($event)"
         />
+          <!-- :options="[...Array(5).keys()].map(k => ({label: `Option ${k}`, value: `${k}`}))" -->
       </Field>
       <!-- <div class="flex flex-col gap-1 grow min-w-75"> -->
       <Field class="gap-1">
@@ -160,12 +171,15 @@ const deleteItem = (key: 'transferableSkills' | 'prerequisites' | 'deliveryMetho
           <ResetButton :disabled="!diffs.transferableSkills" @reset="resetDiff('transferableSkills')" />
         </Label>
         <MultiSelect
-          @delete="item => deleteItem('transferableSkills', item)"
+          allow-add
+          @delete="item => courseStore.removeTransferableSkill(item)"
           input-id="transferable"
           label="Select Transferable Skills"
-          :options="['Option 1', 'Option 2', 'Option 3']"
+          :options="courseListStore.transferableSkillsSelections"
           :selected="draft.transferableSkills"
           emptymessage="No Transferable Skills"
+          @select="courseStore.toggleTransferableSkill($event)"
+          @add="courseStore.toggleTransferableSkill($event)"
         />
       </Field>
       <Field class="gap-1">
@@ -174,12 +188,15 @@ const deleteItem = (key: 'transferableSkills' | 'prerequisites' | 'deliveryMetho
           <ResetButton :disabled="!diffs.deliveryMethods" @reset="resetDiff('deliveryMethods')" />
         </Label>
         <MultiSelect
-          @delete="item => deleteItem('deliveryMethods', item)"
+          allow-add
+          @delete="item => courseStore.removeDeliveryMethod(item)"
           input-id="delivery"
           label="Select Delivery Method"
-          :options="['Option 1', 'Option 2', 'Option 3']"
+          :options="courseListStore.deliveryMethodsSelections"
           :selected="draft.deliveryMethods"
           emptymessage="No Delivery Methods"
+          @select="courseStore.toggleDeliveryMethod($event)"
+          @add="courseStore.toggleDeliveryMethod($event)"
         />
       </Field>
     </div>

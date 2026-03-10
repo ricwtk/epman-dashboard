@@ -156,5 +156,7 @@ export const createReference = (description?: string, overrides?: Partial<Refere
 export const createCourseInfo = (course?: Partial<Course>): CourseInfo => ({
   name: course?.name || "",
   code: course?.code || "",
-  credits: course?.credits || 0
+  credits: course?.credits || 0,
+  transferableSkills: course?.transferableSkills || [],
+  deliveryMethods: course?.deliveryMethods || []
 });

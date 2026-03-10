@@ -81,4 +81,6 @@ export interface CourseInfo {
   code: string;
   name: string;
   credits: number;
+  transferableSkills: string[];
+  deliveryMethods: string[];
 }

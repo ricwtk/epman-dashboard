@@ -8,9 +8,40 @@ export const useCourseListStore = defineStore('course-list', () => {
   const loading = ref(false);
   const codeToInfoMap = ref<{ [courseCode: string]: CourseInfo }>({});
   const courseCodes = computed(() => Object.keys(codeToInfoMap.value))
+  const courseSelections = computed(() => Object.entries(codeToInfoMap.value).map(
+    ([k, v]) => ({label: `${k} ${v.name}`, value: k})
+  ))
+  const transferableSkillsSelections = ref<{label: string, value: string}[]>([])
+  const deliveryMethodsSelections = ref<{ label: string, value: string }[]>([])
+
+  function updateSelections() {
+    const transferable = new Set<string>()
+    const delivery = new Set<string>()
+    Object.values(codeToInfoMap.value).forEach((course) => {
+      course.transferableSkills.forEach(ts => transferable.add(ts))
+      course.deliveryMethods.forEach(dm => delivery.add(dm))
+    })
+
+    transferableSkillsSelections.value = Array.from(transferable).map(
+      (v) => ({label: v, value: v})
+    )
+    deliveryMethodsSelections.value = Array.from(delivery).map(
+      (v) => ({label: v, value: v})
+    )
+  }
+  function addSelectionItem(key: 'transferableSkills' | 'deliveryMethods', value: string): void {
+    const set = key === 'transferableSkills' ? transferableSkillsSelections.value : deliveryMethodsSelections.value
+    const existing = set.find(item => item.value === value)
+    if (!existing) {
+      set.push({ label: value, value })
+    }
+  }
+  function addTransferableSkill(value: string): void { addSelectionItem('transferableSkills', value) }
+  function addDeliveryMethod(value: string): void { addSelectionItem('deliveryMethods', value) }
 
   async function init(): Promise<void> {
     await updateCodeToInfoMap()
+    updateSelections()
   }
   init();
 
@@ -48,7 +79,11 @@ export const useCourseListStore = defineStore('course-list', () => {
 
   return {
     loading,
-    courseCodes,
+    courseCodes, courseSelections,
+    transferableSkillsSelections, deliveryMethodsSelections,
+    addSelectionItem,
+    addTransferableSkill,
+    addDeliveryMethod,
     codeToInfoMap,
     updateCodeToInfoMap,
     getCourseInfoInStructure,
