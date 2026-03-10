@@ -8,8 +8,8 @@ const props = defineProps<{
 
 <template>
   <div class="flex flex-col items-center gap-0.5">
-    <Badge v-for="item in items" :key="item" variant="secondary">
-      {{ item }}
+    <Badge v-for="item in items" :key="item" variant="secondary" class="max-w-full">
+      <span class="text-wrap">{{ item }}</span>
     </Badge>
   </div>
 </template>

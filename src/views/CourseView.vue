@@ -85,6 +85,7 @@ const updateEditing = (ev: boolean, tab?: string) => {
       :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :course="courseStore.saved"
+      :schools="courseStore.schools"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'assessments')"
     />

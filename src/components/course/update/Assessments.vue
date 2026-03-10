@@ -285,7 +285,6 @@ function getRecommendationClass(
           </template>
         </SelectContent>
       </Select>
-      <Select v-model="courseStore.selectedProgramme" :options="Object.keys(courseStore.programmes)" />
     </Field>
 
     <div class="font-semibold">Assessment to WP/EA mapping</div>
