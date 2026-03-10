@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { Badge } from '@/components/ui/badge';
-import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { XIcon } from 'lucide-vue-next';
 
 defineProps<{
@@ -20,17 +20,17 @@ defineEmits<{
     <div class="content-item-title" v-if="title">{{ title }}</div>
     <div class="flex flex-wrap gap-1">
       <template v-for="badge, badge_index in badges">
-        <ContextMenu v-if="editable">
-          <ContextMenuTrigger>
+        <DropdownMenu v-if="editable">
+          <DropdownMenuTrigger>
             <Badge variant="secondary">{{ displayFcn ? displayFcn(badge) : badge }}</Badge>
-          </ContextMenuTrigger>
-          <ContextMenuContent class="w-fit">
-            <ContextMenuItem @click="$emit('delete', badge)">
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem variant="destructive" @click="$emit('delete', badge)" class="text-xs">
               <XIcon />
               Delete
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Badge v-else variant="secondary">{{ displayFcn ? displayFcn(badge) : badge }}</Badge>
       </template>
       <Badge v-if="badges.length == 0"variant="outline">{{ elsemessage }}</Badge>
