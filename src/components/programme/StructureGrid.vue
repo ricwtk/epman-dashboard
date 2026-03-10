@@ -241,7 +241,7 @@ import {
 import CourseListItem from '@/components/programme/CourseListItem.vue';
 import { Button } from '@/components/ui/button';
 import { XIcon, EyeIcon, LayersPlusIcon, Layers2Icon } from 'lucide-vue-next'
-import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import NewOrAddPopover from '../NewOrAddPopover.vue';
 import LoadingComponent from '../LoadingComponent.vue';
 </script>
@@ -292,8 +292,8 @@ import LoadingComponent from '../LoadingComponent.vue';
                   :credits="0"
                   @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, 0, zone)"
                 />
-                <ContextMenu v-for="course, course_index in semestersWithCourseInfo[sem_key!]">
-                  <ContextMenuTrigger>
+                <DropdownMenu v-for="course, course_index in semestersWithCourseInfo[sem_key!]">
+                  <DropdownMenuTrigger>
                     <CourseListItem
                       :draggable="editable"
                       :code="course.code"
@@ -302,18 +302,18 @@ import LoadingComponent from '../LoadingComponent.vue';
                       @drag-start="(event: DragEvent) => onDragStart(event, sem_key, course_index)"
                       @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, course_index, zone)"
                     />
-                  </ContextMenuTrigger>
-                  <ContextMenuContent class="w-fit">
-                    <ContextMenuItem v-if="editable" @click="deleteCourseFrom(course_index, sem_key)">
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem v-if="editable" variant="destructive" @click="deleteCourseFrom(course_index, sem_key)" class="text-xs">
                       <XIcon />
                       Delete
-                    </ContextMenuItem>
-                    <ContextMenuItem @click="viewCourse(course.code)">
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="viewCourse(course.code)" class="text-xs">
                       <EyeIcon />
                       View
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <NewOrAddPopover v-if="editable && sem_key"
                   buttonSize="sm"
                   buttonVariant="secondary"
@@ -343,7 +343,7 @@ import LoadingComponent from '../LoadingComponent.vue';
                     @click="removeSemester(sem_key)"
                     class="flex-1"
                   >
-                    <Layers2Icon class="text-red-500" />
+                    <Layers2Icon style="color: var(--destructive)" />
                   </Button>
                 </div>
               </div>
