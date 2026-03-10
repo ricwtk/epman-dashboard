@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import NavIndicator from '@/components/NavIndicator.vue';
 import CreateNewPopover from '@/components/CreateNewPopover.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
+import { FileUpIcon } from 'lucide-vue-next';
 
-import { navigateToCourse } from '@/utils/navigationHelpers';
+import { navigateToCourse, navigateToPath } from '@/utils/navigationHelpers';
 import { formatRevision } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 
@@ -73,17 +74,20 @@ const addNewCourse = async (newName: string, newCode: string) => {
             </span>
           </Button>
         </template>
-        <CreateNewPopover v-if="authStore.canEditCourses"
-          :currentList="courseList"
-          @create="(name:string, code:string) => addNewCourse(name, code)"
-        >
-          <template #title>
-            New Course
-          </template>
-          <template #description>
-            Create new course
-          </template>
-        </CreateNewPopover>
+        <div class="flex flex-row gap-1">
+          <CreateNewPopover v-if="authStore.canEditCourses"
+            :currentList="courseList"
+            @create="(name:string, code:string) => addNewCourse(name, code)"
+          >
+            <template #title>
+              New Course
+            </template>
+            <template #description>
+              Create new course
+            </template>
+          </CreateNewPopover>
+          <Button class="flex-1" variant="outline" @click="navigateToPath('/course/import')"><FileUpIcon />Import</Button>
+        </div>
       </div>
     </template>
   </ContentCard>

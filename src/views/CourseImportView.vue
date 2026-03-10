@@ -111,8 +111,8 @@ const saveAll = async () => {
 
 <template>
   <NavIndicator :items="[
-    { label: 'Courses', path: '/courses' },
-    { label: 'Import', path: '/courses/import' },
+    { label: 'Course', path: '/course' },
+    { label: 'Import', path: '/course/import' },
   ]"></NavIndicator>
 
   <ContentCard :editable="false"

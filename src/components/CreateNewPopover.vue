@@ -8,6 +8,7 @@ import { ref, watch } from 'vue';
 
 const props = defineProps<{
   currentList: string[]
+  class?: string
 }>()
 const isPopoverOpen = ref(false)
 const newName = ref("")
@@ -36,7 +37,7 @@ const createNew = () => {
 <template>
   <Popover v-model:open="isPopoverOpen">
     <PopoverTrigger as-child>
-      <Button
+      <Button :class="class"
         variant="outline"
         size="icon"
       >
