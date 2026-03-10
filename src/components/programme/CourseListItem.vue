@@ -3,9 +3,9 @@ import { ref, useTemplateRef } from 'vue';
 
 const props = defineProps<{
   draggable: boolean,
-  code: string,
-  name: string,
-  credits: number,
+  code?: string,
+  name?: string,
+  credits?: number,
 }>();
 
 const cliroot = useTemplateRef<HTMLDivElement>('cliroot');
@@ -69,10 +69,10 @@ const targetIndex = ref<number | null>(null);
     <div class="drop-indicator top" :class="{ 'visible': dropZone === 'top' }"></div>
     <div class="flex flex-col">
       <div class="flex flex-row px-2">
-        <div class="flex-5 text-left">{{ code }}</div>
-        <div class="flex-1 text-right">{{ credits }}</div>
+        <div class="flex-5 text-left">{{ code || "" }}</div>
+        <div class="flex-1 text-right">{{ credits || "" }}</div>
       </div>
-      <div class="truncate px-2 text-left" :title="name">{{ name || "Course Name" }}</div>
+      <div class="truncate px-2 text-left" :title="name">{{ name || "" }}</div>
     </div>
     <div class="drop-indicator bottom" :class="{ 'visible': dropZone === 'bottom' }"></div>
   </div>

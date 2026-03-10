@@ -4,6 +4,7 @@ import { createCourseObject } from '@/utils/courseHelpers';
 import { formatRevision } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 import { navigateToCourseExternal } from '@/utils/navigationHelpers';
+
 // initiate auth store
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
@@ -22,11 +23,6 @@ const semesterOrder = defineModel<string[]>("semesterOrder", { default: [] });
 const semestersWithCourseInfo = computed(
   () => courseListStore.getCourseInfoInStructure(semesters.value)
 )
-// const structureObject = defineModel<{ [semesterKey: string]: string[] }>({ default: {} });
-// const structureObjectWithCourseInfo = computed(
-//   () => courseListStore.getCourseInfoInStructure(structureObject.value)
-// )
-// const semesterKeys = computed(() => Object.keys(structureObject.value).sort())
 // ----------
 
 const loading = ref(false);
@@ -199,6 +195,9 @@ const viewCourse = (courseCode: string) => {
 
 import { zeroPad } from '@/utils/common';
 import { nanoid } from 'nanoid';
+const findSemesterIndex = (semKey: string) => {
+  return semesterOrder.value.indexOf(semKey)
+}
 const addSemester = (asSemNumber = -1) => {
   loading.value = true;
   const newSemesterKey = nanoid()
@@ -214,6 +213,14 @@ const addSemester = (asSemNumber = -1) => {
   }
   loading.value = false;
 };
+const removeSemester = (semKey: string) => {
+  loading.value = true;
+  delete semesters.value[semKey]
+  const semIndex = findSemesterIndex(semKey)
+  semesterOrder.value.splice(semIndex, 1)
+  loading.value = false;
+};
+
 
 import {
   Table,
@@ -233,7 +240,7 @@ import {
 } from '@/components/ui/select';
 import CourseListItem from '@/components/programme/CourseListItem.vue';
 import { Button } from '@/components/ui/button';
-import { XIcon, EyeIcon } from 'lucide-vue-next'
+import { XIcon, EyeIcon, LayersPlusIcon, Layers2Icon } from 'lucide-vue-next'
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu'
 import NewOrAddPopover from '../NewOrAddPopover.vue';
 import LoadingComponent from '../LoadingComponent.vue';
@@ -273,45 +280,84 @@ import LoadingComponent from '../LoadingComponent.vue';
         <TableRow v-for="row, row_index in sem_keys">
           <TableHead v-if="row_header!==''" class="w-0">{{ `${row_header} ${row_index+1}` }}</TableHead>
           <TableCell v-for="sem_key, col_index in row"
-            class="text-center align-top flex justify-center"
+            class="align-top"
           >
-            <div class="flex flex-col w-36 gap-1">
-              <ContextMenu v-for="course, course_index in semestersWithCourseInfo[sem_key!]">
-                <ContextMenuTrigger>
-                  <CourseListItem
-                    :draggable="editable"
-                    :code="course.code"
-                    :name="course.name"
-                    :credits="course.credits"
-                    @drag-start="(event: DragEvent) => onDragStart(event, sem_key, course_index)"
-                    @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, course_index, zone)"
-                  />
-                </ContextMenuTrigger>
-                <ContextMenuContent class="w-fit">
-                  <ContextMenuItem v-if="editable" @click="deleteCourseFrom(course_index, sem_key)">
-                    <XIcon />
-                    Delete
-                  </ContextMenuItem>
-                  <ContextMenuItem @click="viewCourse(course.code)">
-                    <EyeIcon />
-                    View
-                  </ContextMenuItem>
-                </ContextMenuContent>
-              </ContextMenu>
-              <NewOrAddPopover v-if="editable"
-                buttonSize="sm"
-                buttonVariant="secondary"
-                buttonClass=""
-                :bannedList="bannedList"
-                :availableList="availableList"
-                title="Add Course"
-                description="Add course to semester"
-                :errorMessageFcn="errorMessageFcn"
-                @create="(name: string, code: string) => createCourse(name, code, sem_key)"
-                @add="(code: string) => addCourse(code, sem_key)"
-              />
+            <div class="w-full flex flex-col gap-2 justify-center items-center relative px-10">
+              <div class="flex flex-col w-36 gap-1">
+                <CourseListItem v-if="semestersWithCourseInfo[sem_key!]?.length === 0"
+                  class="border-dashed border bg-transparent"
+                  :draggable="false"
+                  code=""
+                  name=""
+                  :credits="0"
+                  @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, 0, zone)"
+                />
+                <ContextMenu v-for="course, course_index in semestersWithCourseInfo[sem_key!]">
+                  <ContextMenuTrigger>
+                    <CourseListItem
+                      :draggable="editable"
+                      :code="course.code"
+                      :name="course.name"
+                      :credits="course.credits"
+                      @drag-start="(event: DragEvent) => onDragStart(event, sem_key, course_index)"
+                      @item-drop="(event: DragEvent, zone: string|null) => onDrop(event, sem_key, course_index, zone)"
+                    />
+                  </ContextMenuTrigger>
+                  <ContextMenuContent class="w-fit">
+                    <ContextMenuItem v-if="editable" @click="deleteCourseFrom(course_index, sem_key)">
+                      <XIcon />
+                      Delete
+                    </ContextMenuItem>
+                    <ContextMenuItem @click="viewCourse(course.code)">
+                      <EyeIcon />
+                      View
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+                <NewOrAddPopover v-if="editable && sem_key"
+                  buttonSize="sm"
+                  buttonVariant="secondary"
+                  buttonClass=""
+                  :bannedList="bannedList"
+                  :availableList="availableList"
+                  title="Add Course"
+                  description="Add course to semester"
+                  :errorMessageFcn="errorMessageFcn"
+                  @create="(name: string, code: string) => createCourse(name, code, sem_key)"
+                  @add="(code: string) => addCourse(code, sem_key)"
+                />
+                <div class="flex flex-row gap-1" v-if="editable && sem_key">
+                  <Button v-if="editable && structureDisplayMode == 'by year' && sem_key"
+                    variant="secondary"
+                    size="sm"
+                    title="Add Semester"
+                    @click="addSemester(findSemesterIndex(sem_key)+2)"
+                    class="flex-1"
+                  >
+                    <LayersPlusIcon />
+                  </Button>
+                  <Button v-if="editable && sem_key"
+                    variant="secondary"
+                    size="sm"
+                    title="Remove Semester"
+                    @click="removeSemester(sem_key)"
+                    class="flex-1"
+                  >
+                    <Layers2Icon class="text-red-500" />
+                  </Button>
+                </div>
+              </div>
+              <Button
+                v-if="editable && structureDisplayMode == 'by semester' && sem_key"
+                class="h-auto absolute bottom-0 right-0 top-0"
+                variant="secondary"
+                size="sm"
+                title="Add Semester"
+                @click="addSemester(findSemesterIndex(sem_key)+2)"
+              >
+                <LayersPlusIcon />
+              </Button>
             </div>
-
           </TableCell>
         </TableRow>
       </TableBody>

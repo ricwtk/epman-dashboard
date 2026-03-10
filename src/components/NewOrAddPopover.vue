@@ -63,6 +63,7 @@ const buttonEnabled = computed(() => {
       <Button
         :size="buttonSize || 'icon'"
         :class="buttonClass"
+        :title="title"
         :variant="buttonVariant || 'outline'"
       >
         <PlusIcon />
