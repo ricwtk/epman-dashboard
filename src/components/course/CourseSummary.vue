@@ -51,12 +51,12 @@ defineEmits(['update:editing']);
           </ContentItem>
           <ContentItemBadges
             title="Category"
-            :badges="[course.category]"
+            :badges="[course.category].filter(Boolean)"
             elsemessage="Category not defined"
           />
           <ContentItemBadges
             title="Course Type"
-            :badges="[ COURSE_TYPES.find((t) => t.key === course.courseType)?.label || '' ]"
+            :badges="[ COURSE_TYPES.find((t) => t.key === course.courseType)?.label || '' ].filter(Boolean)"
             elsemessage="Course type not defined"
           />
           <ContentItemBadges
