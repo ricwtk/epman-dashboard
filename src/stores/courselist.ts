@@ -77,6 +77,10 @@ export const useCourseListStore = defineStore('course-list', () => {
     return results;
   }
 
+  function getDisplayLabel(value: string): string {
+    return `${value} ${codeToInfoMap.value[value]?.name || ''}`.trim()
+  }
+
   return {
     loading,
     courseCodes, courseSelections,
@@ -87,6 +91,7 @@ export const useCourseListStore = defineStore('course-list', () => {
     codeToInfoMap,
     updateCodeToInfoMap,
     getCourseInfoInStructure,
-    saveCourseUpdate
+    saveCourseUpdate,
+    getDisplayLabel,
   }
 })

@@ -8,6 +8,9 @@ import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Badge } from '@/components/ui/badge';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 
+import { useCourseListStore } from '@/stores/courselist';
+const courseListStore = useCourseListStore();
+
 defineProps<{
   course: Course;
   editing: boolean;
@@ -76,6 +79,7 @@ defineEmits(['update:editing']);
             title="Prerequisites"
             :badges="course.prerequisites || []"
             elsemessage="No prerequisites"
+            :displayFcn="courseListStore.getDisplayLabel"
           />
           <ContentItemBadges
             title="Transferable Skills"

@@ -9,6 +9,7 @@ defineProps<{
   selected: string[];
   emptymessage?: string;
   allowAdd?: boolean;
+  displayFcn?: (value: string) => string;
 }>()
 
 defineEmits<{
@@ -25,6 +26,7 @@ defineEmits<{
       :elsemessage="emptymessage"
       :editable="true"
       @delete="(ev) => $emit('delete', ev)"
+      :displayFcn="displayFcn"
     >
     </ContentItemBadges>
 

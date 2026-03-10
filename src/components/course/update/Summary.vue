@@ -158,6 +158,7 @@ watch(courseStore.draft.deliveryMethods, () => {
           label="Select Prerequisites"
           :options="courseListStore.courseSelections || []"
           :selected="draft.prerequisites"
+          :displayFcn="courseListStore.getDisplayLabel"
           emptymessage="No Prerequisites"
           @select="courseStore.togglePrerequisite($event)"
           @add="courseStore.togglePrerequisite($event)"
