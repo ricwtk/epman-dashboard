@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type { Course, Assessment } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import {
@@ -12,18 +12,22 @@ import {
 } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BadgeList from '@/components/BadgeList.vue';
-import { CheckIcon, MinusIcon } from 'lucide-vue-next';
+import { CheckIcon, MinusIcon, PlusIcon } from 'lucide-vue-next';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { School } from '@/types/school';
 
 const props = defineProps<{
   course: Course;
   schools?: {[code: string]: School};
-  editing: boolean
   loading?: boolean;
 }>();
+  // editing: boolean
+
+const editing = ref(false);
 
 defineEmits(['update:editing']);
 
@@ -31,6 +35,16 @@ const selectedSchoolCode = ref("");
 watch(() => props.schools, () => {
   if (props.schools && Object.keys(props.schools).length > 0 && selectedSchoolCode.value === "")
     selectedSchoolCode.value = Object.keys(props.schools)[0] || "";
+})
+
+const WPLIST = computed(() => {
+  if (props.schools && selectedSchoolCode.value) {
+    const school = props.schools[selectedSchoolCode.value];
+    if (school && school.components && school.components.wps) {
+      return school.components.wps.map((wp, index) => [`WP${index + 1}`, wp.descriptor]);
+    }
+  }
+  return [];
 })
 
 const getDescriptor = (component: string, componentIndex: number): string => {
@@ -88,11 +102,13 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
 </script>
 
 <template>
-  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
+<!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
+  <ContentCard editable :editing="editing" @update:editing="editing = $event">
     <template #title>
       CEP and CEA Implementation
     </template>
-    <template #body>
+    <template #body="{ editing }">
+      editing: {{ editing }}
       <LoadingComponent :show="loading" />
       <EmptyComponent v-if="course.assessments.length === 0">
         <template #title>
@@ -165,11 +181,31 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   </template>
                 </TableCell>
                 <TableCell class="text-center">
-                  <div class="flex flex-col gap-1">
+                  <div class="flex flex-col gap-1 items-center">
                     <ButtonGroup v-for="cepcea in getCEPCEA(assessment, index+1)" :key="cepcea[0]" class="gap-0!">
                       <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
                       <ButtonGroupText><span class="w-40 text-wrap text-xs">{{ cepcea[1] }}</span></ButtonGroupText>
                     </ButtonGroup>
+                    <template v-if="editing">
+                      <Popover>
+                        <PopoverTrigger as-child>
+                          <Button variant="outline" class="w-full">
+                            <PlusIcon class="inline-block" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <div class="flex flex-col gap-1">
+                            <ButtonGroup v-for="wp in WPLIST.filter(wp => !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(wp[0]))"
+                             :key="wp[0]"
+                             class="gap-0!"
+                            >
+                              <ButtonGroupText class="w-15 flex justify-center text-sm">{{ wp[0] }}</ButtonGroupText>
+                              <ButtonGroupText><span class="w-40 text-wrap text-xs">{{ wp[1] }}</span></ButtonGroupText>
+                            </ButtonGroup>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </template>
                   </div>
                 </TableCell>
               </template>
