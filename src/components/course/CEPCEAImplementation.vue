@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import type { Course, Assessment } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import {
@@ -18,38 +19,60 @@ import LoadingComponent from '@/components/LoadingComponent.vue';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import type { School } from '@/types/school';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import type { AttrDesc, School } from '@/types/school';
 
-const props = defineProps<{
-  course: Course;
-  schools?: {[code: string]: School};
-  loading?: boolean;
-}>();
-  // editing: boolean
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore();
 
 const editing = ref(false);
 
-defineEmits(['update:editing']);
+// const props = defineProps<{
+//   course: Course;
+//   schools?: {[code: string]: School};
+//   loading?: boolean;
+//   editing: boolean
+// }>();
 
-const selectedSchoolCode = ref("");
-watch(() => props.schools, () => {
-  if (props.schools && Object.keys(props.schools).length > 0 && selectedSchoolCode.value === "")
-    selectedSchoolCode.value = Object.keys(props.schools)[0] || "";
+// defineEmits(['update:editing']);
+
+const course = computed({
+  get: () => editing.value ? courseStore.draft : courseStore.saved,
+  set: (value) => {
+    if (editing.value)
+      courseStore.draft = value;
+    else
+      courseStore.saved = value;
+  },
 })
 
-const WPLIST = computed(() => {
-  if (props.schools && selectedSchoolCode.value) {
-    const school = props.schools[selectedSchoolCode.value];
+const setEditing = (value: boolean) => {
+  editing.value = value;
+  if (courseStore.draft.code !== courseStore.saved.code) {
+    courseStore.createDraft();
+  }
+};
+
+const selectedSchoolCode = ref("");
+watch(() => courseStore.schools, () => {
+  if (courseStore.schools && Object.keys(courseStore.schools).length > 0 && selectedSchoolCode.value === "")
+    selectedSchoolCode.value = Object.keys(courseStore.schools)[0] || "";
+})
+
+const WPLIST = computed<Array<[string, string]>>(() => {
+  if (courseStore.schools && selectedSchoolCode.value) {
+    const school = courseStore.schools[selectedSchoolCode.value];
     if (school && school.components && school.components.wps) {
-      return school.components.wps.map((wp, index) => [`WP${index + 1}`, wp.descriptor]);
+      return school.components.wps.map((wp: AttrDesc, index: number) => [`WP${index + 1}`, wp.descriptor]);
     }
   }
   return [];
 })
 
 const getDescriptor = (component: string, componentIndex: number): string => {
-  if (props.schools && selectedSchoolCode.value) {
-    const school = props.schools[selectedSchoolCode.value];
+  if (courseStore.schools && selectedSchoolCode.value) {
+    const school = courseStore.schools[selectedSchoolCode.value];
     const compKey = `${component}s`
     if (school && school.components && school.components[compKey]) {
       return school.components[compKey][componentIndex].descriptor;
@@ -103,13 +126,13 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
 
 <template>
 <!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
-  <ContentCard editable :editing="editing" @update:editing="editing = $event">
+  <ContentCard editable :editing="editing" @update:editing="setEditing">
     <template #title>
       CEP and CEA Implementation
     </template>
     <template #body="{ editing }">
       editing: {{ editing }}
-      <LoadingComponent :show="loading" />
+      <LoadingComponent :show="courseStore.loading" />
       <EmptyComponent v-if="course.assessments.length === 0">
         <template #title>
           No Assessments
@@ -124,8 +147,8 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
             <SelectValue placeholder="Select"/>
           </SelectTrigger>
           <SelectContent>
-            <template v-for="(schCode, index) in Object.keys(schools || {})" :key="index">
-              <SelectItem :value="schCode">{{ schools?.[schCode]?.name }}</SelectItem>
+            <template v-for="(schCode, index) in Object.keys(courseStore.schools || {})" :key="index">
+              <SelectItem :value="schCode">{{ courseStore.schools?.[schCode]?.name }}</SelectItem>
             </template>
           </SelectContent>
         </Select>
@@ -194,15 +217,30 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent>
-                          <div class="flex flex-col gap-1">
-                            <ButtonGroup v-for="wp in WPLIST.filter(wp => !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(wp[0]))"
+                          <ScrollArea class="h-60">
+                            <div class="flex flex-col gap-1 text-xs select-none">
+                              <template v-for="wp in WPLIST" :key="wp[0]">
+                                <div class="flex flex-row items-center gap-2 hover:bg-accent px-1 py-2 rounded">
+                                  <div>
+                                    <CheckIcon class="inline-block" :size="16"
+                                      :class="{ 'text-transparent': !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(wp[0]) }" />
+                                  </div>
+                                  <div class="flex flex-col">
+                                    <span class="font-semibold">{{ wp[0] }}</span>
+                                    <span>{{ wp[1] }}</span>
+                                  </div>
+                                </div>
+                                <Separator v-if="wp !== WPLIST[WPLIST.length - 1]" />
+                              </template>
+                            <!-- <ButtonGroup v-for="wp in WPLIST.filter(wp => !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(wp[0]))"
                              :key="wp[0]"
                              class="gap-0!"
                             >
                               <ButtonGroupText class="w-15 flex justify-center text-sm">{{ wp[0] }}</ButtonGroupText>
                               <ButtonGroupText><span class="w-40 text-wrap text-xs">{{ wp[1] }}</span></ButtonGroupText>
-                            </ButtonGroup>
-                          </div>
+                            </ButtonGroup> -->
+                            </div>
+                          </ScrollArea>
                         </PopoverContent>
                       </Popover>
                     </template>
