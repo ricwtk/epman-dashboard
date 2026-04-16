@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import type { Course, Assessment } from '@/types/course';
+import type { Course, Assessment, Co } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import {
   Table,
@@ -25,6 +25,7 @@ import type { AttrDesc, School } from '@/types/school';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
+const saveCourse = () => { courseStore.save(); }
 
 const editing = ref(false);
 
@@ -116,8 +117,9 @@ const getCEPCEA = (assessment: Assessment, coIndex: number) => {
   return descriptors.map(d => d);
 };
 
-const setCEPCEA = (assessment: Assessment, coIndex: number, wpOea: 'wp' | 'ea', selected: number) => {
-  let assessmentItem: {wps?: number[]; eas?: number[]};
+const setCEPCEA = (assessment: Assessment, coIndex: number, wpOea: string, selected: number) => {
+  let assessmentItem: { wps?: number[]; eas?: number[];[key: string]: any } = {};
+  if (!['wp', 'ea'].includes(wpOea)) { return; }
   if (assessment.breakdown.length > 0) {
     for (const item of assessment.breakdown) {
       if (item.co === coIndex) {
@@ -130,14 +132,21 @@ const setCEPCEA = (assessment: Assessment, coIndex: number, wpOea: 'wp' | 'ea', 
     }
   }
   const componentKey = wpOea + "s"
-  if (assessmentItem) {
-    if (!assessmentItem[componentKey]) { assessmentItem[componentKey] = []; }
-    if (assessmentItem[componentKey].includes(selected)) {
-      assessmentItem[componentKey] = assessmentItem[componentKey].filter(wpea => wpea !== selected);
-    } else {
-      assessmentItem[componentKey].push(selected);
-    }
+  if (!(componentKey in assessmentItem)) { assessmentItem[componentKey] = []; }
+  if (assessmentItem[componentKey].includes(selected)) {
+    assessmentItem[componentKey] = assessmentItem[componentKey].filter((wpea: number) => wpea !== selected);
+  } else {
+    assessmentItem[componentKey].push(selected);
   }
+};
+
+const checkCEPCEAinCO = (co: Co, cepcea: string) => {
+  const cepceaComponent = cepcea.slice(0, 2).toLowerCase();
+  const cepceaValue = Number(cepcea.slice(2, 3));
+  const cepceaKey = cepceaComponent + "s" as keyof Co;
+  if (Array.isArray(co[cepceaKey])) {
+    return co[cepceaKey].includes(cepceaValue);
+  } else { return false; }
 };
 
 const getWeightage = (assessment: Assessment, coIndex: number) => {
@@ -160,12 +169,11 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
 
 <template>
 <!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
-  <ContentCard editable :editing="editing" @update:editing="setEditing">
+  <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveCourse">
     <template #title>
       CEP and CEA Implementation
     </template>
     <template #body="{ editing }">
-      editing: {{ editing }}
       <LoadingComponent :show="courseStore.loading" />
       <EmptyComponent v-if="course.assessments.length === 0">
         <template #title>
@@ -298,15 +306,18 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                       </Popover>
                     </div>
 
-                    <ButtonGroup v-for="cepcea in getCEPCEA(assessment, index+1)" :key="cepcea[0]" class="gap-0! w-full flex">
-                      <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
-                      <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
-                      <ButtonGroupText class="flex justify-center text-sm text-destructive" v-if="editing"
-                        @click="setCEPCEA(assessment, index+1, cepcea[0].slice(0,2).toLowerCase(), Number(cepcea[0].slice(2,3)))"
-                      >
-                        <XIcon />
-                      </ButtonGroupText>
-                    </ButtonGroup>
+                    <template v-for="cepcea in getCEPCEA(assessment, index+1)" :key="cepcea[0]">
+                      <ButtonGroup class="gap-0! w-full flex">
+                        <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
+                        <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
+                        <ButtonGroupText class="flex justify-center text-sm text-destructive" v-if="editing"
+                          @click="setCEPCEA(assessment, index+1, cepcea[0]!.slice(0,2).toLowerCase(), Number(cepcea[0]!.slice(2,3)))"
+                        >
+                          <XIcon />
+                        </ButtonGroupText>
+                      </ButtonGroup>
+                      <div v-if="!checkCEPCEAinCO(co, cepcea[0]||'')" class="text-destructive mb-2 text-xs">CO{{ index + 1 }} not mapped to {{ cepcea[0] }}</div>
+                    </template>
                   </div>
                 </TableCell>
               </template>
