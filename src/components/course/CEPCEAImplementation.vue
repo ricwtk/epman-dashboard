@@ -253,7 +253,11 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                     label="PO"
                   />
                 </template>
-                <BadgeList :items="co.pos.sort().map((po) => 'PO'+po)" />
+                <BadgeList
+                  :items="co.pos.sort().map((po) => 'PO'+po)"
+                  :editing="editing"
+                  @remove="(item: string) => courseStore.removeCoMapping(index, 'po', Number(item.slice(2)))"
+                />
               </TableCell>
               <TableCell class="text-center">
                 <template v-if="editing">
@@ -265,7 +269,11 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                     label="WK"
                   />
                 </template>
-                <BadgeList :items="co.wks.sort().map((wk) => 'WK'+wk)" />
+                <BadgeList
+                  :items="co.wks.sort().map((wk) => 'WK'+wk)"
+                  :editing="editing"
+                  @remove="(item: string) => courseStore.removeCoMapping(index, 'wk', Number(item.slice(2)))"
+                />
               </TableCell>
               <TableCell class="text-center">
                 <template v-if="editing">
@@ -277,7 +285,11 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                     label="WP"
                   />
                 </template>
-                <BadgeList :items="co.wps.sort().map((wp) => 'WP'+wp)" />
+                <BadgeList
+                  :items="co.wps.sort().map((wp) => 'WP'+wp)"
+                  :editing="editing"
+                  @remove="(item: string) => courseStore.removeCoMapping(index, 'wp', Number(item.slice(2)))"
+                />
               </TableCell>
               <TableCell class="text-center">
                 <template v-if="editing">
@@ -289,7 +301,11 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                     label="EA"
                   />
                 </template>
-                <BadgeList :items="co.eas.sort().map((ea) => 'EA'+ea)" />
+                <BadgeList
+                  :items="co.eas.sort().map((ea) => 'EA'+ea)"
+                  :editing="editing"
+                  @remove="(item: string) => courseStore.removeCoMapping(index, 'ea', Number(item.slice(2)))"
+                />
               </TableCell>
               <TableCell class="text-center">
                 <Checkbox v-if="editing" v-model="co.sdg" />
