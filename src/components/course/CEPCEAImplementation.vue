@@ -64,41 +64,34 @@ const selectProgramme = (progCode: string) => {
   // selectedSchoolCode.value = courseStore.programmes[progCode]?.school || "";
 }
 
-const getDescriptor = (component: string, componentIndex: number): string => {
-  if (courseStore.selectedSchool) {
-    const school = courseStore.selectedSchool;
-    const compKey = `${component}s`
-    if (school && school.components && school.components[compKey]) {
-      return school.components[compKey][componentIndex].descriptor;
+function getCEPCEA(assessment: number, coIndex: number, componentType: 'wp' | 'ea'): string[][] {
+  const descriptors: string[][] = []
+  const componentKey = `${componentType}s` as 'wps' | 'eas'
+  const componentLabel = `${componentType.toUpperCase()}`
+  const componentList = componentType == "wp" ? courseStore.WPLIST : courseStore.EALIST
+  if (assessment) {
+    if (assessment.breakdown.length > 0) {
+      for (const breakdown of assessment.breakdown) {
+        if (breakdown.co == coIndex) {
+          if (breakdown[componentKey] && breakdown[componentKey].length > 0) {
+            descriptors.push(...breakdown[componentKey].sort().map(
+              (componentNumber: number) => componentList[componentNumber-1] || [`${componentLabel}${componentNumber}`, ]
+            ))
+          }
+        }
+      }
+    } else {
+      if (assessment.cos.includes(coIndex)) {
+        if (assessment[componentKey] && assessment[componentKey].length > 0) {
+          descriptors.push(...assessment[componentKey].sort().map(
+            (componentNumber: number) => componentList[componentNumber-1] || [`${componentLabel}${componentNumber}`, ]
+          ))
+        }
+      }
     }
   }
-  return ""
+  return [...new Map(descriptors.map(descriptor => [descriptor[0], descriptor])).values()]
 }
-const getCEPCEA = (assessment: Assessment, coIndex: number) => {
-  const descriptors: string[][] = [];
-  if (assessment.breakdown.length > 0) {
-    for (const item of assessment.breakdown) {
-      if (item.co === coIndex) {
-        if (item.wps && item.wps.length > 0) {
-          descriptors.push(...item.wps.sort().map(wp => [`WP${wp}`, `${getDescriptor("wp", wp-1)}`]));
-        }
-        if (item.eas && item.eas.length > 0) {
-          descriptors.push(...item.eas.sort().map(ea => [`EA${ea}`, `${getDescriptor("ea", ea-1)}`]));
-        }
-      }
-    }
-  } else {
-    if (assessment.cos.includes(coIndex)) {
-      if (assessment.wps && assessment.wps.length > 0) {
-        descriptors.push(...assessment.wps.sort().map(wp => [`WP${wp}`, `${getDescriptor("wp", wp-1)}`]));
-      }
-      if (assessment.eas && assessment.eas.length > 0) {
-        descriptors.push(...assessment.eas.sort().map(ea => [`EA${ea}`, `${getDescriptor("ea", ea-1)}`]));
-      }
-    }
-  }
-  return descriptors.map(d => d);
-};
 
 const setCEPCEA = (assessmentIndex: number, coIndex: number, wpOea: 'wp' | 'ea', selected: number) => {
   const assessment = course.value.assessments[assessmentIndex];
@@ -287,30 +280,32 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                     <div class="w-full flex flex-row gap-1" v-if="editing && assessment.cos.includes(index + 1)">
                       <MappingSelectionMenu
                         :items="courseStore.WPLIST"
-                        :selectedItems="getCEPCEA(assessment, index+1).filter((cepcea) => cepcea[0]?.toLowerCase().startsWith('wp')).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        :selectedItems="getCEPCEA(assessment, index+1, 'wp').map((cepcea) => Number(cepcea[0]!.slice(2)))"
                         @select="(itemIndex: number) => setCEPCEA(assessmentIndex, index+1, 'wp', itemIndex+1)"
                         label="WP"
                       />
 
                       <MappingSelectionMenu
                         :items="courseStore.EALIST"
-                        :selectedItems="getCEPCEA(assessment, index+1).filter((cepcea) => cepcea[0]?.toLowerCase().startsWith('ea')).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        :selectedItems="getCEPCEA(assessment, index+1, 'ea').map((cepcea) => Number(cepcea[0]!.slice(2)))"
                         @select="(itemIndex: number) => setCEPCEA(assessmentIndex, index+1, 'ea', itemIndex+1)"
                         label="EA"
                       />
                     </div>
 
-                    <template v-for="cepcea in getCEPCEA(assessment, index+1)" :key="cepcea[0]">
-                      <ButtonGroup class="gap-0! w-full flex">
-                        <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
-                        <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
-                        <ButtonGroupText class="flex justify-center text-sm text-destructive" v-if="editing"
-                          @click="setCEPCEA(assessmentIndex, index+1, cepcea[0]!.slice(0,2).toLowerCase() as 'wp' | 'ea', Number(cepcea[0]!.slice(2,3)))"
-                        >
-                          <XIcon />
-                        </ButtonGroupText>
-                      </ButtonGroup>
-                      <div v-if="!checkCEPCEAinCO(co, cepcea[0]||'')" class="text-destructive mb-2 text-xs">CO{{ index + 1 }} not mapped to {{ cepcea[0] }}</div>
+                    <template v-for="component in ['wp', 'ea']">
+                      <template v-for="cepcea in getCEPCEA(assessment, index+1, component)" :key="cepcea[0]">
+                        <ButtonGroup class="gap-0! w-full flex">
+                          <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
+                          <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
+                          <ButtonGroupText class="flex justify-center text-sm text-destructive" v-if="editing"
+                            @click="setCEPCEA(assessmentIndex, index+1, cepcea[0]!.slice(0,2).toLowerCase() as 'wp' | 'ea', Number(cepcea[0]!.slice(2,3)))"
+                          >
+                            <XIcon />
+                          </ButtonGroupText>
+                        </ButtonGroup>
+                        <div v-if="!checkCEPCEAinCO(co, cepcea[0]||'')" class="text-destructive mb-2 text-xs">CO{{ index + 1 }} not mapped to {{ cepcea[0] }}</div>
+                      </template>
                     </template>
                   </div>
                 </TableCell>

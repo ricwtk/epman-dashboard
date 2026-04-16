@@ -227,7 +227,6 @@ export const useCourseStore = defineStore('course', () => {
   //   }
   // }
 
-
   function addCo(): void { draft.value.cos.push(createCo()) }
   function removeCo(index: number): void { draft.value.cos.splice(index, 1) }
   function moveCoUp(index: number): void { moveUp('cos', index); }
