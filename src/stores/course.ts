@@ -16,6 +16,7 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 import { dataService } from '@/services/dataService';
 import type { SchoolsByCode, ProgrammesWithCourse, ProgrammeWithCourse } from '@/services/dataService';
+import type { AttrDesc } from '@/types/school';
 import { navigateToParent } from '@/utils/navigationHelpers'
 
 import { useCourseListStore } from './courselist';
@@ -143,6 +144,36 @@ export const useCourseStore = defineStore('course', () => {
   function removeDeliveryMethod(value: string): void { removeListItem('deliveryMethods', value) }
   function toggleDeliveryMethod(value: string): void { toggleListItem('deliveryMethods', value) }
 
+  const WKLIST = computed<Array<[string, string]>>(() => {
+    if (selectedSchool.value) {
+      const school = selectedSchool.value;
+      if (school && school.components && school.components.wks) {
+        return school.components.wks.map((wk: AttrDesc, index: number) => [`WK${index + 1}`, wk.descriptor]);
+      }
+    }
+    return [];
+  })
+
+  const WPLIST = computed<Array<[string, string]>>(() => {
+    if (selectedSchool.value) {
+      const school = selectedSchool.value;
+      if (school && school.components && school.components.wps) {
+        return school.components.wps.map((wp: AttrDesc, index: number) => [`WP${index + 1}`, wp.descriptor]);
+      }
+    }
+    return [];
+  })
+
+  const EALIST = computed<Array<[string, string]>>(() => {
+    if (selectedSchool.value) {
+      const school = selectedSchool.value;
+      if (school && school.components && school.components.eas) {
+        return school.components.eas.map((ea: AttrDesc, index: number) => [`EA${index + 1}`, ea.descriptor]);
+      }
+    }
+    return [];
+  })
+
   function addCoMapping(coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', componentNumber: number): void {
     const co = draft.value.cos[coIndex]
     const componentKey: keyof Co = `${type}s`
@@ -256,6 +287,36 @@ export const useCourseStore = defineStore('course', () => {
           const componentKey: keyof Breakdown = `${type}s`
           if (breakdown[componentKey]) {
             breakdown[componentKey] = breakdown[componentKey].filter((n) => n !== componentNumber)
+          }
+        }
+      }
+    }
+  }
+
+  function toggleAssessmentMapping(assessmentIndex: number, breakdownIndex: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
+    const assessment = draft.value.assessments[assessmentIndex]
+    if (assessment) {
+      if (breakdownIndex == -1) {
+        const componentKey: keyof Assessment = `${type}s`
+        if (!assessment[componentKey]) assessment[componentKey] = []
+        if (!assessment[componentKey].includes(componentNumber)) {
+          assessment[componentKey].push(componentNumber)
+        } else {
+          assessment[componentKey] = assessment[componentKey].filter((n) => n !== componentNumber)
+        }
+      } else {
+        const breakdown = assessment.breakdown[breakdownIndex]
+        if (breakdown) {
+          const componentKey: keyof Breakdown = type == "co" ? "co" : `${type}s`
+          if (componentKey == "co") {
+            breakdown.co = componentNumber
+          } else {
+            if (!breakdown[componentKey]) breakdown[componentKey] = []
+            if (!breakdown[componentKey].includes(componentNumber)) {
+              breakdown[componentKey].push(componentNumber)
+            } else {
+              breakdown[componentKey] = breakdown[componentKey].filter((n) => n !== componentNumber)
+            }
           }
         }
       }
@@ -380,12 +441,13 @@ export const useCourseStore = defineStore('course', () => {
     addTransferableSkill, removeTransferableSkill, toggleTransferableSkill,
     addPrerequisite, removePrerequisite, togglePrerequisite,
     addDeliveryMethod, removeDeliveryMethod, toggleDeliveryMethod,
+    WKLIST, WPLIST, EALIST,
     addCo, removeCo, moveCoUp, moveCoDown,
     addCoMapping, removeCoMapping, toggleCoMapping,
     addTopic, removeTopic,
     addAssessment, deleteAssessment,
     addBreakdown, deleteBreakdown,
-    addAssessmentMapping, removeAssessmentMapping,
+    addAssessmentMapping, removeAssessmentMapping, toggleAssessmentMapping,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown,
     recommendedMappingForCo, recommendedMappingForAssessment,
   }

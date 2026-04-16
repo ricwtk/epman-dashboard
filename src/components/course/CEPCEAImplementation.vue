@@ -64,43 +64,6 @@ const selectProgramme = (progCode: string) => {
   // selectedSchoolCode.value = courseStore.programmes[progCode]?.school || "";
 }
 
-
-// const selectedSchoolCode = ref("");
-// watch(() => courseStore.schools, () => {
-//   if (courseStore.schools && Object.keys(courseStore.schools).length > 0 && selectedSchoolCode.value === "")
-//     selectedSchoolCode.value = Object.keys(courseStore.schools)[0] || "";
-// })
-
-const WKLIST = computed<Array<[string, string]>>(() => {
-  if (courseStore.selectedSchool) {
-    const school = courseStore.selectedSchool;
-    if (school && school.components && school.components.wks) {
-      return school.components.wks.map((wk: AttrDesc, index: number) => [`WK${index + 1}`, wk.descriptor]);
-    }
-  }
-  return [];
-})
-
-const WPLIST = computed<Array<[string, string]>>(() => {
-  if (courseStore.selectedSchool) {
-    const school = courseStore.selectedSchool;
-    if (school && school.components && school.components.wps) {
-      return school.components.wps.map((wp: AttrDesc, index: number) => [`WP${index + 1}`, wp.descriptor]);
-    }
-  }
-  return [];
-})
-
-const EALIST = computed<Array<[string, string]>>(() => {
-  if (courseStore.selectedSchool) {
-    const school = courseStore.selectedSchool;
-    if (school && school.components && school.components.eas) {
-      return school.components.eas.map((ea: AttrDesc, index: number) => [`EA${index + 1}`, ea.descriptor]);
-    }
-  }
-  return [];
-})
-
 const getDescriptor = (component: string, componentIndex: number): string => {
   if (courseStore.selectedSchool) {
     const school = courseStore.selectedSchool;
@@ -137,26 +100,20 @@ const getCEPCEA = (assessment: Assessment, coIndex: number) => {
   return descriptors.map(d => d);
 };
 
-const setCEPCEA = (assessment: Assessment, coIndex: number, wpOea: string, selected: number) => {
-  let assessmentItem: { wps?: number[]; eas?: number[];[key: string]: any } = {};
-  if (!['wp', 'ea'].includes(wpOea)) { return; }
-  if (assessment.breakdown.length > 0) {
-    for (const item of assessment.breakdown) {
-      if (item.co === coIndex) {
-        assessmentItem = item
+const setCEPCEA = (assessmentIndex: number, coIndex: number, wpOea: 'wp' | 'ea', selected: number) => {
+  const assessment = course.value.assessments[assessmentIndex];
+  if (assessment) {
+    if (assessment.breakdown.length > 0) {
+      for (const [breakdownIndex, item] of assessment.breakdown.entries()) {
+        if (item.co === coIndex) {
+          courseStore.toggleAssessmentMapping(assessmentIndex, breakdownIndex, wpOea, selected)
+        }
+      }
+    } else {
+      if (assessment.cos.includes(coIndex)) {
+        courseStore.toggleAssessmentMapping(assessmentIndex, -1, wpOea, selected)
       }
     }
-  } else {
-    if (assessment.cos.includes(coIndex)) {
-      assessmentItem = assessment
-    }
-  }
-  const componentKey = wpOea + "s"
-  if (!(componentKey in assessmentItem)) { assessmentItem[componentKey] = []; }
-  if (assessmentItem[componentKey].includes(selected)) {
-    assessmentItem[componentKey] = assessmentItem[componentKey].filter((wpea: number) => wpea !== selected);
-  } else {
-    assessmentItem[componentKey].push(selected);
   }
 };
 
@@ -263,7 +220,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                 <template v-if="editing">
                   <MappingSelectionMenu
                     class="mb-1 text-xs"
-                    :items="WKLIST"
+                    :items="courseStore.WKLIST"
                     :selectedItems="co.wks"
                     @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wk', itemIndex + 1)"
                     label="WK"
@@ -279,7 +236,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                 <template v-if="editing">
                   <MappingSelectionMenu
                     class="mb-1 text-xs"
-                    :items="WPLIST"
+                    :items="courseStore.WPLIST"
                     :selectedItems="co.wps"
                     @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wp', itemIndex + 1)"
                     label="WP"
@@ -295,7 +252,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                 <template v-if="editing">
                   <MappingSelectionMenu
                     class="mb-1 text-xs"
-                    :items="EALIST"
+                    :items="courseStore.EALIST"
                     :selectedItems="co.eas"
                     @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'ea', itemIndex + 1)"
                     label="EA"
@@ -314,7 +271,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   <MinusIcon class="inline-block" :size="16" v-else />
                 </template>
               </TableCell>
-              <template v-for="assessment in course.assessments">
+              <template v-for="(assessment, assessmentIndex) in course.assessments">
                 <TableCell class="text-center">
                   <template v-if="assessment.cos.includes(index + 1)">
                     <CheckIcon class="inline-block" :size="16" />
@@ -329,16 +286,16 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   <div class="flex flex-col gap-1 items-center">
                     <div class="w-full flex flex-row gap-1" v-if="editing && assessment.cos.includes(index + 1)">
                       <MappingSelectionMenu
-                        :items="WPLIST"
-                        :selectedItems="getCEPCEA(assessment, index+1).map((cepcea) => Number(cepcea[0]!.slice(2)))"
-                        @select="(itemIndex: number) => setCEPCEA(assessment, index+1, 'wp', itemIndex+1)"
+                        :items="courseStore.WPLIST"
+                        :selectedItems="getCEPCEA(assessment, index+1).filter((cepcea) => cepcea[0]?.toLowerCase().startsWith('wp')).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        @select="(itemIndex: number) => setCEPCEA(assessmentIndex, index+1, 'wp', itemIndex+1)"
                         label="WP"
                       />
 
                       <MappingSelectionMenu
-                        :items="EALIST"
-                        :selectedItems="getCEPCEA(assessment, index+1).map((cepcea) => Number(cepcea[0]!.slice(2)))"
-                        @select="(itemIndex: number) => setCEPCEA(assessment, index+1, 'ea', itemIndex+1)"
+                        :items="courseStore.EALIST"
+                        :selectedItems="getCEPCEA(assessment, index+1).filter((cepcea) => cepcea[0]?.toLowerCase().startsWith('ea')).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        @select="(itemIndex: number) => setCEPCEA(assessmentIndex, index+1, 'ea', itemIndex+1)"
                         label="EA"
                       />
                     </div>
@@ -348,7 +305,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                         <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
                         <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
                         <ButtonGroupText class="flex justify-center text-sm text-destructive" v-if="editing"
-                          @click="setCEPCEA(assessment, index+1, cepcea[0]!.slice(0,2).toLowerCase(), Number(cepcea[0]!.slice(2,3)))"
+                          @click="setCEPCEA(assessmentIndex, index+1, cepcea[0]!.slice(0,2).toLowerCase() as 'wp' | 'ea', Number(cepcea[0]!.slice(2,3)))"
                         >
                           <XIcon />
                         </ButtonGroupText>
