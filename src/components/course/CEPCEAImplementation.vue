@@ -13,14 +13,11 @@ import {
 } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BadgeList from '@/components/BadgeList.vue';
-import { CheckIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-vue-next';
+import { CheckIcon, MinusIcon, XIcon } from 'lucide-vue-next';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
 import type { AttrDesc, School } from '@/types/school';
 
 import { useCourseStore } from '@/stores/course';
@@ -59,6 +56,16 @@ const selectedSchoolCode = ref("");
 watch(() => courseStore.schools, () => {
   if (courseStore.schools && Object.keys(courseStore.schools).length > 0 && selectedSchoolCode.value === "")
     selectedSchoolCode.value = Object.keys(courseStore.schools)[0] || "";
+})
+
+const WKLIST = computed<Array<[string, string]>>(() => {
+  if (courseStore.schools && selectedSchoolCode.value) {
+    const school = courseStore.schools[selectedSchoolCode.value];
+    if (school && school.components && school.components.wks) {
+      return school.components.wks.map((wk: AttrDesc, index: number) => [`WK${index + 1}`, wk.descriptor]);
+    }
+  }
+  return [];
 })
 
 const WPLIST = computed<Array<[string, string]>>(() => {
@@ -219,16 +226,43 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
             <TableRow v-for="(co, index) in course.cos" :key="index">
               <TableCell class="text-center">CO{{ index + 1 }}</TableCell>
               <TableCell class="text-center">
-                <BadgeList :items="co.pos.map((po) => 'PO'+po)" />
+                <BadgeList :items="co.pos.sort().map((po) => 'PO'+po)" />
               </TableCell>
               <TableCell class="text-center">
-                <BadgeList :items="co.wks.map((wk) => 'WK'+wk)" />
+                <template v-if="editing">
+                  <MappingSelectionMenu
+                    class="mb-1 text-xs"
+                    :items="WKLIST"
+                    :selectedItems="co.wks"
+                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wk', itemIndex + 1)"
+                    label="WK"
+                  />
+                </template>
+                <BadgeList :items="co.wks.sort().map((wk) => 'WK'+wk)" />
               </TableCell>
               <TableCell class="text-center">
-                <BadgeList :items="co.wps.map((wp) => 'WP'+wp)" />
+                <template v-if="editing">
+                  <MappingSelectionMenu
+                    class="mb-1 text-xs"
+                    :items="WPLIST"
+                    :selectedItems="co.wps"
+                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wp', itemIndex + 1)"
+                    label="WP"
+                  />
+                </template>
+                <BadgeList :items="co.wps.sort().map((wp) => 'WP'+wp)" />
               </TableCell>
               <TableCell class="text-center">
-                <BadgeList :items="co.eas.map((ea) => 'EA'+ea)" />
+                <template v-if="editing">
+                  <MappingSelectionMenu
+                    class="mb-1 text-xs"
+                    :items="EALIST"
+                    :selectedItems="co.eas"
+                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'ea', itemIndex + 1)"
+                    label="EA"
+                  />
+                </template>
+                <BadgeList :items="co.eas.sort().map((ea) => 'EA'+ea)" />
               </TableCell>
               <TableCell class="text-center">
                 <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
@@ -248,62 +282,19 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                 <TableCell class="text-center">
                   <div class="flex flex-col gap-1 items-center">
                     <div class="w-full flex flex-row gap-1" v-if="editing && assessment.cos.includes(index + 1)">
-                      <Popover>
-                        <PopoverTrigger as-child>
-                          <Button variant="outline" class="flex-1">
-                            <PlusIcon class="inline-block" /> WP
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <ScrollArea class="h-60">
-                            <div class="flex flex-col gap-1 text-xs select-none">
-                              <template v-for="(wp, wpindex) in WPLIST" :key="wp[0]">
-                                <div class="flex flex-row items-center gap-2 hover:bg-accent px-1 py-2 rounded"
-                                  @click="setCEPCEA(assessment, index+1, 'wp', wpindex+1)"
-                                >
-                                  <div>
-                                    <CheckIcon class="inline-block" :size="16"
-                                      :class="{ 'text-transparent': !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(wp[0]) }" />
-                                  </div>
-                                  <div class="flex flex-col">
-                                    <span class="font-semibold">{{ wp[0] }}</span>
-                                    <span>{{ wp[1] }}</span>
-                                  </div>
-                                </div>
-                                <Separator v-if="wp !== WPLIST[WPLIST.length - 1]" />
-                              </template>
-                            </div>
-                          </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
-                      <Popover>
-                        <PopoverTrigger as-child>
-                          <Button variant="outline" class="flex-1">
-                            <PlusIcon class="inline-block" /> EA
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <ScrollArea class="h-60">
-                            <div class="flex flex-col gap-1 text-xs select-none">
-                              <template v-for="(ea, eaIndex) in EALIST" :key="ea[0]">
-                                <div class="flex flex-row items-center gap-2 hover:bg-accent px-1 py-2 rounded"
-                                  @click="setCEPCEA(assessment, index+1, 'ea', eaIndex+1)"
-                                >
-                                  <div>
-                                    <CheckIcon class="inline-block" :size="16"
-                                      :class="{ 'text-transparent': !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(ea[0]) }" />
-                                  </div>
-                                  <div class="flex flex-col">
-                                    <span class="font-semibold">{{ ea[0] }}</span>
-                                    <span>{{ ea[1] }}</span>
-                                  </div>
-                                </div>
-                                <Separator v-if="ea !== EALIST[EALIST.length - 1]" />
-                              </template>
-                            </div>
-                          </ScrollArea>
-                        </PopoverContent>
-                      </Popover>
+                      <MappingSelectionMenu
+                        :items="WPLIST"
+                        :selectedItems="getCEPCEA(assessment, index+1).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        @select="(itemIndex: number) => setCEPCEA(assessment, index+1, 'wp', itemIndex+1)"
+                        label="WP"
+                      />
+
+                      <MappingSelectionMenu
+                        :items="EALIST"
+                        :selectedItems="getCEPCEA(assessment, index+1).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        @select="(itemIndex: number) => setCEPCEA(assessment, index+1, 'ea', itemIndex+1)"
+                        label="EA"
+                      />
                     </div>
 
                     <template v-for="cepcea in getCEPCEA(assessment, index+1)" :key="cepcea[0]">

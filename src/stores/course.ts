@@ -159,6 +159,17 @@ export const useCourseStore = defineStore('course', () => {
       co[componentKey] = co[componentKey]?.filter((n) => n !== componentNumber)
     }
   }
+  function toggleCoMapping(coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', componentNumber: number): void {
+    const co = draft.value.cos[coIndex]
+    const componentKey: keyof Co = `${type}s`
+    if (co) {
+      if (!co[componentKey]?.includes(componentNumber)) {
+        co[componentKey]?.push(componentNumber)
+      } else {
+        co[componentKey] = co[componentKey]?.filter((n) => n !== componentNumber)
+      }
+    }
+  }
 
 
   // function checkMappingDiff(coursetype: "examBased" | "projectBased", component: "wk" | "wp" | "ea"): boolean {
@@ -370,7 +381,7 @@ export const useCourseStore = defineStore('course', () => {
     addPrerequisite, removePrerequisite, togglePrerequisite,
     addDeliveryMethod, removeDeliveryMethod, toggleDeliveryMethod,
     addCo, removeCo, moveCoUp, moveCoDown,
-    addCoMapping, removeCoMapping,
+    addCoMapping, removeCoMapping, toggleCoMapping,
     addTopic, removeTopic,
     addAssessment, deleteAssessment,
     addBreakdown, deleteBreakdown,
