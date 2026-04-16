@@ -17,6 +17,7 @@ import { CheckIcon, MinusIcon, XIcon } from 'lucide-vue-next';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
 import type { AttrDesc, School } from '@/types/school';
 
@@ -265,8 +266,11 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                 <BadgeList :items="co.eas.sort().map((ea) => 'EA'+ea)" />
               </TableCell>
               <TableCell class="text-center">
-                <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
-                <MinusIcon class="inline-block" :size="16" v-else />
+                <Checkbox v-if="editing" v-model="co.sdg" />
+                <template v-else>
+                  <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
+                  <MinusIcon class="inline-block" :size="16" v-else />
+                </template>
               </TableCell>
               <template v-for="assessment in course.assessments">
                 <TableCell class="text-center">
