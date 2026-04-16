@@ -38,7 +38,7 @@ const emit = defineEmits<{
               </div>
               <div class="flex flex-col">
                 <span class="font-semibold">{{ item[0] }}</span>
-                <span>{{ item[1] }}</span>
+                <span class="line-clamp-3" :title="item[1]">{{ item[1] }}</span>
               </div>
             </div>
             <Separator v-if="item !== items[items.length - 1]" />

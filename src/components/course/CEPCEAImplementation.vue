@@ -53,15 +53,27 @@ const setEditing = (value: boolean) => {
   }
 };
 
-const selectedSchoolCode = ref("");
-watch(() => courseStore.schools, () => {
-  if (courseStore.schools && Object.keys(courseStore.schools).length > 0 && selectedSchoolCode.value === "")
-    selectedSchoolCode.value = Object.keys(courseStore.schools)[0] || "";
+watch(() => courseStore.programmes, () => {
+  if (courseStore.programmes && Object.keys(courseStore.programmes).length > 0 && courseStore.selectedProgrammeCode === "") {
+    courseStore.selectedProgrammeCode = Object.keys(courseStore.programmes)[0] || "";
+    // selectedSchoolCode.value = courseStore.programmes[courseStore.selectedProgrammeCode]?.school || "";
+  }
 })
+const selectProgramme = (progCode: string) => {
+  courseStore.selectedProgrammeCode = progCode;
+  // selectedSchoolCode.value = courseStore.programmes[progCode]?.school || "";
+}
+
+
+// const selectedSchoolCode = ref("");
+// watch(() => courseStore.schools, () => {
+//   if (courseStore.schools && Object.keys(courseStore.schools).length > 0 && selectedSchoolCode.value === "")
+//     selectedSchoolCode.value = Object.keys(courseStore.schools)[0] || "";
+// })
 
 const WKLIST = computed<Array<[string, string]>>(() => {
-  if (courseStore.schools && selectedSchoolCode.value) {
-    const school = courseStore.schools[selectedSchoolCode.value];
+  if (courseStore.selectedSchool) {
+    const school = courseStore.selectedSchool;
     if (school && school.components && school.components.wks) {
       return school.components.wks.map((wk: AttrDesc, index: number) => [`WK${index + 1}`, wk.descriptor]);
     }
@@ -70,8 +82,8 @@ const WKLIST = computed<Array<[string, string]>>(() => {
 })
 
 const WPLIST = computed<Array<[string, string]>>(() => {
-  if (courseStore.schools && selectedSchoolCode.value) {
-    const school = courseStore.schools[selectedSchoolCode.value];
+  if (courseStore.selectedSchool) {
+    const school = courseStore.selectedSchool;
     if (school && school.components && school.components.wps) {
       return school.components.wps.map((wp: AttrDesc, index: number) => [`WP${index + 1}`, wp.descriptor]);
     }
@@ -80,8 +92,8 @@ const WPLIST = computed<Array<[string, string]>>(() => {
 })
 
 const EALIST = computed<Array<[string, string]>>(() => {
-  if (courseStore.schools && selectedSchoolCode.value) {
-    const school = courseStore.schools[selectedSchoolCode.value];
+  if (courseStore.selectedSchool) {
+    const school = courseStore.selectedSchool;
     if (school && school.components && school.components.eas) {
       return school.components.eas.map((ea: AttrDesc, index: number) => [`EA${index + 1}`, ea.descriptor]);
     }
@@ -90,8 +102,8 @@ const EALIST = computed<Array<[string, string]>>(() => {
 })
 
 const getDescriptor = (component: string, componentIndex: number): string => {
-  if (courseStore.schools && selectedSchoolCode.value) {
-    const school = courseStore.schools[selectedSchoolCode.value];
+  if (courseStore.selectedSchool) {
+    const school = courseStore.selectedSchool;
     const compKey = `${component}s`
     if (school && school.components && school.components[compKey]) {
       return school.components[compKey][componentIndex].descriptor;
@@ -192,16 +204,21 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
         </template>
       </EmptyComponent>
       <template v-else>
-        <Select :modelValue="selectedSchoolCode" @update:modelValue="(value) => selectedSchoolCode = String(value)">
-          <SelectTrigger class="grow">
-            <SelectValue placeholder="Select"/>
-          </SelectTrigger>
-          <SelectContent>
-            <template v-for="(schCode, index) in Object.keys(courseStore.schools || {})" :key="index">
-              <SelectItem :value="schCode">{{ courseStore.schools?.[schCode]?.name }}</SelectItem>
-            </template>
-          </SelectContent>
-        </Select>
+        <div class="flex flex-row items-center gap-2">
+
+          <Select :modelValue="courseStore.selectedProgrammeCode" @update:modelValue="(value) => selectProgramme(String(value))">
+            <SelectTrigger>
+              <SelectValue placeholder="Select"/>
+            </SelectTrigger>
+            <SelectContent>
+              <template v-for="(progCode, index) in Object.keys(courseStore.programmes || {})" :key="index">
+                <SelectItem :value="progCode">{{ courseStore.programmes?.[progCode]?.name }}</SelectItem>
+              </template>
+            </SelectContent>
+          </Select>
+
+          <span v-if="courseStore.selectedSchool">under {{ courseStore.selectedSchool.name }}</span>
+        </div>
 
         <Table>
           <TableHeader>
@@ -227,6 +244,15 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
             <TableRow v-for="(co, index) in course.cos" :key="index">
               <TableCell class="text-center">CO{{ index + 1 }}</TableCell>
               <TableCell class="text-center">
+                <template v-if="editing">
+                  <MappingSelectionMenu
+                    class="mb-1 text-xs"
+                    :items="courseStore.selectedProgramme?.poList.map((po, poIndex) => [`PO${poIndex + 1}`, po.attribute]) || []"
+                    :selectedItems="co.pos"
+                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'po', itemIndex + 1)"
+                    label="PO"
+                  />
+                </template>
                 <BadgeList :items="co.pos.sort().map((po) => 'PO'+po)" />
               </TableCell>
               <TableCell class="text-center">
