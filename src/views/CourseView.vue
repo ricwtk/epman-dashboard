@@ -66,12 +66,15 @@ const updateEditing = (ev: boolean, tab?: string) => {
       :editing="editing"
       @update:editing="(ev: boolean) => updateEditing(ev, 'summary')"
     />
-    <CourseOutcomes
+    <!-- <CourseOutcomes
       :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :cos="courseStore.saved.cos || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'outcomes')"
+    /> -->
+    <CourseOutcomes
+      :editable="authStore.canEditCourses"
     />
     <CourseAssessments
       :loading="courseStore.loading"
