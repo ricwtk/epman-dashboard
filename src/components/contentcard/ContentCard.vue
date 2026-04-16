@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PenIcon, CheckIcon } from 'lucide-vue-next';
+import { PenIcon, CheckIcon, XIcon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { ref } from 'vue';
 interface Props {
@@ -10,9 +10,16 @@ const props = withDefaults(defineProps<Props>(), {
   editable: true,
   editing: false
 });
-const emit = defineEmits(['update:editing']);
+const emit = defineEmits<{
+  (e: 'update:editing', value: boolean): void;
+  (e: 'save'): void;
+}>();
 const toggleEditing = () => {
   emit('update:editing', !props.editing);
+};
+const saveChanges = () => {
+  emit('save');
+  toggleEditing();
 };
 </script>
 
@@ -25,9 +32,14 @@ const toggleEditing = () => {
       <div class="grow"></div>
       <div class="card-structure-button">
         <slot name="actions">
-          <Button variant="ghost" size="icon" v-if="editable" @click="toggleEditing">
-            <PenIcon v-if="!editing" />
-            <CheckIcon v-else />
+          <Button variant="ghost" size="icon" v-if="editable && !editing" @click="toggleEditing">
+            <PenIcon />
+          </Button>
+          <Button variant="ghost" size="icon" v-if="editable && editing" @click="saveChanges">
+            <CheckIcon />
+          </Button>
+          <Button v-if="editable && editing" variant="ghost" size="icon" @click="toggleEditing">
+            <XIcon class="text-destructive"/>
           </Button>
         </slot>
       </div>
