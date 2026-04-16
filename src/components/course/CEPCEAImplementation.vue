@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BadgeList from '@/components/BadgeList.vue';
-import { CheckIcon, MinusIcon, PlusIcon } from 'lucide-vue-next';
+import { CheckIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-vue-next';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
@@ -70,6 +70,16 @@ const WPLIST = computed<Array<[string, string]>>(() => {
   return [];
 })
 
+const EALIST = computed<Array<[string, string]>>(() => {
+  if (courseStore.schools && selectedSchoolCode.value) {
+    const school = courseStore.schools[selectedSchoolCode.value];
+    if (school && school.components && school.components.eas) {
+      return school.components.eas.map((ea: AttrDesc, index: number) => [`EA${index + 1}`, ea.descriptor]);
+    }
+  }
+  return [];
+})
+
 const getDescriptor = (component: string, componentIndex: number): string => {
   if (courseStore.schools && selectedSchoolCode.value) {
     const school = courseStore.schools[selectedSchoolCode.value];
@@ -86,24 +96,48 @@ const getCEPCEA = (assessment: Assessment, coIndex: number) => {
     for (const item of assessment.breakdown) {
       if (item.co === coIndex) {
         if (item.wps && item.wps.length > 0) {
-          descriptors.push(...item.wps.map(wp => [`WP${wp}`, `${getDescriptor("wp", wp)}`]));
+          descriptors.push(...item.wps.sort().map(wp => [`WP${wp}`, `${getDescriptor("wp", wp-1)}`]));
         }
         if (item.eas && item.eas.length > 0) {
-          descriptors.push(...item.eas.map(ea => [`EA${ea}`, `${getDescriptor("ea", ea)}`]));
+          descriptors.push(...item.eas.sort().map(ea => [`EA${ea}`, `${getDescriptor("ea", ea-1)}`]));
         }
       }
     }
   } else {
     if (assessment.cos.includes(coIndex)) {
       if (assessment.wps && assessment.wps.length > 0) {
-        descriptors.push(...assessment.wps.map(wp => [`WP${wp}`, `${getDescriptor("wp", wp)}`]));
+        descriptors.push(...assessment.wps.sort().map(wp => [`WP${wp}`, `${getDescriptor("wp", wp-1)}`]));
       }
       if (assessment.eas && assessment.eas.length > 0) {
-        descriptors.push(...assessment.eas.map(ea => [`EA${ea}`, `${getDescriptor("ea", ea)}`]));
+        descriptors.push(...assessment.eas.sort().map(ea => [`EA${ea}`, `${getDescriptor("ea", ea-1)}`]));
       }
     }
   }
   return descriptors.map(d => d);
+};
+
+const setCEPCEA = (assessment: Assessment, coIndex: number, wpOea: 'wp' | 'ea', selected: number) => {
+  let assessmentItem: {wps?: number[]; eas?: number[]};
+  if (assessment.breakdown.length > 0) {
+    for (const item of assessment.breakdown) {
+      if (item.co === coIndex) {
+        assessmentItem = item
+      }
+    }
+  } else {
+    if (assessment.cos.includes(coIndex)) {
+      assessmentItem = assessment
+    }
+  }
+  const componentKey = wpOea + "s"
+  if (assessmentItem) {
+    if (!assessmentItem[componentKey]) { assessmentItem[componentKey] = []; }
+    if (assessmentItem[componentKey].includes(selected)) {
+      assessmentItem[componentKey] = assessmentItem[componentKey].filter(wpea => wpea !== selected);
+    } else {
+      assessmentItem[componentKey].push(selected);
+    }
+  }
 };
 
 const getWeightage = (assessment: Assessment, coIndex: number) => {
@@ -205,22 +239,20 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                 </TableCell>
                 <TableCell class="text-center">
                   <div class="flex flex-col gap-1 items-center">
-                    <ButtonGroup v-for="cepcea in getCEPCEA(assessment, index+1)" :key="cepcea[0]" class="gap-0!">
-                      <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
-                      <ButtonGroupText><span class="w-40 text-wrap text-xs">{{ cepcea[1] }}</span></ButtonGroupText>
-                    </ButtonGroup>
-                    <template v-if="editing">
+                    <div class="w-full flex flex-row gap-1" v-if="editing && assessment.cos.includes(index + 1)">
                       <Popover>
                         <PopoverTrigger as-child>
-                          <Button variant="outline" class="w-full">
-                            <PlusIcon class="inline-block" />
+                          <Button variant="outline" class="flex-1">
+                            <PlusIcon class="inline-block" /> WP
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent>
                           <ScrollArea class="h-60">
                             <div class="flex flex-col gap-1 text-xs select-none">
-                              <template v-for="wp in WPLIST" :key="wp[0]">
-                                <div class="flex flex-row items-center gap-2 hover:bg-accent px-1 py-2 rounded">
+                              <template v-for="(wp, wpindex) in WPLIST" :key="wp[0]">
+                                <div class="flex flex-row items-center gap-2 hover:bg-accent px-1 py-2 rounded"
+                                  @click="setCEPCEA(assessment, index+1, 'wp', wpindex+1)"
+                                >
                                   <div>
                                     <CheckIcon class="inline-block" :size="16"
                                       :class="{ 'text-transparent': !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(wp[0]) }" />
@@ -232,18 +264,49 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                                 </div>
                                 <Separator v-if="wp !== WPLIST[WPLIST.length - 1]" />
                               </template>
-                            <!-- <ButtonGroup v-for="wp in WPLIST.filter(wp => !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(wp[0]))"
-                             :key="wp[0]"
-                             class="gap-0!"
-                            >
-                              <ButtonGroupText class="w-15 flex justify-center text-sm">{{ wp[0] }}</ButtonGroupText>
-                              <ButtonGroupText><span class="w-40 text-wrap text-xs">{{ wp[1] }}</span></ButtonGroupText>
-                            </ButtonGroup> -->
                             </div>
                           </ScrollArea>
                         </PopoverContent>
                       </Popover>
-                    </template>
+                      <Popover>
+                        <PopoverTrigger as-child>
+                          <Button variant="outline" class="flex-1">
+                            <PlusIcon class="inline-block" /> EA
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <ScrollArea class="h-60">
+                            <div class="flex flex-col gap-1 text-xs select-none">
+                              <template v-for="(ea, eaIndex) in EALIST" :key="ea[0]">
+                                <div class="flex flex-row items-center gap-2 hover:bg-accent px-1 py-2 rounded"
+                                  @click="setCEPCEA(assessment, index+1, 'ea', eaIndex+1)"
+                                >
+                                  <div>
+                                    <CheckIcon class="inline-block" :size="16"
+                                      :class="{ 'text-transparent': !getCEPCEA(assessment, index+1).map(cepcea => cepcea[0]).includes(ea[0]) }" />
+                                  </div>
+                                  <div class="flex flex-col">
+                                    <span class="font-semibold">{{ ea[0] }}</span>
+                                    <span>{{ ea[1] }}</span>
+                                  </div>
+                                </div>
+                                <Separator v-if="ea !== EALIST[EALIST.length - 1]" />
+                              </template>
+                            </div>
+                          </ScrollArea>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <ButtonGroup v-for="cepcea in getCEPCEA(assessment, index+1)" :key="cepcea[0]" class="gap-0! w-full flex">
+                      <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
+                      <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
+                      <ButtonGroupText class="flex justify-center text-sm text-destructive" v-if="editing"
+                        @click="setCEPCEA(assessment, index+1, cepcea[0].slice(0,2).toLowerCase(), Number(cepcea[0].slice(2,3)))"
+                      >
+                        <XIcon />
+                      </ButtonGroupText>
+                    </ButtonGroup>
                   </div>
                 </TableCell>
               </template>
