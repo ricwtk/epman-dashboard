@@ -64,7 +64,7 @@ const selectProgramme = (progCode: string) => {
   // selectedSchoolCode.value = courseStore.programmes[progCode]?.school || "";
 }
 
-function getCEPCEA(assessment: number, coIndex: number, componentType: 'wp' | 'ea'): string[][] {
+function getCEPCEA(assessment: Assessment, coIndex: number, componentType: 'wp' | 'ea'): string[][] {
   const descriptors: string[][] = []
   const componentKey = `${componentType}s` as 'wps' | 'eas'
   const componentLabel = `${componentType.toUpperCase()}`
@@ -294,7 +294,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                     </div>
 
                     <template v-for="component in ['wp', 'ea']">
-                      <template v-for="cepcea in getCEPCEA(assessment, index+1, component)" :key="cepcea[0]">
+                      <template v-for="cepcea in getCEPCEA(assessment, index+1, component as 'wp' | 'ea')" :key="cepcea[0]">
                         <ButtonGroup class="gap-0! w-full flex">
                           <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
                           <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
