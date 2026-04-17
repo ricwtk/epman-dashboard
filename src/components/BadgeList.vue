@@ -17,7 +17,9 @@ const emit = defineEmits<{
     <Badge v-for="item in items" :key="item" variant="secondary" class="max-w-full flex justify-between">
       <span class="text-wrap select-none">{{ item }}</span>
       <span v-if="editing" @click="emit('remove', item)">
-        <CircleXIcon :size="14"/>
+        <slot name="editIcon">
+          <CircleXIcon :size="14"/>
+        </slot>
       </span>
     </Badge>
   </div>

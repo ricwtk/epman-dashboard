@@ -1,39 +1,69 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import ContentItem from '@/components/contentcard/ContentItem.vue';
 import ContentItemBadges from '@/components/contentcard/ContentItemBadges.vue';
+import ContentItemSelect from '@/components/contentcard/ContentItemSelect.vue';
 import { type Course } from '@/types/course';
 import { COURSE_TYPES } from '@/constants';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
 import LoadingComponent from '@/components/LoadingComponent.vue';
 
 import { useCourseListStore } from '@/stores/courselist';
 const courseListStore = useCourseListStore();
 
-defineProps<{
-  course: Course;
-  editing: boolean;
-  loading?: boolean;
-}>();
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore();
+const saveCourse = () => { courseStore.save(); }
 
-defineEmits(['update:editing']);
+const editing = ref(false);
+
+const course = computed({
+  get: () => editing.value ? courseStore.draft : courseStore.saved,
+  set: (value) => {
+    if (editing.value)
+      courseStore.draft = value;
+    else
+      courseStore.saved = value;
+  },
+})
+
+const setEditing = (value: boolean) => {
+  editing.value = value;
+  if (courseStore.draft.code !== courseStore.saved.code) {
+    courseStore.createDraft();
+  }
+};
+
+// defineProps<{
+//   course: Course;
+//   editing: boolean;
+//   loading?: boolean;
+// }>();
+
+// defineEmits(['update:editing']);
 </script>
 
 <template>
-  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
+  <!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
+  <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveCourse">
     <template #title>
       Course Summary
     </template>
     <template #body="{ editing }">
-      <LoadingComponent :show="loading" />
+      <LoadingComponent :show="courseStore.loading" />
       <div class="flex flex-col gap-3">
         <div class="flex flex-wrap gap-3">
           <ContentItem title="Code">
             <div>{{course.code}}</div>
           </ContentItem>
           <ContentItem title="Name">
-            <div>{{course.name}}</div>
+            <Input v-model="course.name" v-if="editing"></Input>
+            <div v-else>{{course.name}}</div>
           </ContentItem>
           <ContentItemBadges
             title="Credit Hours"
@@ -52,44 +82,53 @@ defineEmits(['update:editing']);
               </ButtonGroupText>
             </ButtonGroup>
           </ContentItem>
-          <ContentItemBadges
+          <ContentItemSelect
             title="Category"
-            :badges="[course.category].filter(Boolean)"
+            :selected="{ label: course.category, key: course.category }"
             elsemessage="Category not defined"
+            :editing="editing"
+            :options="courseListStore.courseCodes.map((code) => ({ label: courseListStore.getDisplayLabel(code), key: code }))"
           />
-          <ContentItemBadges
+          <ContentItemSelect
             title="Course Type"
-            :badges="[ COURSE_TYPES.find((t) => t.key === course.courseType)?.label || '' ].filter(Boolean)"
+            :selected="{ label: COURSE_TYPES.find((t) => t.key === course.courseType)?.label || '', key: course.courseType }"
+            :editing="editing"
+            :options="COURSE_TYPES.map((t) => ({ label: t.label, key: t.key }))"
             elsemessage="Course type not defined"
           />
           <ContentItemBadges
             title="Lecturers"
-            :badges="course.lecturers"
+            :badges="course.lecturers.map((l) => ({ label: l, key: l }))"
             elsemessage="No lecturers"
+            :editing="editing"
           />
         </div>
         <ContentItem title="Synopsis">
           <div>
             <Badge v-if="!course.synopsis" variant="outline">No synopsis</Badge>
-            {{course.synopsis}}
+            <Textarea v-if="editing" v-model="course.synopsis"></Textarea>
+            <span v-else>{{course.synopsis}}</span>
           </div>
         </ContentItem>
         <div class="flex flex-wrap gap-3">
           <ContentItemBadges
             title="Prerequisites"
-            :badges="course.prerequisites || []"
+            :badges="course.prerequisites.map((p) => ({ label: courseListStore.getDisplayLabel(p), key: p })) || []"
             elsemessage="No prerequisites"
-            :displayFcn="courseListStore.getDisplayLabel"
+            :editing="editing"
+            :options="courseListStore.courseCodes.map((code) => ({ label: courseListStore.getDisplayLabel(code), key: code }))"
           />
           <ContentItemBadges
             title="Transferable Skills"
-            :badges="course.transferableSkills || []"
+            :badges="course.transferableSkills.map((s) => ({ label: s, key: s })) || []"
             elsemessage="No transferable skills"
+            :editing="editing"
           />
           <ContentItemBadges
             title="Delivery Methods"
-            :badges="course.deliveryMethods || []"
+            :badges="course.deliveryMethods.map((m) => ({ label: m, key: m })) || []"
             elsemessage="No delivery methods"
+            :editing="editing"
           />
         </div>
       </div>

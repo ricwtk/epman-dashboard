@@ -51,12 +51,15 @@ const updateEditing = (ev: boolean, tab?: string) => {
       <div class="grow"></div>
       <RevisionDeleteButton @delete="courseStore.deleteRevision()" v-if="authStore.canEditCourses"/>
     </div>
-    <CourseSummary
+    <!-- <CourseSummary
       :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
+    /> -->
+    <CourseSummary
+      :editable="authStore.canEditCourses"
     />
     <ProgrammeAllocation
       :loading="courseStore.loading"
