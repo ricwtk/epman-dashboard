@@ -101,7 +101,7 @@ const setEditing = (value: boolean) => {
             :editing="editing"
             :options="COURSE_TYPES.map((t) => ({ label: t.label, key: t.key }))"
             elsemessage="Course type not defined"
-            @select="(option) => course.courseType = option.key"
+            @select="(option) => course.courseType = option.key as typeof course.courseType"
           />
           <ContentItemBadges
             title="Lecturers"
