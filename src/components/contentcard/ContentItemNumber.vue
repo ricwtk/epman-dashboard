@@ -1,10 +1,6 @@
 <script setup lang='ts'>
-import { ref } from 'vue';
 import { Badge } from '@/components/ui/badge';
-import BadgeList from '@/components/BadgeList.vue';
-import { MinusIcon, PlusIcon, CheckIcon, CircleChevronDownIcon } from 'lucide-vue-next';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field';
+import { MinusIcon, PlusIcon } from 'lucide-vue-next';
 
 const props = defineProps<{
   title?: string,

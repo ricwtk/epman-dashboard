@@ -5,6 +5,7 @@ import ContentItem from '@/components/contentcard/ContentItem.vue';
 import ContentItemBadges from '@/components/contentcard/ContentItemBadges.vue';
 import ContentItemSelect from '@/components/contentcard/ContentItemSelect.vue';
 import ContentItemNumber from '@/components/contentcard/ContentItemNumber.vue';
+import ContentItemGroup from '@/components/contentcard/ContentItemGroup.vue';
 import { type Course } from '@/types/course';
 import { COURSE_TYPES } from '@/constants';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
@@ -60,7 +61,8 @@ const setEditing = (value: boolean) => {
       <div class="flex flex-col gap-3">
         <div class="flex flex-wrap gap-3">
           <ContentItem title="Code">
-            <div>{{course.code}}</div>
+            <Input v-model="course.code" v-if="editing" disabled></Input>
+            <div v-else>{{course.code}}</div>
           </ContentItem>
           <ContentItem title="Name" class="flex-1">
             <Input v-model="course.name" v-if="editing"></Input>
@@ -75,21 +77,16 @@ const setEditing = (value: boolean) => {
             :max="10"
             :editing="editing"
           />
-          <!-- <ContentItemBadges
-            title="Credit Hours"
-            :badges="[ String(course.credits) ]"
-            elsemessage=""
-          /> -->
-          <ContentItem title="Offering">
-            <ButtonGroup class="gap-0!">
-              <ButtonGroupText class="border-0 rounded-full text-xs py-0.5">
-                <span>{{ "Year " + course.year }}</span>
-              </ButtonGroupText>
-              <ButtonGroupText class="border-0 rounded-full text-xs py-0.5">
-                <span>{{ "Semester " + course.semester }}</span>
-              </ButtonGroupText>
-            </ButtonGroup>
-          </ContentItem>
+          <ContentItemGroup
+            title="Offering"
+            :selected="[{ label: 'Year ' + course.year, key: course.year }, { label: 'Semester ' + course.semester, key: course.semester }]"
+            :editing="editing"
+            :options="[
+              [...Array(4).keys()].map((year) => ({ label: 'Year ' + (year + 1), key: year + 1 })),
+              [...Array(3).keys()].map((semester) => ({ label: 'Semester ' + (semester + 1), key: semester + 1 })),
+            ]"
+            @update:selected="(value) => { course.year = value[0] as number; course.semester = value[1] as number }"
+          />
           <ContentItemSelect
             title="Category"
             :selected="{ label: course.category, key: course.category }"
