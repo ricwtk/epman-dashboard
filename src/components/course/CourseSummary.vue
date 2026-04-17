@@ -4,6 +4,7 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import ContentItem from '@/components/contentcard/ContentItem.vue';
 import ContentItemBadges from '@/components/contentcard/ContentItemBadges.vue';
 import ContentItemSelect from '@/components/contentcard/ContentItemSelect.vue';
+import ContentItemNumber from '@/components/contentcard/ContentItemNumber.vue';
 import { type Course } from '@/types/course';
 import { COURSE_TYPES } from '@/constants';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
@@ -61,17 +62,24 @@ const setEditing = (value: boolean) => {
           <ContentItem title="Code">
             <div>{{course.code}}</div>
           </ContentItem>
-          <ContentItem title="Name">
+          <ContentItem title="Name" class="flex-1">
             <Input v-model="course.name" v-if="editing"></Input>
             <div v-else>{{course.name}}</div>
           </ContentItem>
-          <ContentItemBadges
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <ContentItemNumber
+            title="Credit Hours"
+            v-model="course.credits"
+            :min="0"
+            :max="10"
+            :editing="editing"
+          />
+          <!-- <ContentItemBadges
             title="Credit Hours"
             :badges="[ String(course.credits) ]"
             elsemessage=""
-          />
-        </div>
-        <div class="flex flex-wrap gap-3">
+          /> -->
           <ContentItem title="Offering">
             <ButtonGroup class="gap-0!">
               <ButtonGroupText class="border-0 rounded-full text-xs py-0.5">
@@ -88,6 +96,7 @@ const setEditing = (value: boolean) => {
             elsemessage="Category not defined"
             :editing="editing"
             :options="courseListStore.courseCodes.map((code) => ({ label: courseListStore.getDisplayLabel(code), key: code }))"
+            @select="(option) => course.category = option.key"
           />
           <ContentItemSelect
             title="Course Type"
@@ -95,6 +104,7 @@ const setEditing = (value: boolean) => {
             :editing="editing"
             :options="COURSE_TYPES.map((t) => ({ label: t.label, key: t.key }))"
             elsemessage="Course type not defined"
+            @select="(option) => course.courseType = option.key"
           />
           <ContentItemBadges
             title="Lecturers"
