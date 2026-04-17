@@ -75,14 +75,14 @@ const selectBtLevel = (co: Co, domain: string, level: number) => {
       <Table v-else>
         <TableHeader>
           <TableRow>
-            <TableHead class="text-center">#</TableHead>
+            <TableHead class="text-center w-0 px-10">#</TableHead>
             <TableHead class="">CO</TableHead>
-            <TableHead class="text-center">BT</TableHead>
-            <TableHead class="text-center">PO</TableHead>
-            <TableHead class="text-center">WK</TableHead>
-            <TableHead class="text-center">WP</TableHead>
-            <TableHead class="text-center">EA</TableHead>
-            <TableHead class="text-center">SDG</TableHead>
+            <TableHead class="text-center w-0 px-10">BT</TableHead>
+            <TableHead class="text-center w-0 px-10">PO</TableHead>
+            <TableHead class="text-center w-0 px-10">WK</TableHead>
+            <TableHead class="text-center w-0 px-10">WP</TableHead>
+            <TableHead class="text-center w-0 px-10">EA</TableHead>
+            <TableHead class="text-center w-0 px-10">SDG</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
