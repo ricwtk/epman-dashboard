@@ -11,15 +11,13 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { CheckIcon, MinusIcon } from "lucide-vue-next";
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
-import { BLOOM_TAXONOMY } from '@/constants';
+import BloomtaxSelection from '@/components/course/BloomtaxSelection.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -45,7 +43,7 @@ const setEditing = (value: boolean) => {
 };
 
 const selectBtLevel = (co: Co, domain: string, level: number) => {
-  co.bloomtax[0] = domain;
+  co.bloomtax[0] = domain.slice(0,1).toUpperCase();
   co.bloomtax[1] = level;
 };
 
@@ -97,8 +95,17 @@ const selectBtLevel = (co: Co, domain: string, level: number) => {
               </span>
             </TableCell>
             <TableCell class="text-center">
-              <!-- move this out and use <Popover :open="isPopoverOpen" @update:open="(val) => isPopoverOpen = editing ? val : false"> -->
-              <Popover>
+              <BloomtaxSelection
+                :selected="`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`"
+                :editing="editing"
+                @select="(domain, level) => selectBtLevel(co, domain, level)"
+              >
+                <template #trigger>
+                  <BadgeList :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]" />
+                </template>
+              </BloomtaxSelection>
+
+              <!-- <Popover>
                 <PopoverTrigger>
                   <BadgeList :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]" />
                 </PopoverTrigger>
@@ -125,7 +132,7 @@ const selectBtLevel = (co: Co, domain: string, level: number) => {
                     </div>
                   </ScrollArea>
                 </PopoverContent>
-              </Popover>
+              </Popover> -->
             </TableCell>
             <TableCell class="text-center">
               <template v-if="editing">
