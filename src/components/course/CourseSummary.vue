@@ -79,35 +79,36 @@ const setEditing = (value: boolean) => {
           />
           <ContentItemGroup
             title="Offering"
-            :selected="[{ label: 'Year ' + course.year, key: course.year }, { label: 'Semester ' + course.semester, key: course.semester }]"
+            :selected="[{ label: 'Year ' + course.year, value: course.year }, { label: 'Semester ' + course.semester, value: course.semester }]"
             :editing="editing"
             :options="[
-              [...Array(4).keys()].map((year) => ({ label: 'Year ' + (year + 1), key: year + 1 })),
-              [...Array(3).keys()].map((semester) => ({ label: 'Semester ' + (semester + 1), key: semester + 1 })),
+              [...Array(4).keys()].map((year) => ({ label: 'Year ' + (year + 1), value: year + 1 })),
+              [...Array(3).keys()].map((semester) => ({ label: 'Semester ' + (semester + 1), value: semester + 1 })),
             ]"
             @update:selected="(value) => { course.year = value[0] as number; course.semester = value[1] as number }"
           />
           <ContentItemSelect
             title="Category"
-            :selected="{ label: course.category, key: course.category }"
+            :selected="{ label: course.category, value: course.category }"
             elsemessage="Category not defined"
             :editing="editing"
-            :options="courseListStore.courseCodes.map((code) => ({ label: courseListStore.getDisplayLabel(code), key: code }))"
-            @select="(option) => course.category = option.key"
+            :options="courseListStore.categorySelections"
+            @select="(option) => course.category = option.value"
           />
           <ContentItemSelect
             title="Course Type"
-            :selected="{ label: COURSE_TYPES.find((t) => t.key === course.courseType)?.label || '', key: course.courseType }"
+            :selected="{ label: COURSE_TYPES.find((t) => t.key === course.courseType)?.label || '', value: course.courseType }"
             :editing="editing"
-            :options="COURSE_TYPES.map((t) => ({ label: t.label, key: t.key }))"
+            :options="COURSE_TYPES.map((t) => ({ label: t.label, value: t.key }))"
             elsemessage="Course type not defined"
-            @select="(option) => course.courseType = option.key as typeof course.courseType"
+            @select="(option) => course.courseType = option.value as typeof course.courseType"
           />
           <ContentItemBadges
             title="Lecturers"
-            :badges="course.lecturers.map((l) => ({ label: l, key: l }))"
+            :badges="course.lecturers.map((l) => ({ label: l, value: l }))"
             elsemessage="No lecturers"
             :editing="editing"
+            :options="courseListStore.lecturersSelections"
             @add="courseStore.addLecturer"
             @delete="courseStore.removeLecturer"
           />
@@ -122,26 +123,28 @@ const setEditing = (value: boolean) => {
         <div class="flex flex-wrap gap-3">
           <ContentItemBadges
             title="Prerequisites"
-            :badges="course.prerequisites.map((p) => ({ label: courseListStore.getDisplayLabel(p), key: p })) || []"
+            :badges="course.prerequisites.map((p) => ({ label: courseListStore.getDisplayLabel(p), value: p })) || []"
             elsemessage="No prerequisites"
             :editing="editing"
-            :options="courseListStore.courseCodes.map((code) => ({ label: courseListStore.getDisplayLabel(code), key: code }))"
+            :options="courseListStore.courseSelections"
             @add="courseStore.addPrerequisite"
             @delete="courseStore.removePrerequisite"
           />
           <ContentItemBadges
             title="Transferable Skills"
-            :badges="course.transferableSkills.map((s) => ({ label: s, key: s })) || []"
+            :badges="course.transferableSkills.map((s) => ({ label: s, value: s })) || []"
             elsemessage="No transferable skills"
             :editing="editing"
+            :options="courseListStore.transferableSkillsSelections"
             @add="courseStore.addTransferableSkill"
             @delete="courseStore.removeTransferableSkill"
           />
           <ContentItemBadges
             title="Delivery Methods"
-            :badges="course.deliveryMethods.map((m) => ({ label: m, key: m })) || []"
+            :badges="course.deliveryMethods.map((m) => ({ label: m, value: m })) || []"
             elsemessage="No delivery methods"
             :editing="editing"
+            :options="courseListStore.deliveryMethodsSelections"
             @add="courseStore.addDeliveryMethod"
             @delete="courseStore.removeDeliveryMethod"
           />

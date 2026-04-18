@@ -5,16 +5,16 @@ import { CheckIcon, CircleChevronDownIcon } from 'lucide-vue-next';
 
 const props = defineProps<{
   title?: string,
-  selected: Array<{ label: string, key: string | number }>
+  selected: Array<{ label: string, value: string | number }>
   editing?: boolean,
-  options?: Array<Array<{ label: string, key: string | number }>>
+  options?: Array<Array<{ label: string, value: string | number }>>
 }>();
 const emit = defineEmits<{
   (e: 'update:selected', value: Array<string | number>): void
 }>();
-const selectOption = (itemIndex: number, option: { label: string, key: string | number }) => {
-  let newSelected = props.selected.map(s => s.key)
-  newSelected[itemIndex] = option.key;
+const selectOption = (itemIndex: number, option: { label: string, value: string | number }) => {
+  let newSelected = props.selected.map(s => s.value)
+  newSelected[itemIndex] = option.value;
   emit('update:selected', newSelected);
 };
 </script>
@@ -41,7 +41,7 @@ const selectOption = (itemIndex: number, option: { label: string, key: string | 
                 <span>{{ option.label }}</span>
                 <span>
                   <CheckIcon class="inline-block" :size="16"
-                    :class="{ 'text-transparent': !(selected[itemIndex] && selected[itemIndex].key && selected[itemIndex].key === option.key) }"
+                    :class="{ 'text-transparent': !(selected[itemIndex] && selected[itemIndex].value && selected[itemIndex].value === option.value) }"
                   />
                 </span>
               </div>

@@ -81,6 +81,9 @@ export interface CourseInfo {
   code: string;
   name: string;
   credits: number;
+  category: string;
+  lecturers: string[];
+  courseType: CourseType;
   transferableSkills: string[];
   deliveryMethods: string[];
 }

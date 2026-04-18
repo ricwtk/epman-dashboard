@@ -11,10 +11,10 @@ import EmptyComponent from '../EmptyComponent.vue';
 
 const props = defineProps<{
   title?: string,
-  badges: Array<{ label: string; key: string }>,
+  badges: Array<{ label: string; value: string }>,
   elsemessage?: string,
   editing?: boolean,
-  options?: Array<{ label: string; key: string }>
+  options?: Array<{ label: string; value: string }>
 }>();
 const emit = defineEmits<{
   (e: "add", value: string): void
@@ -28,7 +28,7 @@ const filteredOptions = computed(() => {
   if (!query) return props.options;
   return props.options.filter(option =>
     option.label.toLowerCase().includes(query) ||
-    option.key.toLowerCase().includes(query)
+    option.value.toLowerCase().includes(query)
   );
 });
 </script>
@@ -41,7 +41,7 @@ const filteredOptions = computed(() => {
         class="flex-wrap flex-row"
         :editing="editing"
         :items="badges.map(b => b.label)"
-        @remove="(ev) => emit('delete', badges.find(b => b.label === ev)?.key || '')"
+        @remove="(ev) => emit('delete', badges.find(b => b.label === ev)?.value || '')"
       ></BadgeList>
       <Badge v-if="badges.length == 0"variant="outline">{{ elsemessage }}</Badge>
       <Popover v-if="editing">
@@ -59,14 +59,14 @@ const filteredOptions = computed(() => {
           <Separator />
           <ScrollArea class="h-56" v-if="filteredOptions.length > 0 || searchQuery">
             <div v-for="option in filteredOptions"
-              :key="option.key"
+              :key="option.value"
               class="px-2 py-2 hover:bg-accent rounded w-full flex justify-between items-center"
-              @click="emit('add', option.key)"
+              @click="emit('add', option.value)"
             >
               <span>{{ option.label }}</span>
               <span>
                 <CheckIcon class="inline-block" :size="16"
-                  :class="{ 'text-transparent': !badges.some(b => b.key === option.key) }"
+                  :class="{ 'text-transparent': !badges.some(b => b.value === option.value) }"
                 />
               </span>
             </div>

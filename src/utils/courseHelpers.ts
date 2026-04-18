@@ -157,6 +157,9 @@ export const createCourseInfo = (course?: Partial<Course>): CourseInfo => ({
   name: course?.name || "",
   code: course?.code || "",
   credits: course?.credits || 0,
+  category: course?.category || "",
+  lecturers: course?.lecturers || [],
+  courseType: course?.courseType || COURSE_TYPES[0].key,
   transferableSkills: course?.transferableSkills || [],
   deliveryMethods: course?.deliveryMethods || []
 });

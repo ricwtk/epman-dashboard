@@ -13,19 +13,31 @@ export const useCourseListStore = defineStore('course-list', () => {
   ))
   const transferableSkillsSelections = ref<{label: string, value: string}[]>([])
   const deliveryMethodsSelections = ref<{ label: string, value: string }[]>([])
+  const categorySelections = ref<{ label: string, value: string }[]>([])
+  const lecturersSelections = ref<{ label: string, value: string }[]>([])
 
   function updateSelections() {
     const transferable = new Set<string>()
     const delivery = new Set<string>()
+    const category = new Set<string>()
+    const lecturers = new Set<string>()
     Object.values(codeToInfoMap.value).forEach((course) => {
       course.transferableSkills.forEach(ts => transferable.add(ts))
       course.deliveryMethods.forEach(dm => delivery.add(dm))
+      category.add(course.category)
+      course.lecturers.forEach(l => lecturers.add(l))
     })
 
     transferableSkillsSelections.value = Array.from(transferable).map(
       (v) => ({label: v, value: v})
     )
     deliveryMethodsSelections.value = Array.from(delivery).map(
+      (v) => ({label: v, value: v})
+    )
+    categorySelections.value = Array.from(category).map(
+      (v) => ({label: v, value: v})
+    )
+    lecturersSelections.value = Array.from(lecturers).map(
       (v) => ({label: v, value: v})
     )
   }
@@ -89,7 +101,7 @@ export const useCourseListStore = defineStore('course-list', () => {
   return {
     loading,
     courseCodes, courseSelections,
-    transferableSkillsSelections, deliveryMethodsSelections,
+    transferableSkillsSelections, deliveryMethodsSelections, categorySelections, lecturersSelections,
     addSelectionItem,
     addTransferableSkill,
     addDeliveryMethod,

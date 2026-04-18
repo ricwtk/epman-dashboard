@@ -7,17 +7,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 defineProps<{
   title?: string,
-  selected: { label: string; key: string },
+  selected: { label: string; value: string },
   elsemessage?: string,
   editing?: boolean,
-  options?: Array<{ label: string; key: string }>
+  options?: Array<{ label: string; value: string }>
 }>();
 const emit = defineEmits<{
   (e: "delete", value: string): void
-  (e: "select", value: { label: string; key: string }): void
+  (e: "select", value: { label: string; value: string }): void
 }>();
 const isPopoverOpen = ref(false);
-const selectOption = (option: { label: string; key: string }) => {
+const selectOption = (option: { label: string; value: string }) => {
   emit("select", option);
   isPopoverOpen.value = false;
 };
@@ -41,21 +41,21 @@ const selectOption = (option: { label: string; key: string }) => {
         </PopoverTrigger>
         <PopoverContent class="text-xs">
           <div v-for="option in options"
-            :key="option.key"
+            :key="option.value"
             class="px-2 py-2 hover:bg-accent rounded w-full flex justify-between items-center"
             @click="() => selectOption(option)"
           >
             <span>{{ option.label }}</span>
             <span>
               <CheckIcon class="inline-block" :size="16"
-                :class="{ 'text-transparent': !(selected.key && selected.key === option.key) }"
+                :class="{ 'text-transparent': !(selected.value && selected.value === option.value) }"
               />
             </span>
           </div>
         </PopoverContent>
       </Popover>
 
-      <Badge v-if="!selected.key" variant="outline">{{ elsemessage }}</Badge>
+      <Badge v-if="!selected.value" variant="outline">{{ elsemessage }}</Badge>
       <slot></slot>
     </div>
   </div>
