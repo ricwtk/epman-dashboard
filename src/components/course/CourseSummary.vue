@@ -108,6 +108,8 @@ const setEditing = (value: boolean) => {
             :badges="course.lecturers.map((l) => ({ label: l, key: l }))"
             elsemessage="No lecturers"
             :editing="editing"
+            @add="courseStore.addLecturer"
+            @delete="courseStore.removeLecturer"
           />
         </div>
         <ContentItem title="Synopsis">
@@ -124,18 +126,24 @@ const setEditing = (value: boolean) => {
             elsemessage="No prerequisites"
             :editing="editing"
             :options="courseListStore.courseCodes.map((code) => ({ label: courseListStore.getDisplayLabel(code), key: code }))"
+            @add="courseStore.addPrerequisite"
+            @delete="courseStore.removePrerequisite"
           />
           <ContentItemBadges
             title="Transferable Skills"
             :badges="course.transferableSkills.map((s) => ({ label: s, key: s })) || []"
             elsemessage="No transferable skills"
             :editing="editing"
+            @add="courseStore.addTransferableSkill"
+            @delete="courseStore.removeTransferableSkill"
           />
           <ContentItemBadges
             title="Delivery Methods"
             :badges="course.deliveryMethods.map((m) => ({ label: m, key: m })) || []"
             elsemessage="No delivery methods"
             :editing="editing"
+            @add="courseStore.addDeliveryMethod"
+            @delete="courseStore.removeDeliveryMethod"
           />
         </div>
       </div>

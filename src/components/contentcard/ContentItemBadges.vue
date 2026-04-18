@@ -1,4 +1,6 @@
 <script setup lang='ts'>
+import { ref, computed } from 'vue';
+
 import { Badge } from '@/components/ui/badge';
 import BadgeList from '@/components/BadgeList.vue';
 import { CirclePlusIcon, CheckIcon } from 'lucide-vue-next';
@@ -7,16 +9,28 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import EmptyComponent from '../EmptyComponent.vue';
 
-defineProps<{
+const props = defineProps<{
   title?: string,
   badges: Array<{ label: string; key: string }>,
   elsemessage?: string,
   editing?: boolean,
   options?: Array<{ label: string; key: string }>
 }>();
-defineEmits<{
+const emit = defineEmits<{
+  (e: "add", value: string): void
   (e: "delete", value: string): void
 }>();
+
+const searchQuery = ref('');
+const filteredOptions = computed(() => {
+  if (!props.options || props.options.length === 0) return [];
+  const query = searchQuery.value.toLowerCase().trim();
+  if (!query) return props.options;
+  return props.options.filter(option =>
+    option.label.toLowerCase().includes(query) ||
+    option.key.toLowerCase().includes(query)
+  );
+});
 </script>
 
 <template>
@@ -27,7 +41,7 @@ defineEmits<{
         class="flex-wrap flex-row"
         :editing="editing"
         :items="badges.map(b => b.label)"
-        @remove="$emit('delete', $event)"
+        @remove="(ev) => emit('delete', badges.find(b => b.label === ev)?.key || '')"
       ></BadgeList>
       <Badge v-if="badges.length == 0"variant="outline">{{ elsemessage }}</Badge>
       <Popover v-if="editing">
@@ -37,12 +51,17 @@ defineEmits<{
           </Badge>
         </PopoverTrigger>
         <PopoverContent class="text-xs">
-          <input placeholder="Search or add new" class="px-2 py-1 w-full focus:outline-none" />
+          <input placeholder="Search or add new"
+            class="px-2 py-1 w-full focus:outline-none"
+            v-model="searchQuery"
+            @keydown.enter="emit('add', searchQuery.trim())"
+          />
           <Separator />
-          <ScrollArea class="h-56">
-            <div v-for="option in options"
+          <ScrollArea class="h-56" v-if="filteredOptions.length > 0 || searchQuery">
+            <div v-for="option in filteredOptions"
               :key="option.key"
               class="px-2 py-2 hover:bg-accent rounded w-full flex justify-between items-center"
+              @click="emit('add', option.key)"
             >
               <span>{{ option.label }}</span>
               <span>
@@ -51,8 +70,16 @@ defineEmits<{
                 />
               </span>
             </div>
-            <EmptyComponent v-if="!options || options.length === 0" />
+            <div class="px-2 py-2 hover:bg-accent rounded w-full flex justify-between items-center" v-if="searchQuery"
+              @click="emit('add', searchQuery.trim())"
+            >
+              <span>Add "{{ searchQuery.trim() }}" to list</span>
+              <span>
+                <CheckIcon class="inline-block text-transparent" :size="16" />
+              </span>
+            </div>
           </ScrollArea>
+          <EmptyComponent v-if="!searchQuery && filteredOptions.length === 0" />
         </PopoverContent>
       </Popover>
       <slot></slot>

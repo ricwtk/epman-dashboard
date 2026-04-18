@@ -113,27 +113,31 @@ export const useCourseStore = defineStore('course', () => {
   function resetDiff(pathArray: string[]): void { resetDiffCommon(draft.value, saved.value, pathArray) }
   function checkDiff(pathArray: string[]): boolean { return checkDiffCommon(draft.value, saved.value, pathArray) }
 
-  function checkListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): boolean {
+  type ListItemKey = 'lecturers' |'transferableSkills' | 'prerequisites' | 'deliveryMethods'
+  function checkListItem(key: ListItemKey, value: string): boolean {
     return draft.value[key].includes(value)
   }
-  function addListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): void {
+  function addListItem(key: ListItemKey, value: string): void {
     if (!checkListItem(key, value)) {
       draft.value[key].push(value)
     }
   }
-  function removeListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): void {
+  function removeListItem(key: ListItemKey, value: string): void {
     if (checkListItem(key, value)) {
       const idx = draft.value[key].indexOf(value)
       draft.value[key].splice(idx, 1)
     }
   }
-  function toggleListItem(key: 'transferableSkills' | 'prerequisites' | 'deliveryMethods', value: string): void {
+  function toggleListItem(key: ListItemKey, value: string): void {
     if (checkListItem(key, value)) {
       removeListItem(key, value)
     } else {
       addListItem(key, value)
     }
   }
+  function addLecturer(value: string): void { addListItem('lecturers', value) }
+  function removeLecturer(value: string): void { removeListItem('lecturers', value) }
+  function toggleLecturer(value: string): void { toggleListItem('lecturers', value) }
   function addTransferableSkill(value: string): void { addListItem('transferableSkills', value) }
   function removeTransferableSkill(value: string): void { removeListItem('transferableSkills', value) }
   function toggleTransferableSkill(value: string): void { toggleListItem('transferableSkills', value) }
@@ -437,6 +441,7 @@ export const useCourseStore = defineStore('course', () => {
     editingTab,
     checkDiff, resetDiff,
     // updateMapping,
+    addLecturer, removeLecturer, toggleLecturer,
     addTransferableSkill, removeTransferableSkill, toggleTransferableSkill,
     addPrerequisite, removePrerequisite, togglePrerequisite,
     addDeliveryMethod, removeDeliveryMethod, toggleDeliveryMethod,
