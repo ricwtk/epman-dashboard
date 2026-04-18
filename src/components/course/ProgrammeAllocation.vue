@@ -29,7 +29,7 @@ defineEmits(['update:editing']);
       <LoadingComponent :show="loading" />
       <EmptyComponent v-if="Object.keys(programmes).length === 0">
         <template #title>
-          Not Programme Allocation
+          No Programme Allocation
         </template>
         <template #description>
           Course is not allocated in any structure of any programme
