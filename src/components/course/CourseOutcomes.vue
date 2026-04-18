@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckIcon, MinusIcon, CircleChevronDownIcon } from "lucide-vue-next";
+import { Button } from '@/components/ui/button';
+import { CheckIcon, MinusIcon, CircleChevronDownIcon, PlusIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-vue-next";
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
 import BloomtaxSelection from '@/components/course/BloomtaxSelection.vue';
+import ListItemMenu from '@/components/ListItemMenu.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -45,6 +47,24 @@ const setEditing = (value: boolean) => {
 const selectBtLevel = (co: Co, domain: string, level: number) => {
   co.bloomtax[0] = domain.slice(0,1).toUpperCase();
   co.bloomtax[1] = level;
+};
+
+const getMenuItems = (coIndex: number) => {
+  return [{
+    label: 'Remove',
+    icon: XIcon,
+    callback: () => { courseStore.removeCo(coIndex)},
+  }, {
+    label: 'Move Up',
+    icon: ChevronUpIcon,
+    disabled: coIndex == 0,
+    callback: () => { courseStore.moveCoUp(coIndex)},
+  }, {
+    label: 'Move Down',
+    icon: ChevronDownIcon,
+    disabled: coIndex == course.value.cos.length - 1,
+    callback: () => { courseStore.moveCoDown(coIndex)},
+  }];
 };
 
 // defineProps<{
@@ -87,7 +107,12 @@ const selectBtLevel = (co: Co, domain: string, level: number) => {
         </TableHeader>
         <TableBody>
           <TableRow v-for="(co, index) in course.cos" :key="index">
-            <TableCell class="text-center">{{ index + 1 }}</TableCell>
+            <TableCell class="text-center">
+              <div class="flex justify-center items-center">
+                <ListItemMenu :menu-items="getMenuItems(index)" v-if="editing"/>
+                <span class="px-1">{{ index + 1 }}</span>
+              </div>
+            </TableCell>
             <TableCell>
               <Textarea v-model="co.description" v-if="editing" />
               <span v-else>
@@ -111,35 +136,6 @@ const selectBtLevel = (co: Co, domain: string, level: number) => {
                   </BadgeList>
                 </template>
               </BloomtaxSelection>
-
-              <!-- <Popover>
-                <PopoverTrigger>
-                  <BadgeList :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]" />
-                </PopoverTrigger>
-                <PopoverContent class="w-fit" v-if="editing">
-                  <ScrollArea class="h-60">
-                    <div class="flex flex-col gap-1 text-xs select-none">
-                      <div v-for="(taxon, taxonIndex) in BLOOM_TAXONOMY" :key="taxonIndex">
-                        <span class="font-bold">{{ taxon.domain }}</span>
-                        <div
-                          v-for="(level, levelIndex) in taxon.levels"
-                          :key="levelIndex"
-                          class="hover:bg-accent px-2 py-2 rounded flex gap-1"
-                          @click="selectBtLevel(co, taxon.domain.slice(0,1).toUpperCase(), (levelIndex + 1))"
-                        >
-                          <span class="font-semibold">{{ taxon.domain.slice(0,1).toUpperCase() }}{{ levelIndex + 1 }}</span>
-                          <span class="flex-1">{{ level }}</span>
-                          <span>
-                            <CheckIcon class="inline-block" :size="16"
-                              :class="{ 'text-transparent': !(co.bloomtax[0].toUpperCase() === taxon.domain.slice(0,1).toUpperCase() && co.bloomtax[1] === levelIndex + 1) }"
-                            />
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </ScrollArea>
-                </PopoverContent>
-              </Popover> -->
             </TableCell>
             <TableCell class="text-center">
               <template v-if="editing">
@@ -215,6 +211,7 @@ const selectBtLevel = (co: Co, domain: string, level: number) => {
           </TableRow>
         </TableBody>
       </Table>
+      <Button v-if="editing" variant="secondary" class="w-full" @click="courseStore.addCo()"><PlusIcon /></Button>
     </template>
   </ContentCard>
 </template>
