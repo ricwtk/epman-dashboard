@@ -1,5 +1,5 @@
 import { ref, computed, toRaw, watch } from 'vue';
-import type { Assessment, Breakdown, Co, Course } from "@/types/course";
+import type { Assessment, Breakdown, Co, Course, Reference } from "@/types/course";
 import type { School } from "@/types/school";
 import { createCourseObject } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
@@ -329,7 +329,7 @@ export const useCourseStore = defineStore('course', () => {
   function addTopic(): void { draft.value.teachingPlan.push(createPlan()) }
   function removeTopic(index: number): void { draft.value.teachingPlan.splice(index, 1) }
 
-  function addReference(): void { draft.value.references.push(createReference()) }
+  function addReference(overrides?: Partial<Reference>): void { draft.value.references.push(createReference(undefined, overrides)) }
   function deleteReference(index: number): void { draft.value.references.splice(index, 1) }
   function moveReferenceUp(index: number): void { moveUp('references', index); }
   function moveReferenceDown(index: number): void { moveDown('references', index); }

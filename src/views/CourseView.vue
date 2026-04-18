@@ -11,6 +11,7 @@ import CourseAssessments from '@/components/course/CourseAssessments.vue';
 import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
 import CoursePlan from '@/components/course/CoursePlan.vue';
 import CourseReferences from '@/components/course/CourseReferences.vue';
+import ReferenceList from '@/components/course/ReferenceList.vue';
 import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
 
 import { useAuthStore } from "@/stores/auth";
@@ -103,13 +104,22 @@ const updateEditing = (ev: boolean, tab?: string) => {
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'teachingplan')"
     />
-    <CourseReferences
+
+    <ReferenceList
+      title="Main References"
+      referenceLabel="main"
+    />
+    <ReferenceList
+      title="Additional References"
+      referenceLabel="additional"
+    />
+    <!-- <CourseReferences
       :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :references="courseStore.saved.references || []"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'references')"
-    />
+    /> -->
     <CourseUpdateDialog v-model:isOpen="editing" />
   </template>
 </template>
