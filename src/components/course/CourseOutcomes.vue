@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckIcon, MinusIcon } from "lucide-vue-next";
+import { CheckIcon, MinusIcon, CircleChevronDownIcon } from "lucide-vue-next";
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
@@ -101,7 +101,14 @@ const selectBtLevel = (co: Co, domain: string, level: number) => {
                 @select="(domain, level) => selectBtLevel(co, domain, level)"
               >
                 <template #trigger>
-                  <BadgeList :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]" />
+                  <BadgeList
+                    :editing="editing"
+                    :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]"
+                  >
+                    <template #editIcon>
+                      <CircleChevronDownIcon :size="14" />
+                    </template>
+                  </BadgeList>
                 </template>
               </BloomtaxSelection>
 

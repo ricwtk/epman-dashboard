@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { BLOOM_TAXONOMY } from '@/constants'
 import { CheckIcon } from 'lucide-vue-next'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 const props = defineProps<{
   selected: string
@@ -16,7 +16,13 @@ const emit = defineEmits<{
 }>()
 
 const isPopoverOpen = ref(false)
-
+const currentTab = ref(BLOOM_TAXONOMY[0]!.domain)
+watch(() => isPopoverOpen.value, (val) => {
+  if (val) {
+    const selectedDomainInitial = props.selected.slice(0, 1).toLowerCase()
+    currentTab.value = BLOOM_TAXONOMY.find(taxon => taxon.domain.toLowerCase().startsWith(selectedDomainInitial))?.domain ?? BLOOM_TAXONOMY[0]!.domain
+  }
+})
 function selectBtLevel(domain: string, level: number): void {
   emit('select', domain, level)
   isPopoverOpen.value = false
@@ -34,10 +40,14 @@ function isSelected(domain: string, level: number): boolean {
       </slot>
     </PopoverTrigger>
     <PopoverContent class="w-fit" v-if="editing">
-      <ScrollArea class="h-60">
-        <div class="flex flex-col gap-1 text-xs select-none">
-          <div v-for="(taxon, taxonIndex) in BLOOM_TAXONOMY" :key="taxonIndex">
-            <span class="font-bold">{{ taxon.domain }}</span>
+      <Tabs v-model="currentTab">
+        <TabsList>
+          <TabsTrigger v-for="(taxon, taxonIndex) in BLOOM_TAXONOMY" :key="`taxon-domain-${taxonIndex}`" :value="taxon.domain">
+            <span class="text-xs font-bold">{{ taxon.domain }}</span>
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent v-for="(taxon, taxonIndex) in BLOOM_TAXONOMY" :key="`taxon-content-${taxonIndex}`" :value="taxon.domain">
+          <div class="flex flex-col gap-1 text-xs select-none">
             <div
               v-for="(level, levelIndex) in taxon.levels"
               :key="levelIndex"
@@ -53,8 +63,8 @@ function isSelected(domain: string, level: number): boolean {
               </span>
             </div>
           </div>
-        </div>
-      </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </PopoverContent>
   </Popover>
 </template>
