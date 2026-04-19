@@ -81,13 +81,16 @@ const updateEditing = (ev: boolean, tab?: string) => {
       :editable="authStore.canEditCourses"
     />
     <CourseAssessments
+      :editable="authStore.canEditCourses"
+    />
+    <!-- <CourseAssessments
       :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :assessments="courseStore.saved.assessments"
       :coCount="courseStore.saved.cos?.length || 0"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'assessments')"
-    />
+    /> -->
     <CEPCEAImplementation
       :loading="courseStore.loading"
       :editable="authStore.canEditCourses"

@@ -11,17 +11,42 @@ import { ref } from 'vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 
-const props = defineProps<{
-  assessments: Assessment[];
-  coCount: number;
-  editing: boolean;
-  loading?: boolean;
-}>();
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore();
+const saveCourse = () => { courseStore.save(); }
 
-defineEmits(['update:editing']);
+const editing = ref(false);
+
+const course = computed({
+  get: () => editing.value ? courseStore.draft : courseStore.saved,
+  set: (value) => {
+    if (editing.value)
+      courseStore.draft = value;
+    else
+      courseStore.saved = value;
+  },
+})
+
+const setEditing = (value: boolean) => {
+  editing.value = value;
+  if (courseStore.draft.code !== courseStore.saved.code) {
+    courseStore.createDraft();
+  }
+};
+
+const coCount = computed(() => course.value.cos.length);
+
+// const props = defineProps<{
+//   assessments: Assessment[];
+//   coCount: number;
+//   editing: boolean;
+//   loading?: boolean;
+// }>();
+
+// defineEmits(['update:editing']);
 
 const anybreakdown = computed(() => {
-  return props.assessments.some(assessment => assessment.breakdown.length > 0);
+  return course.value.assessments.some(assessment => assessment.breakdown.length > 0);
 });
 
 const showBreakdown = ref(false);
@@ -32,13 +57,14 @@ const toggleBreakdown = () => {
 </script>
 
 <template>
-  <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)">
+  <!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
+  <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveCourse">
     <template #title>
       Assessments
     </template>
     <template #body>
-      <LoadingComponent :show="loading" />
-      <EmptyComponent v-if="assessments.length === 0">
+      <LoadingComponent :show="courseStore.loading" />
+      <EmptyComponent v-if="course.assessments.length === 0 && !editing">
         <template #title>
           No Assessments
         </template>
@@ -47,7 +73,7 @@ const toggleBreakdown = () => {
         </template>
       </EmptyComponent>
       <div v-else>
-        <AssessmentMainTable :assessments="assessments" :coCount="coCount"/>
+        <AssessmentMainTable :assessments="course.assessments" :coCount="coCount"/>
         <div v-if="anybreakdown" class="mt-1">
           <div class="flex flex-row items-center">
             <Badge>Breakdown</Badge>
@@ -57,7 +83,7 @@ const toggleBreakdown = () => {
             </Button>
           </div>
           <AssessmentBreakdown
-            :assessments="assessments"
+            :assessments="course.assessments"
             :coCount="coCount"
             v-show="showBreakdown"
           />
