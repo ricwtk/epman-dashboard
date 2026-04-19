@@ -36,7 +36,11 @@ const props = defineProps<{
   title: string;
   referenceLabel: 'main' | 'additional';
 }>();
-const references = computed(() => course.value.references.filter(reference => reference.label === props.referenceLabel));
+const references = computed(() =>
+  course.value.references
+    .map((reference, index) => ({ actualIndex: index, reference: reference }))
+    .filter(referenceWithIndex => referenceWithIndex.reference.label === props.referenceLabel)
+);
 
 const getMenuItems = (referenceIndex: number) => {
   return [{
@@ -74,15 +78,15 @@ const getMenuItems = (referenceIndex: number) => {
       </EmptyComponent>
       <Table v-else>
         <TableBody>
-          <TableRow v-for="(reference, referenceIndex) in references" :key="referenceIndex">
+          <TableRow v-for="referenceWithIndex in references" :key="referenceWithIndex.actualIndex">
             <TableCell v-if="editing" class="w-0">
               <ListItemMenu
-                :menu-items="getMenuItems(referenceIndex)"
+                :menu-items="getMenuItems(referenceWithIndex.actualIndex)"
               />
             </TableCell>
             <TableCell>
-              <Textarea v-model="reference.description" v-if="editing"></Textarea>
-              <span v-else>{{ reference.description }}</span>
+              <Textarea v-model="referenceWithIndex.reference.description" v-if="editing"></Textarea>
+              <span v-else>{{ referenceWithIndex.reference.description }}</span>
             </TableCell>
           </TableRow>
         </TableBody>
