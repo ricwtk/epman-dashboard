@@ -6,7 +6,11 @@ import AssessmentMainTable from '@/components/course/AssessmentMainTable.vue';
 import AssessmentBreakdown from '@/components/course/AssessmentBreakdown.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
+import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { Input } from "@/components/ui/input"
+import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field';
+import { Checkbox } from '@/components/ui/checkbox';
+import { EyeIcon, EyeOffIcon, CheckIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
@@ -73,7 +77,55 @@ const toggleBreakdown = () => {
         </template>
       </EmptyComponent>
       <div v-else>
-        <AssessmentMainTable :assessments="course.assessments" :coCount="coCount"/>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead class="w-0 px-3">Component</TableHead>
+              <TableHead class="">Method</TableHead>
+              <TableHead class="w-0 text-center px-3">Weightage</TableHead>
+              <TableHead class="w-0 text-center px-3" v-for="coNumber in coCount" :key="coNumber">CO{{ coNumber }}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <template v-for="(assessment, assessmentIndex) in course.assessments" :key="`assessment${assessmentIndex}`">
+              <TableRow>
+                <TableCell>
+                  <span v-if="editing">
+                    <Input v-model="assessment.component" class="w-50"/>
+                  </span>
+                  <span v-else>{{ assessment.component }}</span>
+                </TableCell>
+                <TableCell>
+                  <span v-if="editing">
+                    <Input v-model="assessment.description"/>
+                  </span>
+                  <span v-else>{{ assessment.description }}</span>
+                </TableCell>
+                <TableCell class="text-center">
+                  <span v-if="editing">
+                    <NumberField :min="0" v-model="assessment.weightage">
+                      <NumberFieldContent>
+                        <NumberFieldDecrement />
+                        <NumberFieldInput class="w-30"/>
+                        <NumberFieldIncrement />
+                      </NumberFieldContent>
+                    </NumberField>
+                  </span>
+                  <span v-else>{{ assessment.weightage }}</span>
+                </TableCell>
+                <TableCell class="text-center" v-for="coNumber in coCount" :key="`assess${assessmentIndex}co${coNumber}`">
+                  <span v-if="editing">
+                    <Checkbox :modelValue="assessment.cos.includes(coNumber)" 
+                      @update:modelValue="courseStore.toggleAssessmentMapping(assessmentIndex, -1, 'co', coNumber)"
+                    />
+                  </span>
+                  <CheckIcon v-else class="inline-block" :size="16" v-if="assessment.cos.includes(coNumber)" />
+                </TableCell>
+              </TableRow>
+            </template>
+          </TableBody>
+        </Table>
+        <!-- <AssessmentMainTable :assessments="course.assessments" :coCount="coCount"/> -->
         <div v-if="anybreakdown" class="mt-1">
           <div class="flex flex-row items-center">
             <Badge>Breakdown</Badge>
