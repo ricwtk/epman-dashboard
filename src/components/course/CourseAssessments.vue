@@ -10,6 +10,7 @@ import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from '@
 import { Input } from "@/components/ui/input"
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EyeIcon, EyeOffIcon, CheckIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
@@ -88,7 +89,7 @@ const toggleBreakdown = () => {
           </TableHeader>
           <TableBody>
             <template v-for="(assessment, assessmentIndex) in course.assessments" :key="`assessment${assessmentIndex}`">
-              <TableRow>
+              <TableRow :class="editing ? 'border-b-0' : ''">
                 <TableCell>
                   <span v-if="editing">
                     <Input v-model="assessment.component" class="w-50"/>
@@ -115,12 +116,63 @@ const toggleBreakdown = () => {
                 </TableCell>
                 <TableCell class="text-center" v-for="coNumber in coCount" :key="`assess${assessmentIndex}co${coNumber}`">
                   <span v-if="editing">
-                    <Checkbox :modelValue="assessment.cos.includes(coNumber)" 
+                    <Checkbox :modelValue="assessment.cos.includes(coNumber)"
                       @update:modelValue="courseStore.toggleAssessmentMapping(assessmentIndex, -1, 'co', coNumber)"
                     />
                   </span>
                   <CheckIcon v-else class="inline-block" :size="16" v-if="assessment.cos.includes(coNumber)" />
                 </TableCell>
+              </TableRow>
+              <TableRow v-if="editing" class="hover:bg-transparent">
+                <TableCell></TableCell>
+                <TableCell>
+                  <div class="w-full flex flex-col gap-1">
+                    <Table v-if="assessment.breakdown.length > 0">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Method</TableHead>
+                          <TableHead class="w-0 px-3 text-center">Weightage</TableHead>
+                          <TableHead class="w-0 px-3 text-center">CO</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                         <TableRow v-for="(breakdown, breakdownIndex) in assessment.breakdown" :key="`assess${assessmentIndex}breakdown${breakdownIndex}`">
+                          <TableCell>{{ breakdown.description }}</TableCell>
+                          <TableCell class="text-center">
+                            <NumberField v-model="breakdown.weightage" :min="0">
+                              <NumberFieldContent>
+                                <NumberFieldDecrement></NumberFieldDecrement>
+                                <NumberFieldInput class="w-25"></NumberFieldInput>
+                                <NumberFieldIncrement></NumberFieldIncrement>
+                              </NumberFieldContent>
+                            </NumberField>
+                          </TableCell>
+                          <TableCell class="text-center">
+                            <Select v-model="breakdown.co">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a CO" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <template v-for="coNumber in coCount">
+                                  <SelectItem
+                                    v-if="assessment.cos.includes(coNumber)"
+                                    :key="`assess${assessmentIndex}breakdownco${coNumber}`"
+                                    :value="coNumber"
+                                  >
+                                    CO {{ coNumber }}
+                                  </SelectItem>
+                                </template>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                    <Button variant="secondary" class="w-full" @click="courseStore.addBreakdown(assessmentIndex)">Add breakdown</Button>
+                  </div>
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell v-for="coNumber in coCount" :key="`assess${assessmentIndex}breakdownco${coNumber}`"></TableCell>
               </TableRow>
             </template>
           </TableBody>
