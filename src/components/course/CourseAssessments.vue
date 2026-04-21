@@ -15,6 +15,8 @@ import { EyeIcon, EyeOffIcon, CheckIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
+import AssessmentRow from '@/components/course/AssessmentRow.vue';
+import ErrorTooltip from '@/components/course/ErrorTooltip.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -59,6 +61,16 @@ const showBreakdown = ref(false);
 const toggleBreakdown = () => {
   showBreakdown.value = !showBreakdown.value;
 };
+
+const weightageError = computed(() => {
+  const details = { isError: false, message: "" }
+  const totalWeightage = course.value.assessments.reduce((sum, item) => sum + item.weightage, 0);
+  if (totalWeightage !== 100) {
+    details.isError = true;
+    details.message = `Total weightage is ${totalWeightage}% (&#8800;100%)`;
+  }
+  return details;
+});
 </script>
 
 <template>
@@ -83,115 +95,21 @@ const toggleBreakdown = () => {
             <TableRow>
               <TableHead class="w-0 px-3">Component</TableHead>
               <TableHead class="">Method</TableHead>
-              <TableHead class="w-0 text-center px-3">Weightage</TableHead>
+              <TableHead class="w-0 text-center px-3">
+                <ErrorTooltip
+                  :is-error="weightageError.isError"
+                  :message="weightageError.message"
+                >Weightage</ErrorTooltip>
+              </TableHead>
               <TableHead class="w-0 text-center px-3" v-for="coNumber in coCount" :key="coNumber">CO{{ coNumber }}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <template v-for="(assessment, assessmentIndex) in course.assessments" :key="`assessment${assessmentIndex}`">
-              <TableRow :class="editing ? 'border-b-0' : ''">
-                <TableCell>
-                  <span v-if="editing">
-                    <Input v-model="assessment.component" class="w-50"/>
-                  </span>
-                  <span v-else>{{ assessment.component }}</span>
-                </TableCell>
-                <TableCell>
-                  <span v-if="editing">
-                    <Input v-model="assessment.description"/>
-                  </span>
-                  <span v-else>{{ assessment.description }}</span>
-                </TableCell>
-                <TableCell class="text-center">
-                  <span v-if="editing">
-                    <NumberField :min="0" v-model="assessment.weightage">
-                      <NumberFieldContent>
-                        <NumberFieldDecrement />
-                        <NumberFieldInput class="w-30"/>
-                        <NumberFieldIncrement />
-                      </NumberFieldContent>
-                    </NumberField>
-                  </span>
-                  <span v-else>{{ assessment.weightage }}</span>
-                </TableCell>
-                <TableCell class="text-center" v-for="coNumber in coCount" :key="`assess${assessmentIndex}co${coNumber}`">
-                  <span v-if="editing">
-                    <Checkbox :modelValue="assessment.cos.includes(coNumber)"
-                      @update:modelValue="courseStore.toggleAssessmentMapping(assessmentIndex, -1, 'co', coNumber)"
-                    />
-                  </span>
-                  <CheckIcon v-else class="inline-block" :size="16" v-if="assessment.cos.includes(coNumber)" />
-                </TableCell>
-              </TableRow>
-              <TableRow v-if="editing" class="hover:bg-transparent">
-                <TableCell></TableCell>
-                <TableCell>
-                  <div class="w-full flex flex-col gap-1">
-                    <Table v-if="assessment.breakdown.length > 0">
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Method</TableHead>
-                          <TableHead class="w-0 px-3 text-center">Weightage</TableHead>
-                          <TableHead class="w-0 px-3 text-center">CO</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                         <TableRow v-for="(breakdown, breakdownIndex) in assessment.breakdown" :key="`assess${assessmentIndex}breakdown${breakdownIndex}`">
-                          <TableCell>{{ breakdown.description }}</TableCell>
-                          <TableCell class="text-center">
-                            <NumberField v-model="breakdown.weightage" :min="0">
-                              <NumberFieldContent>
-                                <NumberFieldDecrement></NumberFieldDecrement>
-                                <NumberFieldInput class="w-25"></NumberFieldInput>
-                                <NumberFieldIncrement></NumberFieldIncrement>
-                              </NumberFieldContent>
-                            </NumberField>
-                          </TableCell>
-                          <TableCell class="text-center">
-                            <Select v-model="breakdown.co">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a CO" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <template v-for="coNumber in coCount">
-                                  <SelectItem
-                                    v-if="assessment.cos.includes(coNumber)"
-                                    :key="`assess${assessmentIndex}breakdownco${coNumber}`"
-                                    :value="coNumber"
-                                  >
-                                    CO {{ coNumber }}
-                                  </SelectItem>
-                                </template>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                    <Button variant="secondary" class="w-full" @click="courseStore.addBreakdown(assessmentIndex)">Add breakdown</Button>
-                  </div>
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell v-for="coNumber in coCount" :key="`assess${assessmentIndex}breakdownco${coNumber}`"></TableCell>
-              </TableRow>
+              <AssessmentRow :assessment-index="assessmentIndex" :editing="editing" />
             </template>
           </TableBody>
         </Table>
-        <!-- <AssessmentMainTable :assessments="course.assessments" :coCount="coCount"/> -->
-        <div v-if="anybreakdown" class="mt-1">
-          <div class="flex flex-row items-center">
-            <Badge>Breakdown</Badge>
-            <Button variant="ghost" @click="toggleBreakdown">
-              <EyeIcon v-if="!showBreakdown" />
-              <EyeOffIcon v-else />
-            </Button>
-          </div>
-          <AssessmentBreakdown
-            :assessments="course.assessments"
-            :coCount="coCount"
-            v-show="showBreakdown"
-          />
-        </div>
       </div>
     </template>
   </ContentCard>
