@@ -36,16 +36,17 @@ const breakdown = computed(() => assessment.value ? assessment.value.breakdown[p
         <span v-else>{{ breakdown.description }}</span>
       </TableCell>
       <TableCell class="text-center">
-        <NumberField v-model="breakdown.weightage" :min="0" :max="100">
+        <NumberField v-if="editing" v-model="breakdown.weightage" :min="0" :max="100">
           <NumberFieldContent>
             <NumberFieldDecrement></NumberFieldDecrement>
             <NumberFieldInput class="w-25"></NumberFieldInput>
             <NumberFieldIncrement></NumberFieldIncrement>
           </NumberFieldContent>
         </NumberField>
+        <span v-else>{{ breakdown.weightage }}</span>
       </TableCell>
       <TableCell class="text-center">
-        <Select v-model="breakdown.co">
+        <Select v-if="editing" v-model="breakdown.co" >
           <SelectTrigger>
             <SelectValue placeholder="Select a CO" />
           </SelectTrigger>
@@ -56,11 +57,12 @@ const breakdown = computed(() => assessment.value ? assessment.value.breakdown[p
                 :key="`assess${assessmentIndex}breakdownco${coNumber}`"
                 :value="coNumber"
               >
-                CO {{ coNumber }}
+                CO{{ coNumber }}
               </SelectItem>
             </template>
           </SelectContent>
         </Select>
+        <span v-else>CO{{ breakdown.co }}</span>
       </TableCell>
     </TableRow>
   </template>

@@ -6,7 +6,7 @@ import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncre
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger, TooltipArrow } from '@/components/ui/tooltip';
-import { CheckIcon } from 'lucide-vue-next';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next';
 import AssessmentBreakdownRow from './AssessmentBreakdownRow.vue';
 import ErrorTooltip from './ErrorTooltip.vue';
 
@@ -45,7 +45,6 @@ const breakdownWeightageError = computed(() => {
 
 const coMappingMissingError = computed(() => {
   const details = [...Array(coCount.value)].map(() => ({ isError: false, message: "" }))
-  console.log(details)
   if (assessment.value && assessment.value.breakdown.length > 0) {
     const mappedCos = assessment.value.breakdown.reduce((acc, item) => {
       acc.add(item.co);
@@ -58,14 +57,15 @@ const coMappingMissingError = computed(() => {
       }
     })
   }
-  console.log(details)
   return details
 })
+
+const showBreakdown = ref(false)
 </script>
 
 <template>
   <template v-if="assessment">
-    <TableRow :class="editing ? 'border-b-0' : ''">
+    <TableRow :class="editing || showBreakdown ? 'border-b-0' : ''">
       <TableCell>
         <span v-if="editing">
           <Input v-model="assessment.component" class="w-50"/>
@@ -76,7 +76,13 @@ const coMappingMissingError = computed(() => {
         <span v-if="editing">
           <Input v-model="assessment.description"/>
         </span>
-        <span v-else>{{ assessment.description }}</span>
+        <span v-else class="flex items-center justify-between">
+          <div>{{ assessment.description }}</div>
+          <Button variant="ghost" v-if="assessment.breakdown.length > 0 && !editing" @click="showBreakdown = !showBreakdown">
+            <ChevronDownIcon v-if="!showBreakdown" />
+            <ChevronUpIcon v-else />
+          </Button>
+        </span>
       </TableCell>
       <TableCell class="text-center">
         <span v-if="editing">
@@ -105,7 +111,7 @@ const coMappingMissingError = computed(() => {
         <CheckIcon v-else class="inline-block" :size="16" v-if="assessment.cos.includes(coNumber)" />
       </TableCell>
     </TableRow>
-    <TableRow v-if="editing" class="hover:bg-transparent">
+    <TableRow v-if="editing || showBreakdown" class="hover:bg-transparent">
       <TableCell></TableCell>
       <TableCell>
         <div class="w-full flex flex-col gap-1">
@@ -128,7 +134,7 @@ const coMappingMissingError = computed(() => {
               </template>
             </TableBody>
           </Table>
-          <Button variant="secondary" class="w-full" @click="courseStore.addBreakdown(assessmentIndex)">Add breakdown</Button>
+          <Button v-if="editing" variant="secondary" class="w-full" @click="courseStore.addBreakdown(assessmentIndex)">Add breakdown</Button>
         </div>
       </TableCell>
       <TableCell></TableCell>
