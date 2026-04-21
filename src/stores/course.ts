@@ -238,6 +238,13 @@ export const useCourseStore = defineStore('course', () => {
 
   function addAssessment(): void { draft.value.assessments.push(createAssessment()) }
   function deleteAssessment(index: number): void { draft.value.assessments.splice(index, 1) }
+  function moveAssessment(index: number, direction: 'up' | 'down'): void {
+    if (direction === 'up') {
+      moveUp('assessments', index);
+    } else {
+      moveDown('assessments', index);
+    }
+  }
 
   function addBreakdown(assessmentIndex: number): void {
     if (assessmentIndex >= 0 && assessmentIndex < draft.value.assessments.length) {
@@ -247,6 +254,20 @@ export const useCourseStore = defineStore('course', () => {
   function deleteBreakdown(assessmentIndex: number, breakdownIndex: number): void {
     if (assessmentIndex >= 0 && assessmentIndex < draft.value.assessments.length) {
       draft.value.assessments[assessmentIndex]!.breakdown.splice(breakdownIndex, 1)
+    }
+  }
+  function moveBreakdown(assessmentIndex: number, breakdownIndex: number, direction: 'up' | 'down'): void {
+    if (assessmentIndex >= 0 && assessmentIndex < draft.value.assessments.length) {
+      const breakdown = draft.value.assessments[assessmentIndex]!.breakdown[breakdownIndex]
+      if (breakdown) {
+        if (direction == 'up') {
+          draft.value.assessments[assessmentIndex]!.breakdown.splice(breakdownIndex, 1)
+          draft.value.assessments[assessmentIndex]!.breakdown.splice(breakdownIndex - 1, 0, breakdown)
+        } else {
+          draft.value.assessments[assessmentIndex]!.breakdown.splice(breakdownIndex, 1)
+          draft.value.assessments[assessmentIndex]!.breakdown.splice(breakdownIndex + 1, 0, breakdown)
+        }
+      }
     }
   }
 
@@ -449,8 +470,8 @@ export const useCourseStore = defineStore('course', () => {
     addCo, removeCo, moveCoUp, moveCoDown,
     addCoMapping, removeCoMapping, toggleCoMapping,
     addTopic, removeTopic,
-    addAssessment, deleteAssessment,
-    addBreakdown, deleteBreakdown,
+    addAssessment, deleteAssessment, moveAssessment,
+    addBreakdown, deleteBreakdown, moveBreakdown,
     addAssessmentMapping, removeAssessmentMapping, toggleAssessmentMapping,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown,
     recommendedMappingForCo, recommendedMappingForAssessment,

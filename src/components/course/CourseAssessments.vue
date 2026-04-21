@@ -93,6 +93,7 @@ const weightageError = computed(() => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead v-if="editing" class="w-0"></TableHead>
               <TableHead class="w-0 px-3">Component</TableHead>
               <TableHead class="">Method</TableHead>
               <TableHead class="w-0 text-center px-3">
@@ -106,7 +107,13 @@ const weightageError = computed(() => {
           </TableHeader>
           <TableBody>
             <template v-for="(assessment, assessmentIndex) in course.assessments" :key="`assessment${assessmentIndex}`">
-              <AssessmentRow :assessment-index="assessmentIndex" :editing="editing" />
+              <AssessmentRow
+                :assessment-index="assessmentIndex"
+                :editing="editing"
+                @remove="courseStore.deleteAssessment(assessmentIndex)"
+                @moveUp="courseStore.moveAssessment(assessmentIndex, 'up')"
+                @moveDown="courseStore.moveAssessment(assessmentIndex, 'down')"
+              />
             </template>
           </TableBody>
         </Table>

@@ -6,9 +6,10 @@ import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncre
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger, TooltipArrow } from '@/components/ui/tooltip';
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next';
+import { XIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next';
 import AssessmentBreakdownRow from './AssessmentBreakdownRow.vue';
 import ErrorTooltip from './ErrorTooltip.vue';
+import ListItemMenu from '@/components/ListItemMenu.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -61,11 +62,35 @@ const coMappingMissingError = computed(() => {
 })
 
 const showBreakdown = ref(false)
+
+const emit = defineEmits<{
+  (e: 'remove'): void,
+  (e: 'moveUp'): void,
+  (e: 'moveDown'): void,
+}>()
+const menuItems = ref([{
+  label: 'Remove',
+  icon: XIcon,
+  callback: () => { emit('remove') },
+}, {
+  label: 'Move Up',
+  icon: ChevronUpIcon,
+  disabled: props.assessmentIndex == 0,
+  callback: () => { emit('moveUp') },
+}, {
+  label: 'Move Down',
+  icon: ChevronDownIcon,
+  disabled: props.assessmentIndex == course.value.assessments.length - 1,
+  callback: () => { emit('moveDown') },
+}]);
 </script>
 
 <template>
   <template v-if="assessment">
     <TableRow :class="editing || showBreakdown ? 'border-b-0' : ''">
+      <TableCell v-if="editing">
+        <ListItemMenu :menuItems="menuItems" />
+      </TableCell>
       <TableCell>
         <span v-if="editing">
           <Input v-model="assessment.component" class="w-50"/>
@@ -97,27 +122,27 @@ const showBreakdown = ref(false)
         <span v-else>{{ assessment.weightage }}</span>
       </TableCell>
       <TableCell class="text-center" v-for="coNumber in coCount" :key="`assess${assessmentIndex}co${coNumber}`">
-        <span v-if="editing">
-          <ErrorTooltip
-            :is-error="coMappingMissingError[coNumber - 1]?.isError || false"
-            :message="coMappingMissingError[coNumber - 1]?.message || ''"
-          >
-            <Checkbox :modelValue="assessment.cos.includes(coNumber)"
-              @update:modelValue="courseStore.toggleAssessmentMapping(assessmentIndex, -1, 'co', coNumber)"
-              :class="coMappingMissingError[coNumber - 1]?.isError ? 'bg-destructive! border-destructive!' : ''"
-            />
-          </ErrorTooltip>
-        </span>
-        <CheckIcon v-else class="inline-block" :size="16" v-if="assessment.cos.includes(coNumber)" />
+        <ErrorTooltip
+          :is-error="coMappingMissingError[coNumber - 1]?.isError || false"
+          :message="coMappingMissingError[coNumber - 1]?.message || ''"
+        >
+          <Checkbox v-if="editing" :modelValue="assessment.cos.includes(coNumber)"
+            @update:modelValue="courseStore.toggleAssessmentMapping(assessmentIndex, -1, 'co', coNumber)"
+            :class="coMappingMissingError[coNumber - 1]?.isError ? 'bg-destructive! border-destructive!' : ''"
+          />
+          <CheckIcon v-else class="inline-block" :size="16" v-if="assessment.cos.includes(coNumber)" />
+        </ErrorTooltip>
       </TableCell>
     </TableRow>
     <TableRow v-if="editing || showBreakdown" class="hover:bg-transparent">
+      <TableCell v-if="editing"></TableCell>
       <TableCell></TableCell>
       <TableCell>
         <div class="w-full flex flex-col gap-1">
           <Table v-if="assessment.breakdown.length > 0">
             <TableHeader>
               <TableRow>
+                <TableHead v-if="editing" class="w-0"></TableHead>
                 <TableHead>Method</TableHead>
                 <TableHead class="w-0 px-3 text-center">
                   <ErrorTooltip
@@ -130,7 +155,14 @@ const showBreakdown = ref(false)
             </TableHeader>
             <TableBody>
               <template v-for="(breakdown, breakdownIndex) in assessment.breakdown" :key="`assess${assessmentIndex}breakdown${breakdownIndex}`">
-                <AssessmentBreakdownRow :editing="editing" :assessment-index="assessmentIndex" :breakdown-index="breakdownIndex" />
+                <AssessmentBreakdownRow
+                  :editing="editing"
+                  :assessment-index="assessmentIndex"
+                  :breakdown-index="breakdownIndex"
+                  @remove="courseStore.deleteBreakdown(assessmentIndex, breakdownIndex)"
+                  @moveUp="courseStore.moveBreakdown(assessmentIndex, breakdownIndex, 'up')"
+                  @moveDown="courseStore.moveBreakdown(assessmentIndex, breakdownIndex, 'down')"
+                />
               </template>
             </TableBody>
           </Table>

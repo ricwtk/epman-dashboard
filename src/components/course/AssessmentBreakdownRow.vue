@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { TableRow, TableCell } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import ListItemMenu from '@/components/ListItemMenu.vue'
+import { XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next'
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -26,11 +28,35 @@ const course = computed({
 const coCount = computed(() => course.value.cos.length);
 const assessment = computed(() => course.value.assessments[props.assessmentIndex]);
 const breakdown = computed(() => assessment.value ? assessment.value.breakdown[props.breakdownIndex] : null);
+
+const emit = defineEmits<{
+  (e: 'remove'): void,
+  (e: 'moveUp'): void,
+  (e: 'moveDown'): void,
+}>()
+const menuItems = ref([{
+  label: 'Remove',
+  icon: XIcon,
+  callback: () => { emit('remove') },
+}, {
+  label: 'Move Up',
+  icon: ChevronUpIcon,
+  disabled: props.breakdownIndex == 0,
+  callback: () => { emit('moveUp') },
+}, {
+  label: 'Move Down',
+  icon: ChevronDownIcon,
+  disabled: props.breakdownIndex == course.value.assessments[props.assessmentIndex]!.breakdown.length - 1,
+  callback: () => { emit('moveDown') },
+}]);
 </script>
 
 <template>
   <template v-if="assessment && breakdown">
     <TableRow>
+      <TableCell v-if="editing">
+        <ListItemMenu :menuItems="menuItems" />
+      </TableCell>
       <TableCell>
         <Input v-if="editing" v-model="breakdown.description" />
         <span v-else>{{ breakdown.description }}</span>
