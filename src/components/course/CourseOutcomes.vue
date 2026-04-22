@@ -246,7 +246,7 @@ const getMenuItems = (coIndex: number) => {
                 />
               </div>
             </TableCell>
-            <TableCell class="text-center">
+            <TableCell class="text-center p-2!">
               <div class="flex flex-col items-center gap-1">
                 <Checkbox v-if="editing" v-model="co.sdg" />
                 <template v-else>
