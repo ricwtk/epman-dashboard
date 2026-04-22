@@ -36,7 +36,7 @@ const filteredOptions = computed(() => {
 <template>
   <div v-if="badges && badges.length > 0 || elsemessage">
     <div class="content-item-title" v-if="title">{{ title }}</div>
-    <div class="flex flex-wrap gap-1">
+    <div class="flex flex-wrap gap-1 items-center">
       <BadgeList
         class="flex-wrap flex-row"
         :editing="editing"

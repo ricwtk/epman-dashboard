@@ -26,7 +26,7 @@ const selectOption = (option: { label: string; value: string }) => {
 <template>
   <div v-if="selected || elsemessage">
     <div class="content-item-title" v-if="title">{{ title }}</div>
-    <div class="flex flex-wrap gap-1">
+    <div class="flex flex-wrap gap-1 items-center">
       <Popover :open="isPopoverOpen" @update:open="(val) => isPopoverOpen = editing ? val : false">
         <PopoverTrigger as-child>
           <BadgeList

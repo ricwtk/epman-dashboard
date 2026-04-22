@@ -34,7 +34,7 @@ const addToModelValue = (val: number) => {
 <template>
   <div>
     <div class="content-item-title" v-if="title">{{ title }}</div>
-    <div class="flex flex-wrap gap-1">
+    <div class="flex flex-wrap gap-1 items-center">
       <Badge variant="secondary" class="text-center w-15" v-if="!editing">{{ modelValue }}</Badge>
       <Badge variant="secondary" v-else>
         <span @click="addToModelValue(-1)"><MinusIcon :size="12" /></span>
@@ -45,6 +45,7 @@ const addToModelValue = (val: number) => {
         />
         <span @click="addToModelValue(1)"><PlusIcon :size="14"/></span>
       </Badge>
+      <slot/>
     </div>
   </div>
 </template>

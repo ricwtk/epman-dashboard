@@ -1,38 +1,44 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
 import { RotateCcwIcon } from 'lucide-vue-next';
 
-defineProps<{
-  disabled?: boolean;
+const props =defineProps<{
+  show?: boolean;
+  size?: number;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'reset'): void;
 }>();
+const onClick = () => {
+  if (props.show) {
+    emit('reset');
+  }
+};
 </script>
 
 <template>
-  <Button
-    variant="ghost"
-    size="icon-sm"
+  <span
     class="reset-button"
-    @click="$emit('reset')"
-    :disabled="disabled"
+    :class="{ 'hide': !props.show }"
+    @click="onClick"
   >
-    <RotateCcwIcon />
-  </Button>
+    <RotateCcwIcon :size="props.size ?? 14"/>
+  </span>
 </template>
 
 <style scoped>
 @reference '@/assets/base.css';
 .reset-button {
-  @apply text-destructive;
+  @apply text-destructive cursor-default;
 }
 .reset-button:hover {
   @apply text-destructive/80!;
 }
 .reset-button:active {
   @apply text-destructive/60;
+}
+.reset-button.hide {
+  @apply text-transparent pointer-events-none;
 }
 .reset-button:disabled {
   @apply text-muted;

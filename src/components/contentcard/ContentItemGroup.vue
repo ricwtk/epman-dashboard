@@ -22,7 +22,7 @@ const selectOption = (itemIndex: number, option: { label: string, value: string 
 <template>
   <div>
     <div class="content-item-title" v-if="title">{{ title }}</div>
-    <div class="flex flex-wrap gap-1">
+    <div class="flex flex-wrap gap-1 items-center">
       <ButtonGroup class="gap-0!">
         <template v-for="(item, itemIndex) in selected" :key="item.label">
           <Popover>
@@ -49,6 +49,7 @@ const selectOption = (itemIndex: number, option: { label: string, value: string 
           </Popover>
         </template>
       </ButtonGroup>
+      <slot/>
     </div>
   </div>
 </template>
