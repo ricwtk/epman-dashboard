@@ -9,8 +9,6 @@ import ContentItemGroup from '@/components/contentcard/ContentItemGroup.vue';
 import { COURSE_TYPES } from '@/constants';
 import { Badge } from '@/components/ui/badge';
 import { InputGroup, InputGroupInput, InputGroupAddon, InputGroupTextarea } from '@/components/ui/input-group';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import ResetButton from '@/components/ResetButton.vue';
