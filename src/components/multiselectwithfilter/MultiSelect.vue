@@ -22,7 +22,7 @@ defineEmits<{
 <template>
   <div class="flex flex-wrap gap-1 items-center">
     <ContentItemBadges
-      :badges="selected || []"
+      :badges="selected.map(s => ({ label: s, value: s }))"
       :elsemessage="emptymessage"
       :editable="true"
       @delete="(ev) => $emit('delete', ev)"
