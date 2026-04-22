@@ -3,7 +3,12 @@ import type { Assessment, Breakdown, Co, Course, Reference } from "@/types/cours
 import type { School } from "@/types/school";
 import { createCourseObject } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
-import { checkDiff as checkDiffCommon, resetDiff as resetDiffCommon } from '@/utils/common.ts'
+import {
+  checkDiff as checkDiffCommon,
+  resetDiff as resetDiffCommon,
+  checkArrayItemDiff as checkArrayItemDiffCommon,
+  resetArrayItemDiff as resetArrayItemDiffCommon,
+} from '@/utils/common.ts'
 import {
   createCo,
   createPlan,
@@ -112,6 +117,11 @@ export const useCourseStore = defineStore('course', () => {
 
   function resetDiff(pathArray: string[]): void { resetDiffCommon(draft.value, saved.value, pathArray) }
   function checkDiff(pathArray: string[]): boolean { return checkDiffCommon(draft.value, saved.value, pathArray) }
+
+  function checkArrayItemDiff(pathArray: string[], item: any) {
+    return computed(() => checkArrayItemDiffCommon(draft.value, saved.value, pathArray, item))
+  }
+  function resetArrayItemDiff(pathArray: string[], item: any): void { resetArrayItemDiffCommon(draft.value, saved.value, pathArray, item) }
 
   type ListItemKey = 'lecturers' |'transferableSkills' | 'prerequisites' | 'deliveryMethods'
   function checkListItem(key: ListItemKey, value: string): boolean {
@@ -461,6 +471,7 @@ export const useCourseStore = defineStore('course', () => {
     notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
     editingTab,
     checkDiff, resetDiff,
+    checkArrayItemDiff, resetArrayItemDiff,
     // updateMapping,
     addLecturer, removeLecturer, toggleLecturer,
     addTransferableSkill, removeTransferableSkill, toggleTransferableSkill,

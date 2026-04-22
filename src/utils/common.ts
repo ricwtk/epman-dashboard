@@ -7,6 +7,25 @@ function isPrimitive(val: unknown): val is string | number | boolean | null | un
   return val === null || (typeof val !== 'object' && typeof val !== 'function');
 }
 
+export function checkArrayItemDiff(currentObj: any, originalObj: any, pathArray: string[], item: any): boolean {
+  const original = get(originalObj, pathArray)
+  const current = get(currentObj, pathArray)
+  console.log(original, current, item)
+  return original.includes(item) !== current.includes(item)
+}
+
+export function resetArrayItemDiff(currentObj: any, originalObj: any, pathArray: string[], item: any): void {
+  const original = get(originalObj, pathArray)
+  const current = get(currentObj, pathArray)
+  if (!original.includes(item)) {
+    current.splice(current.indexOf(item), 1)
+    set(currentObj, pathArray, current)
+  } else {
+    current.splice(original.indexOf(item), 0, item)
+    set(currentObj, pathArray, current)
+  }
+}
+
 export function checkDiff(currentObj: any, originalObj: any, pathArray: string[]): boolean {
   // whole object comparison
   if (!pathArray.length) {

@@ -135,14 +135,10 @@ const menuItems = ref([{
               <NumberFieldIncrement />
             </NumberFieldContent>
           </NumberField>
-          <ResetButton
-            :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'weightage'])"
-            @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'weightage'])"
-          />
         </span>
         <span v-else>{{ assessment.weightage }}</span>
       </TableCell>
-      <TableCell class="text-center" v-for="coNumber in coCount" :key="`assess${assessmentIndex}co${coNumber}`">
+      <TableCell class="text-center p-2!" v-for="coNumber in coCount" :key="`assess${assessmentIndex}co${coNumber}`">
         <ErrorTooltip
           :is-error="coMappingMissingError[coNumber - 1]?.isError || false"
           :message="coMappingMissingError[coNumber - 1]?.message || ''"
@@ -190,8 +186,18 @@ const menuItems = ref([{
           <Button v-if="editing" variant="secondary" class="w-full" @click="courseStore.addBreakdown(assessmentIndex)">Add breakdown</Button>
         </div>
       </TableCell>
-      <TableCell></TableCell>
-      <TableCell v-for="coNumber in coCount" :key="`assess${assessmentIndex}breakdownco${coNumber}`"></TableCell>
+      <TableCell class="text-center align-top">
+        <ResetButton class="inline-block"
+          :show="editing && courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'weightage'])"
+          @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'weightage'])"
+        />
+      </TableCell>
+      <TableCell class="text-center align-top" v-for="coNumber in coCount" :key="`assess${assessmentIndex}breakdownco${coNumber}`">
+         <ResetButton class="inline-block"
+          :show="editing && courseStore.checkArrayItemDiff(['assessments', String(props.assessmentIndex), 'cos'], coNumber).value"
+          @reset="courseStore.resetArrayItemDiff(['assessments', String(props.assessmentIndex), 'cos'], coNumber)"
+        />
+      </TableCell>
     </TableRow>
   </template>
 </template>
