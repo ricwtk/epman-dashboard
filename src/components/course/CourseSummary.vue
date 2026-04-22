@@ -109,7 +109,10 @@ const resetSummaryDiff = () => {
             :max="10"
             :editing="editing"
           >
-            <ResetButton :show="courseStore.checkDiff(['credits'])" @reset="courseStore.resetDiff(['credits'])" />
+            <ResetButton
+              :show="editing && courseStore.checkDiff(['credits'])"
+              @reset="courseStore.resetDiff(['credits'])"
+            />
           </ContentItemNumber>
           <ContentItemGroup
             title="Offering"
@@ -122,7 +125,7 @@ const resetSummaryDiff = () => {
             @update:selected="(value) => { course.year = value[0] as number; course.semester = value[1] as number }"
           >
             <ResetButton
-              :show="courseStore.checkDiff(['year']) || courseStore.checkDiff(['semester'])"
+              :show="editing && (courseStore.checkDiff(['year']) || courseStore.checkDiff(['semester']))"
               @reset="[['year'], ['semester']].forEach(path => courseStore.resetDiff(path))"
             />
           </ContentItemGroup>
@@ -135,7 +138,7 @@ const resetSummaryDiff = () => {
             @select="(option) => course.category = option.value"
           >
             <ResetButton
-              :show="courseStore.checkDiff(['category'])"
+              :show="editing && courseStore.checkDiff(['category'])"
               @reset="courseStore.resetDiff(['category'])"
             />
           </ContentItemSelect>
@@ -148,7 +151,7 @@ const resetSummaryDiff = () => {
             @select="(option) => course.courseType = option.value as typeof course.courseType"
           >
             <ResetButton
-              :show="courseStore.checkDiff(['courseType'])"
+              :show="editing && courseStore.checkDiff(['courseType'])"
               @reset="courseStore.resetDiff(['courseType'])"
             />
           </ContentItemSelect>
@@ -162,7 +165,7 @@ const resetSummaryDiff = () => {
             @delete="courseStore.removeLecturer"
           >
             <ResetButton
-              :show="courseStore.checkDiff(['lecturers'])"
+              :show="editing && courseStore.checkDiff(['lecturers'])"
               @reset="courseStore.resetDiff(['lecturers'])"
             />
           </ContentItemBadges>
@@ -175,7 +178,7 @@ const resetSummaryDiff = () => {
               <InputGroupAddon align="block-end">
                 <div class="w-full flex justify-end">
                   <ResetButton
-                    :show="courseStore.checkDiff(['synopsis'])"
+                    :show="editing && courseStore.checkDiff(['synopsis'])"
                     @reset="courseStore.resetDiff(['synopsis'])"
                   />
                 </div>
@@ -195,7 +198,7 @@ const resetSummaryDiff = () => {
             @delete="courseStore.removePrerequisite"
           >
             <ResetButton
-              :show="courseStore.checkDiff(['prerequisites'])"
+              :show="editing && courseStore.checkDiff(['prerequisites'])"
               @reset="courseStore.resetDiff(['prerequisites'])"
             />
           </ContentItemBadges>
@@ -209,7 +212,7 @@ const resetSummaryDiff = () => {
             @delete="courseStore.removeTransferableSkill"
           >
             <ResetButton
-              :show="courseStore.checkDiff(['transferableSkills'])"
+              :show="editing && courseStore.checkDiff(['transferableSkills'])"
               @reset="courseStore.resetDiff(['transferableSkills'])"
             />
           </ContentItemBadges>
@@ -223,7 +226,7 @@ const resetSummaryDiff = () => {
             @delete="courseStore.removeDeliveryMethod"
           >
             <ResetButton
-              :show="courseStore.checkDiff(['deliveryMethods'])"
+              :show="editing && courseStore.checkDiff(['deliveryMethods'])"
               @reset="courseStore.resetDiff(['deliveryMethods'])"
             />
           </ContentItemBadges>
