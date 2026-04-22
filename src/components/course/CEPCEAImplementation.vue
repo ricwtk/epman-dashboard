@@ -208,7 +208,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'po', Number(item.slice(2)))"
                 />
-                <ResetButton v-if="editing"
+                <ResetButton class="inline-block" v-if="editing"
                   :show="courseStore.checkDiff(['cos', String(index), 'pos'])"
                   @reset="courseStore.resetDiff(['cos', String(index), 'pos'])"
                 />
@@ -228,7 +228,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'wk', Number(item.slice(2)))"
                 />
-                <ResetButton v-if="editing"
+                <ResetButton class="inline-block" v-if="editing"
                   :show="courseStore.checkDiff(['cos', String(index), 'wks'])"
                   @reset="courseStore.resetDiff(['cos', String(index), 'wks'])"
                 />
@@ -248,7 +248,7 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'wp', Number(item.slice(2)))"
                 />
-                <ResetButton v-if="editing"
+                <ResetButton class="inline-block" v-if="editing"
                   :show="courseStore.checkDiff(['cos', String(index), 'wps'])"
                   @reset="courseStore.resetDiff(['cos', String(index), 'wps'])"
                 />
@@ -268,21 +268,23 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'ea', Number(item.slice(2)))"
                 />
-                <ResetButton v-if="editing"
+                <ResetButton class="inline-block" v-if="editing"
                   :show="courseStore.checkDiff(['cos', String(index), 'eas'])"
                   @reset="courseStore.resetDiff(['cos', String(index), 'eas'])"
                 />
               </TableCell>
               <TableCell class="text-center">
-                <Checkbox v-if="editing" v-model="co.sdg" />
-                <template v-else>
-                  <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
-                  <MinusIcon class="inline-block" :size="16" v-else />
-                </template>
-                <ResetButton v-if="editing"
-                  :show="courseStore.checkDiff(['cos', String(index), 'sdg'])"
-                  @reset="courseStore.resetDiff(['cos', String(index), 'sdg'])"
-                />
+                <div class="flex flex-col items-center gap-1">
+                  <Checkbox v-if="editing" v-model="co.sdg" />
+                  <template v-else>
+                    <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
+                    <MinusIcon class="inline-block" :size="16" v-else />
+                  </template>
+                  <ResetButton class="inline-block" v-if="editing"
+                    :show="courseStore.checkDiff(['cos', String(index), 'sdg'])"
+                    @reset="courseStore.resetDiff(['cos', String(index), 'sdg'])"
+                  />
+                </div>
               </TableCell>
               <template v-for="(assessment, assessmentIndex) in course.assessments">
                 <TableCell class="text-center">
