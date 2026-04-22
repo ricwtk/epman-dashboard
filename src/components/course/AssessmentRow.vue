@@ -5,11 +5,12 @@ import { Input } from '@/components/ui/input';
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger, TooltipArrow } from '@/components/ui/tooltip';
 import { XIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next';
 import AssessmentBreakdownRow from './AssessmentBreakdownRow.vue';
 import ErrorTooltip from './ErrorTooltip.vue';
 import ListItemMenu from '@/components/ListItemMenu.vue';
+import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group';
+import ResetButton from '@/components/ResetButton.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -93,13 +94,29 @@ const menuItems = ref([{
       </TableCell>
       <TableCell>
         <span v-if="editing">
-          <Input v-model="assessment.component" class="w-50"/>
+          <InputGroup>
+            <InputGroupInput v-model="assessment.component" class="w-50" />
+            <InputGroupAddon align="inline-end">
+              <ResetButton
+                :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'component'])"
+                @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'component'])"
+              />
+            </InputGroupAddon>
+          </InputGroup>
         </span>
         <span v-else>{{ assessment.component }}</span>
       </TableCell>
       <TableCell>
         <span v-if="editing">
-          <Input v-model="assessment.description"/>
+          <InputGroup>
+            <InputGroupInput v-model="assessment.description" />
+            <InputGroupAddon align="inline-end">
+              <ResetButton
+                :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'description'])"
+                @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'description'])"
+              />
+            </InputGroupAddon>
+          </InputGroup>
         </span>
         <span v-else class="flex items-center justify-between">
           <div>{{ assessment.description }}</div>
@@ -110,7 +127,7 @@ const menuItems = ref([{
         </span>
       </TableCell>
       <TableCell class="text-center">
-        <span v-if="editing">
+        <span v-if="editing" class="flex flex-row items-center gap-1">
           <NumberField :min="0" v-model="assessment.weightage">
             <NumberFieldContent>
               <NumberFieldDecrement />
@@ -118,6 +135,10 @@ const menuItems = ref([{
               <NumberFieldIncrement />
             </NumberFieldContent>
           </NumberField>
+          <ResetButton
+            :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'weightage'])"
+            @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'weightage'])"
+          />
         </span>
         <span v-else>{{ assessment.weightage }}</span>
       </TableCell>

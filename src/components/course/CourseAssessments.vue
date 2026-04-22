@@ -1,24 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
-import { type Assessment } from '@/types/course'
-import AssessmentMainTable from '@/components/course/AssessmentMainTable.vue';
-import AssessmentBreakdown from '@/components/course/AssessmentBreakdown.vue';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import { Input } from "@/components/ui/input"
-import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { EyeIcon, EyeOffIcon, CheckIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import AssessmentRow from '@/components/course/AssessmentRow.vue';
 import ErrorTooltip from '@/components/course/ErrorTooltip.vue';
+import ResetButton from '@/components/ResetButton.vue';
 
 import { useCourseStore } from '@/stores/course';
+import { useCourseListStore } from '@/stores/courselist';
 const courseStore = useCourseStore();
 const saveCourse = () => { courseStore.save(); }
 
@@ -52,16 +44,6 @@ const coCount = computed(() => course.value.cos.length);
 
 // defineEmits(['update:editing']);
 
-const anybreakdown = computed(() => {
-  return course.value.assessments.some(assessment => assessment.breakdown.length > 0);
-});
-
-const showBreakdown = ref(false);
-
-const toggleBreakdown = () => {
-  showBreakdown.value = !showBreakdown.value;
-};
-
 const weightageError = computed(() => {
   const details = { isError: false, message: "" }
   const totalWeightage = course.value.assessments.reduce((sum, item) => sum + item.weightage, 0);
@@ -77,7 +59,10 @@ const weightageError = computed(() => {
   <!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
   <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveCourse">
     <template #title>
-      Assessments
+      <div class="flex flex-row items-center gap-2">
+        <div>Assessments</div>
+        <ResetButton :show="editing && courseStore.checkDiff(['assessments'])" @reset="courseStore.resetDiff(['assessments'])" />
+      </div>
     </template>
     <template #body>
       <LoadingComponent :show="courseStore.loading" />
