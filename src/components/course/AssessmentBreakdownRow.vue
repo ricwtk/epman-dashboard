@@ -6,6 +6,8 @@ import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncre
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import ListItemMenu from '@/components/ListItemMenu.vue'
 import { XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next'
+import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group';
+import ResetButton from '@/components/ResetButton.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -58,36 +60,56 @@ const menuItems = ref([{
         <ListItemMenu :menuItems="menuItems" />
       </TableCell>
       <TableCell>
-        <Input v-if="editing" v-model="breakdown.description" />
+        <InputGroup v-if="editing">
+          <InputGroupInput v-model="breakdown.description" />
+          <InputGroupAddon align="inline-end">
+            <ResetButton
+              :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'breakdown', String(props.breakdownIndex), 'description'])"
+              @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'breakdown', String(props.breakdownIndex), 'description'])"
+            />
+          </InputGroupAddon>
+        </InputGroup>
         <span v-else>{{ breakdown.description }}</span>
       </TableCell>
       <TableCell class="text-center">
-        <NumberField v-if="editing" v-model="breakdown.weightage" :min="0" :max="100">
-          <NumberFieldContent>
-            <NumberFieldDecrement></NumberFieldDecrement>
-            <NumberFieldInput class="w-25"></NumberFieldInput>
-            <NumberFieldIncrement></NumberFieldIncrement>
-          </NumberFieldContent>
-        </NumberField>
+        <div class="flex items-center gap-1" v-if="editing">
+          <NumberField v-model="breakdown.weightage" :min="0" :max="100">
+            <NumberFieldContent>
+              <NumberFieldDecrement></NumberFieldDecrement>
+              <NumberFieldInput class="w-25"></NumberFieldInput>
+              <NumberFieldIncrement></NumberFieldIncrement>
+            </NumberFieldContent>
+          </NumberField>
+          <ResetButton
+            :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'breakdown', String(props.breakdownIndex), 'weightage'])"
+            @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'breakdown', String(props.breakdownIndex), 'weightage'])"
+          />
+        </div>
         <span v-else>{{ breakdown.weightage }}</span>
       </TableCell>
       <TableCell class="text-center">
-        <Select v-if="editing" v-model="breakdown.co" >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a CO" />
-          </SelectTrigger>
-          <SelectContent>
-            <template v-for="coNumber in coCount">
-              <SelectItem
-                v-if="assessment.cos.includes(coNumber)"
-                :key="`assess${assessmentIndex}breakdownco${coNumber}`"
-                :value="coNumber"
-              >
-                CO{{ coNumber }}
-              </SelectItem>
-            </template>
-          </SelectContent>
-        </Select>
+        <div class="flex items-center gap-1" v-if="editing">
+          <Select v-model="breakdown.co" >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a CO" />
+            </SelectTrigger>
+            <SelectContent>
+              <template v-for="coNumber in coCount">
+                <SelectItem
+                  v-if="assessment.cos.includes(coNumber)"
+                  :key="`assess${assessmentIndex}breakdownco${coNumber}`"
+                  :value="coNumber"
+                >
+                  CO{{ coNumber }}
+                </SelectItem>
+              </template>
+            </SelectContent>
+          </Select>
+          <ResetButton
+            :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'breakdown', String(props.breakdownIndex), 'co'])"
+            @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'breakdown', String(props.breakdownIndex), 'co'])"
+          />
+        </div>
         <span v-else>CO{{ breakdown.co }}</span>
       </TableCell>
     </TableRow>
