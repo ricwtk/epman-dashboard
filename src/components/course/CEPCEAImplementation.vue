@@ -19,7 +19,7 @@ import LoadingComponent from '@/components/LoadingComponent.vue';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
-import type { AttrDesc, School } from '@/types/school';
+import ResetButton from '@/components/ResetButton.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -208,6 +208,10 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'po', Number(item.slice(2)))"
                 />
+                <ResetButton v-if="editing"
+                  :show="courseStore.checkDiff(['cos', String(index), 'pos'])"
+                  @reset="courseStore.resetDiff(['cos', String(index), 'pos'])"
+                />
               </TableCell>
               <TableCell class="text-center">
                 <template v-if="editing">
@@ -223,6 +227,10 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :items="co.wks.sort().map((wk) => 'WK'+wk)"
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'wk', Number(item.slice(2)))"
+                />
+                <ResetButton v-if="editing"
+                  :show="courseStore.checkDiff(['cos', String(index), 'wks'])"
+                  @reset="courseStore.resetDiff(['cos', String(index), 'wks'])"
                 />
               </TableCell>
               <TableCell class="text-center">
@@ -240,6 +248,10 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'wp', Number(item.slice(2)))"
                 />
+                <ResetButton v-if="editing"
+                  :show="courseStore.checkDiff(['cos', String(index), 'wps'])"
+                  @reset="courseStore.resetDiff(['cos', String(index), 'wps'])"
+                />
               </TableCell>
               <TableCell class="text-center">
                 <template v-if="editing">
@@ -256,6 +268,10 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'ea', Number(item.slice(2)))"
                 />
+                <ResetButton v-if="editing"
+                  :show="courseStore.checkDiff(['cos', String(index), 'eas'])"
+                  @reset="courseStore.resetDiff(['cos', String(index), 'eas'])"
+                />
               </TableCell>
               <TableCell class="text-center">
                 <Checkbox v-if="editing" v-model="co.sdg" />
@@ -263,6 +279,10 @@ const getWeightage = (assessment: Assessment, coIndex: number) => {
                   <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
                   <MinusIcon class="inline-block" :size="16" v-else />
                 </template>
+                <ResetButton v-if="editing"
+                  :show="courseStore.checkDiff(['cos', String(index), 'sdg'])"
+                  @reset="courseStore.resetDiff(['cos', String(index), 'sdg'])"
+                />
               </TableCell>
               <template v-for="(assessment, assessmentIndex) in course.assessments">
                 <TableCell class="text-center">
