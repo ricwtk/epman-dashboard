@@ -81,6 +81,7 @@ const weightageError = computed(() => {
               <TableHead v-if="editing" class="w-0"></TableHead>
               <TableHead class="w-0 px-3">Component</TableHead>
               <TableHead class="">Method</TableHead>
+              <TableHead class="w-0 px-3">Format</TableHead>
               <TableHead class="w-0 text-center px-3">
                 <ErrorTooltip
                   :is-error="weightageError.isError"

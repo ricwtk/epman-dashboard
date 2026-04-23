@@ -95,7 +95,7 @@ const menuItems = ref([{
       <TableCell>
         <span v-if="editing">
           <InputGroup>
-            <InputGroupInput v-model="assessment.component" class="w-50" />
+            <InputGroupInput v-model="assessment.component" class="w-30" />
             <InputGroupAddon align="inline-end">
               <ResetButton
                 :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'component'])"
@@ -125,6 +125,20 @@ const menuItems = ref([{
             <ChevronUpIcon v-else />
           </Button>
         </span>
+      </TableCell>
+      <TableCell class="text-center">
+        <span v-if="editing">
+          <InputGroup>
+            <InputGroupInput v-model="assessment.format" class="w-30"/>
+            <InputGroupAddon align="inline-end">
+              <ResetButton
+                :show="courseStore.checkDiff(['assessments', String(props.assessmentIndex), 'format'])"
+                @reset="courseStore.resetDiff(['assessments', String(props.assessmentIndex), 'format'])"
+              />
+            </InputGroupAddon>
+          </InputGroup>
+        </span>
+        <span v-else>{{ assessment.format }}</span>
       </TableCell>
       <TableCell class="text-center">
         <span v-if="editing" class="flex flex-row items-center gap-1">

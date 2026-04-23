@@ -257,6 +257,8 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
     const m = cell.match(/^CO\s*(\d+)$/i);
     if (m) coColIndices[parseInt(m[1]!, 10)] = idx;
   });
+  const weightCellIdx = header.length - Object.keys(coColIndices).length - 1;
+  const hasFormat = header.length - Object.keys(coColIndices).length > 3;
 
   const assessments: Assessment[] = [];
 
@@ -266,7 +268,8 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
     const idxAdj = row.length == header.length ? 0 : -1;
     const compCell = idxAdj == -1 ? assessments[assessments.length-1]!.component : row[0]!.trim()
     const descCell = row[1 + idxAdj]!.trim()
-    const weightStr = row[2 + idxAdj]!.replace(/[^0-9]/g, '').trim();
+    const formatCell = hasFormat ? row[2 + idxAdj]!.trim() : '';
+    const weightStr = row[weightCellIdx + idxAdj]!.replace(/[^0-9]/g, '').trim();
     const weightage = weightStr ? parseInt(weightStr, 10) : 0;
 
     const rowCos: number[] = [];
@@ -285,6 +288,7 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
     assessments.push({
       description: descCell.replace(/\s+/g, ' ').trim(),
       component: compCell.replace(/\s+/g, ' ').trim(),
+      format: formatCell,
       weightage: weightage,
       cos: rowCos,
       breakdown: [],

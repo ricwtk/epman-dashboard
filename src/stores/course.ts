@@ -92,9 +92,13 @@ export const useCourseStore = defineStore('course', () => {
           .map(r => r.description)
         course.references = { main: mainReferences, additional: additionalReferences }
       }
+      course.assessments.forEach(assessment => {
+        if (!Object.keys(assessment).includes('format')) {
+          assessment.format = ''
+        }
+      })
       return course
     })
-    console.log(revisions.value)
     //
     //
     //

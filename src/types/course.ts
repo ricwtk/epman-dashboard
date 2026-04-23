@@ -23,6 +23,7 @@ export interface Breakdown {
 export interface Assessment {
   description: string;
   component: string;
+  format: string;
   weightage: number;
   cos: number[];
   breakdown: Breakdown[];

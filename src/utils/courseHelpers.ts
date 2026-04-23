@@ -131,6 +131,7 @@ export const createPlan = (description?: string, overrides?: Partial<Allocation>
 export const createAssessment = (overrides?: Partial<Assessment>): Assessment => ({
   description: '',
   component: '',
+  format: '',
   weightage: 0,
   cos: [],
   breakdown: [],
