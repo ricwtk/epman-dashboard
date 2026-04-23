@@ -61,7 +61,7 @@ const weightageError = computed(() => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>Assessments</div>
-        <ResetButton :show="editing && courseStore.checkDiff(['assessments'])" @reset="courseStore.resetDiff(['assessments'])" />
+        <ResetButton :show="courseStore.checkDiff(['assessments'])" @reset="courseStore.resetDiff(['assessments'])" />
       </div>
     </template>
     <template #body>

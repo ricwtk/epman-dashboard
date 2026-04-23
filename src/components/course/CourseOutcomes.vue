@@ -84,7 +84,7 @@ const getMenuItems = (coIndex: number) => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>Course Outcomes</div>
-        <ResetButton :show="editing && courseStore.checkDiff(['cos'])" @reset="courseStore.resetDiff(['cos'])" />
+        <ResetButton :show="courseStore.checkDiff(['cos'])" @reset="courseStore.resetDiff(['cos'])" />
       </div>
     </template>
     <template #body>

@@ -130,7 +130,7 @@ const resetAll = () => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>CEP and CEA Implementation</div>
-        <ResetButton :show="editing && checkOverallDiff" @reset="resetAll" />
+        <ResetButton :show="checkOverallDiff" @reset="resetAll" />
       </div>
     </template>
     <template #body="{ editing }">

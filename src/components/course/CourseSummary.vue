@@ -75,7 +75,7 @@ const resetSummaryDiff = () => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>Course Summary</div>
-        <ResetButton :show="editing && isSummaryDiff" @reset="resetSummaryDiff" />
+        <ResetButton :show="isSummaryDiff" @reset="resetSummaryDiff" />
       </div>
     </template>
     <template #body="{ editing }">

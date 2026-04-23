@@ -66,7 +66,7 @@ const getMenuItems = (referenceIndex: number) => {
       <div class="flex flex-row items-center gap-2">
         <div>{{ props.title }}</div>
         <ResetButton
-          :show="editing && courseStore.checkDiff(['references', props.referenceLabel])"
+          :show="courseStore.checkDiff(['references', props.referenceLabel])"
           @reset="courseStore.resetDiff(['references', props.referenceLabel])"
         />
       </div>
