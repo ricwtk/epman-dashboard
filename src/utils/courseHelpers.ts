@@ -163,3 +163,31 @@ export const createCourseInfo = (course?: Partial<Course>): CourseInfo => ({
   transferableSkills: course?.transferableSkills || [],
   deliveryMethods: course?.deliveryMethods || []
 });
+
+export function getCEPCEA(assessment: Assessment, coIndex: number, componentType: 'wp' | 'ea', componentList: string[][]): string[][] {
+  const descriptors: string[][] = []
+  const componentKey = `${componentType}s` as 'wps' | 'eas'
+  const componentLabel = `${componentType.toUpperCase()}`
+  if (assessment) {
+    if (assessment.breakdown.length > 0) {
+      for (const breakdown of assessment.breakdown) {
+        if (breakdown.co == coIndex) {
+          if (breakdown[componentKey] && breakdown[componentKey].length > 0) {
+            descriptors.push(...breakdown[componentKey].sort().map(
+              (componentNumber: number) => componentList[componentNumber-1] || [`${componentLabel}${componentNumber}`, ]
+            ))
+          }
+        }
+      }
+    } else {
+      if (assessment.cos.includes(coIndex)) {
+        if (assessment[componentKey] && assessment[componentKey].length > 0) {
+          descriptors.push(...assessment[componentKey].sort().map(
+            (componentNumber: number) => componentList[componentNumber-1] || [`${componentLabel}${componentNumber}`, ]
+          ))
+        }
+      }
+    }
+  }
+  return [...new Map(descriptors.map(descriptor => [descriptor[0], descriptor])).values()]
+}

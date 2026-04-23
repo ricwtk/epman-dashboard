@@ -23,6 +23,7 @@ import { dataService } from '@/services/dataService';
 import type { SchoolsByCode, ProgrammesWithCourse, ProgrammeWithCourse } from '@/services/dataService';
 import type { AttrDesc } from '@/types/school';
 import { navigateToParent } from '@/utils/navigationHelpers'
+import { getCEPCEA } from '@/utils/courseHelpers';
 
 import { useCourseListStore } from './courselist';
 const courseListStore = useCourseListStore()
@@ -357,6 +358,59 @@ export const useCourseStore = defineStore('course', () => {
     }
   }
 
+  function checkCEPCEADiff(assessmentIndex: number, coIndex: number) {
+    return computed(() => {
+      const original_assessment = saved.value.assessments[assessmentIndex] as Assessment
+      const current_assessment = draft.value.assessments[assessmentIndex] as Assessment
+      const original_descriptors_wp = getCEPCEA(original_assessment, coIndex, 'wp', WPLIST.value)
+      const current_descriptors_wp = getCEPCEA(current_assessment, coIndex, 'wp', WPLIST.value)
+      const original_descriptors_ea = getCEPCEA(original_assessment, coIndex, 'ea', EALIST.value)
+      const current_descriptors_ea = getCEPCEA(current_assessment, coIndex, 'ea', EALIST.value)
+      return checkDiffCommon(original_descriptors_wp, current_descriptors_wp, []) || checkDiffCommon(original_descriptors_ea, current_descriptors_ea, [])
+    })
+  }
+
+  const resetCEPCEA = (assessmentIndex: number, coIndex: number) => {
+    const original_assessment = saved.value.assessments[assessmentIndex] as Assessment
+    const current_assessment = draft.value.assessments[assessmentIndex] as Assessment
+    const original_wp = getCEPCEA(original_assessment, coIndex, 'wp', WPLIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
+    const current_wp = getCEPCEA(current_assessment, coIndex, 'wp', WPLIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
+    const original_ea = getCEPCEA(original_assessment, coIndex, 'ea', EALIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
+    const current_ea = getCEPCEA(current_assessment, coIndex, 'ea', EALIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
+
+    const wp_set = new Set([...original_wp, ...current_wp])
+    const ea_set = new Set([...original_ea, ...current_ea])
+
+    for (const wp of wp_set) {
+     if (original_wp.includes(wp) !== current_wp.includes(wp)) {
+       setCEPCEA(assessmentIndex, coIndex, 'wp', wp)
+     }
+    }
+    for (const ea of ea_set) {
+     if (original_ea.includes(ea) !== current_ea.includes(ea)) {
+       setCEPCEA(assessmentIndex, coIndex, 'ea', ea)
+     }
+    }
+  }
+
+  const setCEPCEA = (assessmentIndex: number, coIndex: number, wpOea: 'wp' | 'ea', selected: number) => {
+    const assessment = draft.value.assessments[assessmentIndex];
+    if (assessment) {
+      if (assessment.breakdown.length > 0) {
+        for (const [breakdownIndex, item] of assessment.breakdown.entries()) {
+          if (item.co === coIndex) {
+            toggleAssessmentMapping(assessmentIndex, breakdownIndex, wpOea, selected)
+          }
+        }
+      } else {
+        if (assessment.cos.includes(coIndex)) {
+          toggleAssessmentMapping(assessmentIndex, -1, wpOea, selected)
+        }
+      }
+    }
+  };
+
+
   function addTopic(): void { draft.value.teachingPlan.push(createPlan()) }
   function removeTopic(index: number): void { draft.value.teachingPlan.splice(index, 1) }
 
@@ -472,6 +526,7 @@ export const useCourseStore = defineStore('course', () => {
     editingTab,
     checkDiff, resetDiff,
     checkArrayItemDiff, resetArrayItemDiff,
+    checkCEPCEADiff,
     // updateMapping,
     addLecturer, removeLecturer, toggleLecturer,
     addTransferableSkill, removeTransferableSkill, toggleTransferableSkill,
@@ -483,7 +538,7 @@ export const useCourseStore = defineStore('course', () => {
     addTopic, removeTopic,
     addAssessment, deleteAssessment, moveAssessment,
     addBreakdown, deleteBreakdown, moveBreakdown,
-    addAssessmentMapping, removeAssessmentMapping, toggleAssessmentMapping,
+    addAssessmentMapping, removeAssessmentMapping, toggleAssessmentMapping, setCEPCEA, resetCEPCEA,
     addReference, deleteReference, moveReferenceUp, moveReferenceDown,
     recommendedMappingForCo, recommendedMappingForAssessment,
   }

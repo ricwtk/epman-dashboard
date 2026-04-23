@@ -10,7 +10,6 @@ function isPrimitive(val: unknown): val is string | number | boolean | null | un
 export function checkArrayItemDiff(currentObj: any, originalObj: any, pathArray: string[], item: any): boolean {
   const original = get(originalObj, pathArray)
   const current = get(currentObj, pathArray)
-  console.log(original, current, item)
   return original.includes(item) !== current.includes(item)
 }
 
