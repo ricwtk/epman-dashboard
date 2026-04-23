@@ -89,7 +89,7 @@ const getMenuItems = (coIndex: number) => {
     </template>
     <template #body>
       <LoadingComponent :show="courseStore.loading" />
-      <EmptyComponent v-if="course.cos.length === 0">
+      <EmptyComponent v-if="course.cos.length === 0 && !editing">
         <template #title>
           No Course Outcomes
         </template>

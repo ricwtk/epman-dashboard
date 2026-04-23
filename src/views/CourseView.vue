@@ -101,12 +101,15 @@ const updateEditing = (ev: boolean, tab?: string) => {
       @update:editing="(ev) => editing = ev" -->
       <!-- @update:editing="(ev) => updateEditing(ev, 'assessments')" -->
     <CoursePlan
+      :editable="authStore.canEditCourses"
+    />
+    <!-- <CoursePlan
       :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
       :course="courseStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'teachingplan')"
-    />
+    /> -->
 
     <ReferenceList
       title="Main References"
