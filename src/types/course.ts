@@ -44,11 +44,6 @@ export interface Plan {
   hours: Allocation;
 }
 
-export interface Reference {
-  description: string;
-  label: "main" | "additional";
-}
-
 export interface Course {
   id: string;
   code: string;
@@ -67,7 +62,10 @@ export interface Course {
   startFrom: [string, string]; // ['semester' | 'intake', 'YYYY-MM']
   assessments: Assessment[];
   teachingPlan: Plan[];
-  references: Reference[];
+  references: {
+    main: string[];
+    additional: string[];
+  };
   gradingScheme: string; // function name
   committed: {
     on: Date | null;

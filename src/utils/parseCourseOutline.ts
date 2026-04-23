@@ -18,7 +18,7 @@
  */
 
 import mammoth from 'mammoth';
-import type { Co, Assessment, Breakdown, Plan, Reference, Course } from '@/types/course';
+import type { Co, Assessment, Breakdown, Plan, Course } from '@/types/course';
 
 // ─── Internal types ──────────────────────────────────────────────────────────
 
@@ -355,14 +355,15 @@ function parseSection4(tables: Table[]): Plan[] {
  * Parse references from the references table.
  * Expected: two-column table with "Main Reference" / "Additional References".
  */
-function parseReferences(tables: Table[]): Reference[] {
+function parseReferences(tables: Table[]): { main: string[], additional: string[] } {
   const refTable = tables.find((rows) =>
     rows.some((r) => /main\s+reference/i.test(r[0] ?? ''))
   );
 
-  if (!refTable) return [];
+  if (!refTable) return { main: [], additional: [] };
 
-  const refs: Reference[] = [];
+  const mainReferences: string[] = [];
+  const additionalReferences: string[] = [];
 
   for (const row of refTable) {
     const labelCell = (row[0] ?? '').toLowerCase();
@@ -375,20 +376,14 @@ function parseReferences(tables: Table[]): Reference[] {
 
     descCells.forEach(descStr => {
       if (/main/.test(labelCell)) {
-        refs.push({ description: descStr, label: 'main' });
+        mainReferences.push(descStr);
       } else if (/additional/.test(labelCell)) {
-        // const entries = descStr
-        //   .split(/\n{2,}|(?=\s{2,}[A-Z])/)
-        //   .map((s) => s.replace(/\s+/g, ' ').trim())
-        //   .filter(Boolean);
-        // for (const entry of entries) {
-        refs.push({ description: descStr, label: 'additional' });
-        // }
+        additionalReferences.push(descStr);
       }
     })
   }
 
-  return refs;
+  return { main: mainReferences, additional: additionalReferences };
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────

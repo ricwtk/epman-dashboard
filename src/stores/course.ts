@@ -1,5 +1,5 @@
 import { ref, computed, toRaw, watch } from 'vue';
-import type { Assessment, Breakdown, Co, Course, Reference } from "@/types/course";
+import type { Assessment, Breakdown, Co, Course } from "@/types/course";
 import type { School } from "@/types/school";
 import { createCourseObject } from "@/utils/courseHelpers";
 import { defineStore } from "pinia";
@@ -12,7 +12,6 @@ import {
 import {
   createCo,
   createPlan,
-  createReference,
   createAssessment,
   createBreakdown,
 } from '@/utils/courseHelpers'
@@ -80,6 +79,25 @@ export const useCourseStore = defineStore('course', () => {
     loading_flags.value[loadCourseByCode.name] = true
     clear()
     revisions.value = await dataService.getCourse(code)
+    //
+    // Migration
+    //
+    revisions.value = revisions.value.map(course => {
+      if (Array.isArray(course.references)) {
+        const mainReferences = course.references
+          .filter(r => r.label == 'main')
+          .map(r => r.description)
+        const additionalReferences = course.references
+          .filter(r => r.label == 'additional')
+          .map(r => r.description)
+        course.references = { main: mainReferences, additional: additionalReferences }
+      }
+      return course
+    })
+    console.log(revisions.value)
+    //
+    //
+    //
     revisions.value.sort((a, b) => b.revision.localeCompare(a.revision));
     if (revisions.value.length > 0) {
       saved.value = revisions.value[0]!;
@@ -414,10 +432,11 @@ export const useCourseStore = defineStore('course', () => {
   function addTopic(): void { draft.value.teachingPlan.push(createPlan()) }
   function removeTopic(index: number): void { draft.value.teachingPlan.splice(index, 1) }
 
-  function addReference(overrides?: Partial<Reference>): void { draft.value.references.push(createReference(undefined, overrides)) }
-  function deleteReference(index: number): void { draft.value.references.splice(index, 1) }
-  function moveReferenceUp(index: number): void { moveUp('references', index); }
-  function moveReferenceDown(index: number): void { moveDown('references', index); }
+  type referenceLabels = 'main' | 'additional'
+  function addReference(label: referenceLabels, description: string): void { draft.value.references[label].push(description) }
+  function deleteReference(label: referenceLabels, index: number): void { draft.value.references[label].splice(index, 1) }
+  function moveReferenceUp(label: referenceLabels, index: number): void { moveItemUp(draft.value.references[label], index); }
+  function moveReferenceDown(label: referenceLabels, index: number): void { moveItemDown(draft.value.references[label], index); }
 
   async function save(): Promise<void> {
     loading_flags.value[save.name] = true
@@ -456,6 +475,24 @@ export const useCourseStore = defineStore('course', () => {
       if (index < draft.value[keyOfList].length - 1) {
         const item = draft.value[keyOfList].splice(index, 1)[0];
         draft.value[keyOfList].splice(index + 1, 0, item);
+      }
+    }
+  }
+
+  function moveItemUp(array: Array<any>, index: number): void {
+    if (Array.isArray(array)) {
+      if (index > 0) {
+        const item = array.splice(index, 1)[0];
+        array.splice(index - 1, 0, item);
+      }
+    }
+  }
+
+  function moveItemDown(array: Array<any>, index: number): void {
+    if (Array.isArray(array)) {
+      if (index < array.length - 1) {
+        const item = array.splice(index, 1)[0];
+        array.splice(index + 1, 0, item);
       }
     }
   }

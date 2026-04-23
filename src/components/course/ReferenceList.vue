@@ -7,7 +7,8 @@ import LoadingComponent from '@/components/LoadingComponent.vue';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 import ListItemMenu from '@/components/ListItemMenu.vue';
-import { Textarea } from '@/components/ui/textarea';
+import { InputGroup, InputGroupAddon, InputGroupTextarea } from '@/components/ui/input-group';
+import ResetButton from '@/components/ResetButton.vue';
 
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore();
@@ -37,26 +38,24 @@ const props = defineProps<{
   referenceLabel: 'main' | 'additional';
 }>();
 const references = computed(() =>
-  course.value.references
-    .map((reference, index) => ({ actualIndex: index, reference: reference }))
-    .filter(referenceWithIndex => referenceWithIndex.reference.label === props.referenceLabel)
+  course.value.references[props.referenceLabel]
 );
 
 const getMenuItems = (referenceIndex: number) => {
   return [{
     label: 'Remove',
     icon: XIcon,
-    callback: () => { courseStore.deleteReference(referenceIndex) },
+    callback: () => { courseStore.deleteReference(props.referenceLabel, referenceIndex) },
   }, {
     label: 'Move Up',
     icon: ChevronUpIcon,
     disabled: referenceIndex == 0,
-    callback: () => { courseStore.moveReferenceUp(referenceIndex) },
+    callback: () => { courseStore.moveReferenceUp(props.referenceLabel, referenceIndex) },
   }, {
     label: 'Move Down',
     icon: ChevronDownIcon,
-    disabled: referenceIndex == course.value.references.length - 1,
-    callback: () => { courseStore.moveReferenceDown(referenceIndex) },
+    disabled: referenceIndex == course.value.references[props.referenceLabel].length - 1,
+    callback: () => { courseStore.moveReferenceDown(props.referenceLabel, referenceIndex) },
   }];
 };
 </script>
@@ -64,7 +63,13 @@ const getMenuItems = (referenceIndex: number) => {
 <template>
   <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveCourse">
     <template #title>
-      {{ props.title }}
+      <div class="flex flex-row items-center gap-2">
+        <div>{{ props.title }}</div>
+        <ResetButton
+          :show="editing && courseStore.checkDiff(['references', props.referenceLabel])"
+          @reset="courseStore.resetDiff(['references', props.referenceLabel])"
+        />
+      </div>
     </template>
     <template #body>
       <LoadingComponent :show="courseStore.loading" />
@@ -78,21 +83,31 @@ const getMenuItems = (referenceIndex: number) => {
       </EmptyComponent>
       <Table v-else>
         <TableBody>
-          <TableRow v-for="referenceWithIndex in references" :key="referenceWithIndex.actualIndex">
+          <TableRow v-for="(reference, refIndex) in references" :key="refIndex">
             <TableCell v-if="editing" class="w-0">
               <ListItemMenu
-                :menu-items="getMenuItems(referenceWithIndex.actualIndex)"
+                :menu-items="getMenuItems(refIndex)"
               />
             </TableCell>
             <TableCell>
-              <Textarea v-model="referenceWithIndex.reference.description" v-if="editing"></Textarea>
-              <span v-else>{{ referenceWithIndex.reference.description }}</span>
+              <InputGroup v-if="editing">
+                <InputGroupTextarea v-model="references[refIndex]" />
+                <InputGroupAddon align="block-end">
+                  <div class="w-full flex justify-end">
+                    <ResetButton
+                      :show="courseStore.checkDiff(['references', props.referenceLabel, String(refIndex)])"
+                      @reset="courseStore.resetDiff(['references', props.referenceLabel, String(refIndex)])"
+                    />
+                  </div>
+                </InputGroupAddon>
+              </InputGroup>
+              <span v-else>{{ reference }}</span>
             </TableCell>
           </TableRow>
         </TableBody>
       </Table>
       <Button v-if="editing"
-        @click="courseStore.addReference({label: props.referenceLabel})"
+        @click="courseStore.addReference(props.referenceLabel, '')"
         variant="secondary"
         class="w-full"
       ><PlusIcon /></Button>

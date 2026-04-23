@@ -8,7 +8,6 @@ import type {
   Plan,
   Assessment,
   Breakdown,
-  Reference,
   CourseInfo,
 } from "@/types/course";
 
@@ -88,7 +87,10 @@ export const createCourseObject = (overrides?: Partial<Course>): Course => {
     startFrom: ['semester', new Date().toISOString().substring(0, 7)],
     assessments: [],
     teachingPlan: [],
-    references: [],
+    references: {
+      main: [],
+      additional: [],
+    },
     gradingScheme: "default",
     committed: {
       on: new Date(),
@@ -144,12 +146,6 @@ export const createBreakdown = (overrides?: Partial<Breakdown>): Breakdown => ({
   wps: [],
   eas: [],
   rubrics: {},
-  ...overrides
-});
-
-export const createReference = (description?: string, overrides?: Partial<Reference>): Reference => ({
-  description: description || '',
-  label: 'additional',
   ...overrides
 });
 
