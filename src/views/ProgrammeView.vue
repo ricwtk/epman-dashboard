@@ -62,12 +62,15 @@ const updateEditing = (ev: boolean, tab?: string) => {
       <RevisionDeleteButton @delete="programmeStore.deleteRevision()" v-if="authStore.canEditProgrammes"/>
     </div>
     <ProgrammeSummary
+      :editable="authStore.canEditProgrammes"
+    />
+    <!-- <ProgrammeSummary
       :loading="loading"
       :editable="authStore.canEditProgrammes"
       :programme="programmeStore.saved"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'summary')"
-    />
+    /> -->
     <ProgrammePeo
       :loading="loading"
       :editable="authStore.canEditProgrammes"
