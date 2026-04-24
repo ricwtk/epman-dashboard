@@ -99,12 +99,16 @@ const updateEditing = (ev: boolean, tab?: string) => {
       @editMapping="(courseType) => updateEditing(true, courseType)"
     />
     <ProgrammeStructure
+      :editable="authStore.canEditProgrammes"
+      :structureList="structureListStore.labelToInfoMap"
+    />
+    <!-- <ProgrammeStructure
       :loading="loading"
       :editable="authStore.canEditProgrammes"
       :structureList="structureListStore.labelToInfoMap"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'structure')"
-    />
+    /> -->
     <ProgrammeUpdateDialog v-model:isOpen="editing" />
   </template>
 </template>

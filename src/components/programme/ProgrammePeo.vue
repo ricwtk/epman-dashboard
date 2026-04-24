@@ -9,7 +9,6 @@ import ListItemMenu from '@/components/ListItemMenu.vue';
 import { XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 
 import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
-import { get } from '@vueuse/core';
 const { editing, programme, saveProgramme, setEditing, programmeStore } = useProgrammeEditor();
 
 const getMenuItems = (peoIndex: number) => {
