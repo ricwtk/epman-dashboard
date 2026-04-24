@@ -7,23 +7,8 @@ import LoadingComponent from '@/components/LoadingComponent.vue';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import ResetButton from '@/components/ResetButton.vue';
 
-import { useProgrammeStore } from '@/stores/programme';
-const programmeStore = useProgrammeStore();
-const saveProgramme = () => { programmeStore.save(); }
-const editing = ref(false);
-const programme = computed({
-  get: () => editing.value ? programmeStore.draft : programmeStore.saved,
-  set: (value) => {
-    if (editing.value) programmeStore.draft = value;
-    else programmeStore.saved = value;
-  },
-})
-const setEditing = (value: boolean) => {
-  editing.value = value;
-  if (programmeStore.draft.code !== programmeStore.saved.code) {
-    programmeStore.createDraft();
-  }
-};
+import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
+const { editing, programme, saveProgramme, setEditing, programmeStore } = useProgrammeEditor();
 
 // const props = defineProps<{
 //   programme: Programme;

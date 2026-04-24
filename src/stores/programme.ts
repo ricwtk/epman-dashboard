@@ -173,6 +173,30 @@ export const useProgrammeStore = defineStore('programme', () => {
     revisions.value.splice(0, 0, toRaw(draft.value))
   }
 
+  function moveUp(keyOfList: keyof Programme, index: number): void {
+    if (Array.isArray(draft.value[keyOfList])) {
+      if (index > 0) {
+        const item = draft.value[keyOfList].splice(index, 1)[0];
+        draft.value[keyOfList].splice(index - 1, 0, item);
+      }
+    }
+  }
+
+  function moveDown(keyOfList: keyof Programme, index: number): void {
+    if (Array.isArray(draft.value[keyOfList])) {
+      if (index < draft.value[keyOfList].length - 1) {
+        const item = draft.value[keyOfList].splice(index, 1)[0];
+        draft.value[keyOfList].splice(index + 1, 0, item);
+      }
+    }
+  }
+
+  function removeFromList(keyOfList: keyof Programme, index: number): void {
+    if (Array.isArray(draft.value[keyOfList])) {
+      draft.value[keyOfList].splice(index, 1);
+    }
+  }
+
   return {
     loading, loading_flags,
     school, revisions,
@@ -186,5 +210,6 @@ export const useProgrammeStore = defineStore('programme', () => {
     checkMappingDiff,
     resetMappingDiff,
     // deleteStructure,
+    moveUp, moveDown, removeFromList
   }
 })

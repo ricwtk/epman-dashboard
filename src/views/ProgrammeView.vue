@@ -72,12 +72,15 @@ const updateEditing = (ev: boolean, tab?: string) => {
       @update:editing="(ev) => updateEditing(ev, 'summary')"
     /> -->
     <ProgrammePeo
+      :editable="authStore.canEditProgrammes"
+    />
+    <!-- <ProgrammePeo
       :loading="loading"
       :editable="authStore.canEditProgrammes"
       :peoList="programmeStore.saved.peoList"
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'peo')"
-    />
+    /> -->
     <ProgrammePo
       :loading="loading"
       :editable="authStore.canEditProgrammes"
