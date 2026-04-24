@@ -435,6 +435,8 @@ export const useCourseStore = defineStore('course', () => {
 
   function addTopic(): void { draft.value.teachingPlan.push(createPlan()) }
   function removeTopic(index: number): void { draft.value.teachingPlan.splice(index, 1) }
+  function moveTopicUp(index: number): void { moveItemUp(draft.value.teachingPlan, index) }
+  function moveTopicDown(index: number): void { moveItemDown(draft.value.teachingPlan, index) }
 
   type referenceLabels = 'main' | 'additional'
   function addReference(label: referenceLabels, description: string): void { draft.value.references[label].push(description) }
@@ -576,7 +578,7 @@ export const useCourseStore = defineStore('course', () => {
     WKLIST, WPLIST, EALIST,
     addCo, removeCo, moveCoUp, moveCoDown,
     addCoMapping, removeCoMapping, toggleCoMapping,
-    addTopic, removeTopic,
+    addTopic, removeTopic, moveTopicUp, moveTopicDown,
     addAssessment, deleteAssessment, moveAssessment,
     addBreakdown, deleteBreakdown, moveBreakdown,
     addAssessmentMapping, removeAssessmentMapping, toggleAssessmentMapping, setCEPCEA, resetCEPCEA,
