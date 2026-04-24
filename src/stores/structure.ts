@@ -9,6 +9,9 @@ import { formatRevision, formatStructureId } from '@/utils/common';
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 
+import { useStructureListStore } from '@/stores/structurelist';
+const structureListStore = useStructureListStore();
+
 export const useStructureStore = defineStore('structure', () => {
   const programmeCode = ref<string>("")
   const structureRevisions = ref<{ [revision: string]: ProgrammeStructure }>({})
@@ -78,7 +81,9 @@ export const useStructureStore = defineStore('structure', () => {
       by: authStore.user?.email || 'unknown'
     }
     draft.value.id = formatStructureId(draft.value)
+    await dataService.saveStructure(draft.value)
     commit()
+    structureListStore.saveStructure(draft.value)
     loading_flags.value[save.name] = false
   }
 

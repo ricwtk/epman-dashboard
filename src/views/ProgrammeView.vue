@@ -25,7 +25,6 @@ const structureStore = useStructureStore();
 const props = defineProps<{ code: string }>();
 onMounted(() => {
   programmeStore.loadProgrammeByCode(props.code);
-  console.log(programmeStore.revisions)
   structureListStore.updateLabelToInfoMap(props.code)
   structureStore.programmeCode = props.code
 });
@@ -100,7 +99,6 @@ const updateEditing = (ev: boolean, tab?: string) => {
     />
     <ProgrammeStructure
       :editable="authStore.canEditProgrammes"
-      :structureList="structureListStore.labelToInfoMap"
     />
     <!-- <ProgrammeStructure
       :loading="loading"

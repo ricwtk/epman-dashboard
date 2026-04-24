@@ -11,6 +11,13 @@ const authStore = useAuthStore();
 import { dataService } from '@/services/dataService';
 import type { CourseType } from '@/types/course';
 import { navigateToParent } from "@/utils/navigationHelpers";
+import { createNewStructure } from "@/utils/structureHelpers";
+
+import { useStructureListStore } from '@/stores/structurelist';
+const structureListStore = useStructureListStore();
+
+import { useStructureStore } from '@/stores/structure';
+const structureStore = useStructureStore();
 
 export const useProgrammeStore = defineStore('programme', () => {
   const draft= ref<Programme>(createNewProgramme())
@@ -197,6 +204,21 @@ export const useProgrammeStore = defineStore('programme', () => {
     }
   }
 
+  async function addNewStructure(newLabel: string) {
+    const newStructure = createNewStructure({
+      label: newLabel,
+      programme: draft.value.code,
+      revision: formatRevision(),
+      committed: {
+        on: new Date(),
+        by: authStore.user?.email || ""
+      }
+    })
+    await dataService.saveStructure(newStructure)
+    structureListStore.saveStructure(newStructure)
+    structureStore.copyStructureFrom(newStructure)
+  }
+
   return {
     loading, loading_flags,
     school, revisions,
@@ -210,6 +232,7 @@ export const useProgrammeStore = defineStore('programme', () => {
     checkMappingDiff,
     resetMappingDiff,
     // deleteStructure,
-    moveUp, moveDown, removeFromList
+    moveUp, moveDown, removeFromList,
+    addNewStructure
   }
 })

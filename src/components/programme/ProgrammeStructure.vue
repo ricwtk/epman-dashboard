@@ -3,10 +3,19 @@ import { computed } from 'vue';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { ButtonGroup } from '@/components/ui/button-group';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import StructureGrid from '@/components/programme/StructureGrid.vue';
-import type { ProgrammeStructureInfo } from '@/types/programme';
+import type { ProgrammeStructureInfo, ProgrammeStructure } from '@/types/programme';
 import LoadingComponent from '@/components/LoadingComponent.vue';
+import CreateLabelPopover from '@/components/CreateLabelPopover.vue';
+
+import { formatRevision } from '@/utils/common';
+import { createNewStructure } from '@/utils/structureHelpers';
+
+import { dataService } from '@/services/dataService';
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
 
 import ResetButton from '@/components/ResetButton.vue';
 import ListItemMenu from '@/components/ListItemMenu.vue';
@@ -18,9 +27,9 @@ const { editing, programme, saveProgramme, setEditing, programmeStore } = usePro
 
 // defineEmits(['update:editing']);
 
-const props = defineProps<{
-  structureList: { [label: string]: ProgrammeStructureInfo };
-}>();
+// const props = defineProps<{
+//   structureList: { [label: string]: ProgrammeStructureInfo };
+// }>();
 
 import { storeToRefs } from 'pinia';
 import { useStructureStore } from '@/stores/structure';
@@ -32,7 +41,43 @@ const {
   revisions
 } = storeToRefs(structureStore)
 
-const labels = computed(() => Object.keys(props.structureList))
+import { useStructureListStore } from '@/stores/structurelist';
+const structureListStore = useStructureListStore();
+const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
+
+// const addNewStructure = async (newLabel: string) => {
+//   const newStructureParameters = {
+//     programme: programmeStore.draft.code,
+//     label: newLabel,
+//     revision: formatRevision(),
+//     committed: {
+//       on: new Date(),
+//       by: authStore.user?.email || 'unknown'
+//     }
+//   }
+//   const newStructure = createNewStructure(newStructureParameters);
+//   saveStructure(newStructure)
+//   structureStore.copyStructureFrom(newStructure)
+// };
+
+// const saveRevision = async () => {
+//   structureStore.save()
+//   saveStructure(structureStore.draft)
+// }
+
+// const saveStructure = async (struc: ProgrammeStructure) => {
+//   structureListStore.saveStructure(struc);
+//   await dataService.saveStructure(struc);
+// }
+
+// const deleteRevision = async () => {
+//   // const idToDelete = structure.value.id
+//   // await dataService.deleteItem("structures", idToDelete)
+//   structureStore.deleteRevision()
+//   if (structureStore.revisions.length == 0) {
+//     structureListStore.deleteStructure(structureStore.draft)
+//   }
+// };
 </script>
 
 <template>
@@ -59,16 +104,22 @@ const labels = computed(() => Object.keys(props.structureList))
         <template #header>
           <div class="flex flex-col gap-1 flex-1">
             <Label for="label">Label</Label>
-            <Select id="label" v-model="selectedStructureLabel">
-              <SelectTrigger class="w-full">
-                <SelectValue placeholder="Select a structure" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem v-for="label in labels" :value="label">{{ label }}</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <ButtonGroup class="w-full">
+              <Select id="label" v-model="selectedStructureLabel">
+                <SelectTrigger class="w-full">
+                  <SelectValue placeholder="Select a structure" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem v-for="label in labels" :value="label">{{ label }}</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <CreateLabelPopover v-if="editing" :currentList="labels" @create="programmeStore.addNewStructure">
+                <template #title>New Structure</template>
+                <template #description>Create new structure</template>
+              </CreateLabelPopover>
+            </ButtonGroup>
           </div>
           <div class="flex flex-col gap-1 flex-5">
             <Label for="revision">Revision</Label>
