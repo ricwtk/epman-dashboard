@@ -9,14 +9,16 @@ import { XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next'
 import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group';
 import ResetButton from '@/components/ResetButton.vue';
 
-import { useCourseStore } from '@/stores/course';
-const courseStore = useCourseStore();
-
 const props = defineProps<{
   editing: boolean;
   assessmentIndex: number;
-  breakdownIndex: number
+  breakdownIndex: number;
+  storeId?: string;
 }>();
+
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore(props.storeId || "");
+
 
 const course = computed({
   get: () => props.editing ? courseStore.draft : courseStore.saved,

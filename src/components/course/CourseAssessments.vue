@@ -9,9 +9,10 @@ import AssessmentRow from '@/components/course/AssessmentRow.vue';
 import ErrorTooltip from '@/components/course/ErrorTooltip.vue';
 import ResetButton from '@/components/ResetButton.vue';
 
+const props = defineProps<{storeId?: string}>()
+
 import { useCourseStore } from '@/stores/course';
-import { useCourseListStore } from '@/stores/courselist';
-const courseStore = useCourseStore();
+const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
 
 const editing = ref(false);
@@ -61,7 +62,7 @@ const weightageError = computed(() => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>Assessments</div>
-        <ResetButton :show="courseStore.checkDiff(['assessments'])" @reset="courseStore.resetDiff(['assessments'])" />
+        <ResetButton :show="!!courseStore.draft.code && courseStore.checkDiff(['assessments'])" @reset="courseStore.resetDiff(['assessments'])" />
       </div>
     </template>
     <template #body>
@@ -94,6 +95,7 @@ const weightageError = computed(() => {
           <TableBody>
             <template v-for="(assessment, assessmentIndex) in course.assessments" :key="`assessment${assessmentIndex}`">
               <AssessmentRow
+                :store-id="props.storeId"
                 :assessment-index="assessmentIndex"
                 :editing="editing"
                 @remove="courseStore.deleteAssessment(assessmentIndex)"

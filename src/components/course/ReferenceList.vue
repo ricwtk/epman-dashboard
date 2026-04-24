@@ -10,8 +10,14 @@ import ListItemMenu from '@/components/ListItemMenu.vue';
 import { InputGroup, InputGroupAddon, InputGroupTextarea } from '@/components/ui/input-group';
 import ResetButton from '@/components/ResetButton.vue';
 
+const props = defineProps<{
+  title: string;
+  referenceLabel: 'main' | 'additional';
+  storeId?: string;
+}>();
+
 import { useCourseStore } from '@/stores/course';
-const courseStore = useCourseStore();
+const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
 
 const editing = ref(false);
@@ -33,10 +39,6 @@ const setEditing = (value: boolean) => {
   }
 };
 
-const props = defineProps<{
-  title: string;
-  referenceLabel: 'main' | 'additional';
-}>();
 const references = computed(() =>
   course.value.references[props.referenceLabel]
 );
@@ -66,7 +68,7 @@ const getMenuItems = (referenceIndex: number) => {
       <div class="flex flex-row items-center gap-2">
         <div>{{ props.title }}</div>
         <ResetButton
-          :show="courseStore.checkDiff(['references', props.referenceLabel])"
+          :show="!!courseStore.draft.code && courseStore.checkDiff(['references', props.referenceLabel])"
           @reset="courseStore.resetDiff(['references', props.referenceLabel])"
         />
       </div>

@@ -12,13 +12,14 @@ import ListItemMenu from '@/components/ListItemMenu.vue';
 import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group';
 import ResetButton from '@/components/ResetButton.vue';
 
-import { useCourseStore } from '@/stores/course';
-const courseStore = useCourseStore();
-
 const props = defineProps<{
   editing: boolean;
   assessmentIndex: number;
+  storeId?: string;
 }>();
+
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore(props.storeId || "");
 
 const course = computed({
   get: () => props.editing ? courseStore.draft : courseStore.saved,
@@ -187,6 +188,7 @@ const menuItems = ref([{
             <TableBody>
               <template v-for="(breakdown, breakdownIndex) in assessment.breakdown" :key="`assess${assessmentIndex}breakdown${breakdownIndex}`">
                 <AssessmentBreakdownRow
+                  :store-id="props.storeId"
                   :editing="editing"
                   :assessment-index="assessmentIndex"
                   :breakdown-index="breakdownIndex"

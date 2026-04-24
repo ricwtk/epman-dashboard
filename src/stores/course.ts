@@ -27,7 +27,7 @@ import { getCEPCEA } from '@/utils/courseHelpers';
 import { useCourseListStore } from './courselist';
 const courseListStore = useCourseListStore()
 
-export const useCourseStore = defineStore('course', () => {
+export const useCourseStore = (id: string = "") => defineStore(`course${id}`, () => {
   const draft = ref<Course>(createCourseObject())
   const saved = ref<Course>(createCourseObject())
   const revisions = ref<Course[]>([])
@@ -74,6 +74,12 @@ export const useCourseStore = defineStore('course', () => {
   function createDraft(): void { draft.value = structuredClone(toRaw(saved.value)); }
   function resetDraft(): void { draft.value = structuredClone(toRaw(saved.value)); }
   function commit(): void { saved.value = structuredClone(toRaw(draft.value)); }
+
+  async function loadCourseObject(course: Course): Promise<void> {
+    clear()
+    draft.value = structuredClone(toRaw(course))
+    saved.value = structuredClone(toRaw(course))
+  }
 
   async function loadCourseByCode(code: string): Promise<void> {
     loading_flags.value[loadCourseByCode.name] = true
@@ -561,6 +567,7 @@ export const useCourseStore = defineStore('course', () => {
   return {
     loading, loading_flags,
     draft, saved, revisions,
+    loadCourseObject,
     loadCourseByCode, loadRevision, deleteRevision,
     clear, createDraft, resetDraft, save,
     programmes, schools,
@@ -585,4 +592,4 @@ export const useCourseStore = defineStore('course', () => {
     addReference, deleteReference, moveReferenceUp, moveReferenceDown,
     recommendedMappingForCo, recommendedMappingForAssessment,
   }
-})
+})()

@@ -13,8 +13,10 @@ import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import ListItemMenu from '@/components/ListItemMenu.vue';
 
+const props = defineProps<{storeId?: string}>()
+
 import { useCourseStore } from '@/stores/course';
-const courseStore = useCourseStore();
+const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
 
 const editing = ref(false);
@@ -86,7 +88,7 @@ const getMenuItems = (index: number) => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>Teaching Plan</div>
-        <ResetButton :show="courseStore.checkDiff(['teachingPlan'])" @reset="courseStore.resetDiff(['teachingPlan'])" />
+        <ResetButton :show="!!courseStore.draft.code && courseStore.checkDiff(['teachingPlan'])" @reset="courseStore.resetDiff(['teachingPlan'])" />
       </div>
     </template>
     <template #body>

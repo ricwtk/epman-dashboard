@@ -92,6 +92,15 @@ function parseItemList(raw: string): string[] {
 }
 
 /**
+ * Parse a string like "X", "-", "" into a boolean value.
+ * "X" is treated as true, everything else is treated as false.
+ */
+
+function parseBoolean(raw: string): boolean {
+  return raw.trim().toUpperCase() === 'X';
+}
+
+/**
  * Extract all tables from the raw HTML output of mammoth.
  * Returns an array of tables, each table being an array of rows of cell strings.
  */
@@ -224,7 +233,7 @@ function parseSection2(tables: Table[]): Co[] {
       wks: parseIndexList(row[4] ?? '', 'WK'),
       wps: parseIndexList(row[5] ?? '', 'WP'),
       eas: parseIndexList(row[6] ?? '', 'EA'),
-      sdg: false,
+      sdg: parseBoolean(row[7] ?? ''),
     });
   }
 

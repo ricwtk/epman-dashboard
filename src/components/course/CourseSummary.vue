@@ -13,11 +13,14 @@ import { InputGroup, InputGroupInput, InputGroupAddon, InputGroupTextarea } from
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import ResetButton from '@/components/ResetButton.vue';
 
+
 import { useCourseListStore } from '@/stores/courselist';
 const courseListStore = useCourseListStore();
 
+const props = defineProps<{storeId?: string}>()
+
 import { useCourseStore } from '@/stores/course';
-const courseStore = useCourseStore();
+const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
 
 const editing = ref(false);
@@ -75,7 +78,7 @@ const resetSummaryDiff = () => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>Course Summary</div>
-        <ResetButton :show="isSummaryDiff" @reset="resetSummaryDiff" />
+        <ResetButton :show="!!courseStore.draft.code && isSummaryDiff" @reset="resetSummaryDiff" />
       </div>
     </template>
     <template #body="{ editing }">

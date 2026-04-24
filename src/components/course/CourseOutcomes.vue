@@ -23,8 +23,10 @@ import ListItemMenu from '@/components/ListItemMenu.vue';
 import { InputGroup, InputGroupTextarea, InputGroupAddon } from '@/components/ui/input-group';
 import ResetButton from '@/components/ResetButton.vue';
 
+const props = defineProps<{storeId?: string}>()
+
 import { useCourseStore } from '@/stores/course';
-const courseStore = useCourseStore();
+const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
 
 const editing = ref(false);
@@ -84,7 +86,7 @@ const getMenuItems = (coIndex: number) => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>Course Outcomes</div>
-        <ResetButton :show="courseStore.checkDiff(['cos'])" @reset="courseStore.resetDiff(['cos'])" />
+        <ResetButton :show="!!courseStore.draft.code && courseStore.checkDiff(['cos'])" @reset="courseStore.resetDiff(['cos'])" />
       </div>
     </template>
     <template #body>

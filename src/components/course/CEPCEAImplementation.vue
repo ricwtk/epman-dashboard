@@ -21,8 +21,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
 import ResetButton from '@/components/ResetButton.vue';
 
+const props = defineProps<{storeId?: string}>()
+
 import { useCourseStore } from '@/stores/course';
-const courseStore = useCourseStore();
+const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
 
 const editing = ref(false);
@@ -130,7 +132,7 @@ const resetAll = () => {
     <template #title>
       <div class="flex flex-row items-center gap-2">
         <div>CEP and CEA Implementation</div>
-        <ResetButton :show="checkOverallDiff" @reset="resetAll" />
+        <ResetButton :show="!!courseStore.draft.code && checkOverallDiff" @reset="resetAll" />
       </div>
     </template>
     <template #body="{ editing }">

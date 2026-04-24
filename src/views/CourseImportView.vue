@@ -12,6 +12,7 @@ import Overview from '@/components/courseimport/Overview.vue';
 import { parseCourseOutline } from '@/utils/parseCourseOutline.js'
 import { formatRevision, formatId } from '@/utils/common';
 import { dataService } from '@/services/dataService';
+import { useCourseStore } from '@/stores/course';
 
 interface FileObject {
   object: File;
@@ -23,6 +24,7 @@ interface FileObject {
   hasError: boolean;
   message: string;
   content: any;
+  store: any;
 }
 const files = ref<FileObject[]>([])
 const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
@@ -51,7 +53,8 @@ const addToFiles = (uploadedFiles: FileList) => {
     isSaved: false,
     hasError: false,
     message: "",
-    content: null
+    content: null,
+    store: null
   })))
 }
 const checkValidity = () => {
@@ -75,6 +78,8 @@ const processFiles = () => {
         file.content = await parseCourseOutline(arrayBuffer, { isBrowser: true })
         file.content.revision = formatRevision()
         file.content.id = formatId(file.content)
+        file.store = useCourseStore(file.content.id)
+        await file.store.loadCourseObject(file.content)
       } catch (e) {
         file.hasError = true
         file.message = "Error extracting information"
@@ -190,7 +195,7 @@ const saveAll = async () => {
           </AccordionTrigger>
           <AccordionContent>
             <ScrollArea class="h-96">
-              <Overview :course="file.content"></Overview>
+              <Overview :store-id="file.content.id"></Overview>
             </ScrollArea>
           </AccordionContent>
         </AccordionItem>
