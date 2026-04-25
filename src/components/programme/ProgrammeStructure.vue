@@ -4,11 +4,14 @@ import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { ButtonGroup } from '@/components/ui/button-group';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import StructureGrid from '@/components/programme/StructureGrid.vue';
 import type { ProgrammeStructureInfo, ProgrammeStructure } from '@/types/programme';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import CreateLabelPopover from '@/components/CreateLabelPopover.vue';
+import PlainTooltip from '@/components/PlainTooltip.vue';
 
 import { formatRevision } from '@/utils/common';
 import { createNewStructure } from '@/utils/structureHelpers';
@@ -19,7 +22,7 @@ const authStore = useAuthStore();
 
 import ResetButton from '@/components/ResetButton.vue';
 import ListItemMenu from '@/components/ListItemMenu.vue';
-import { XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
+import { PlusIcon, MinusIcon, SaveIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 
 import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
 const { editing, programme, saveProgramme, setEditing, programmeStore } = useProgrammeEditor();
@@ -27,9 +30,9 @@ const { editing, programme, saveProgramme, setEditing, programmeStore } = usePro
 
 // defineEmits(['update:editing']);
 
-// const props = defineProps<{
-//   structureList: { [label: string]: ProgrammeStructureInfo };
-// }>();
+const props = defineProps<{
+  editable?: boolean;
+}>();
 
 import { storeToRefs } from 'pinia';
 import { useStructureStore } from '@/stores/structure';
@@ -95,6 +98,21 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
         <template #description>
           Define at least one programme structure to view
         </template>
+        <template #content>
+          <div class="flex gap-1">
+            <CreateLabelPopover v-if="editable" :currentList="labels" @create="programmeStore.addNewStructure">
+              <template #title>New Structure</template>
+              <template #description>Create new structure</template>
+               <template #trigger>
+                <Button variant="outline">
+                  <PlainTooltip content="Create new structure">
+                    <PlusIcon /> Create new structure
+                  </PlainTooltip>
+                </Button>
+              </template>
+            </CreateLabelPopover>
+          </div>
+        </template>
       </EmptyComponent>
       <StructureGrid v-else
         :editable="editing"
@@ -123,23 +141,33 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
           </div>
           <div class="flex flex-col gap-1 flex-5">
             <Label for="revision">Revision</Label>
-            <Select id="revision" v-model="selectedRevision">
-              <SelectTrigger class="w-full">
-                <SelectValue placeholder="Select a revision" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem
-                    v-for="srev in revisions"
-                    :value="srev"
-                  >{{ srev }}</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <div class="flex gap-1">
+              <ButtonGroup class="w-full">
+                <Select id="revision" v-model="selectedRevision">
+                  <SelectTrigger class="w-full">
+                    <SelectValue placeholder="Select a revision" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem
+                        v-for="srev in revisions"
+                        :value="srev"
+                      >{{ srev }}</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <PlainTooltip v-if="editing" content="Delete revision">
+                  <Button variant="destructive" @click="structureStore.deleteRevision()"><MinusIcon /></Button>
+                </PlainTooltip>
+              </ButtonGroup>
+              <PlainTooltip content="Save structure">
+                <Button variant="default" @click="structureStore.save()"><SaveIcon /></Button>
+              </PlainTooltip>
+            </div>
           </div>
         </template>
       </StructureGrid>
-      <EmptyComponent v-if="selectedStructureLabel == ''">
+      <EmptyComponent v-if="labels.length !== 0 && selectedStructureLabel == ''">
         <template #title>
           Select Programme Structure
         </template>
@@ -147,7 +175,7 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
           Select the label of a programme structure to view
         </template>
       </EmptyComponent>
-      <EmptyComponent v-else-if="selectedRevision == ''">
+      <EmptyComponent v-else-if="labels.length !== 0 && selectedRevision == ''">
         <template #title>
           Select Revision
         </template>

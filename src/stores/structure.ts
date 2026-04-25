@@ -100,6 +100,8 @@ export const useStructureStore = defineStore('structure', () => {
       if (revisions.value.length == 0) {
         selectedRevision.value = ""
         selectedStructureLabel.value = ""
+        structureListStore.deleteStructure(draft.value)
+        clear()
       } else if (revisions.value.length > revIndex) {
         selectedRevision.value = revisions.value[revIndex]!
       } else {

@@ -7,9 +7,10 @@ import { PlusIcon } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
 const props = defineProps<{
-  currentList: string[]
+  currentList: string[],
 }>()
 const isPopoverOpen = ref(false)
+
 const newLabel = ref("")
 const newError = ref("")
 
@@ -24,6 +25,7 @@ watch(newLabel, (oldValue, newValue) => {
 const emits = defineEmits<{
   (e: 'create', label: string): void
 }>()
+
 const createNew = () => {
   emits('create', newLabel.value);
   isPopoverOpen.value = false;
@@ -34,12 +36,11 @@ const createNew = () => {
 <template>
   <Popover v-model:open="isPopoverOpen">
     <PopoverTrigger as-child>
-      <Button
-        variant="outline"
-        size="icon"
-      >
-        <PlusIcon />
-      </Button>
+      <slot name="trigger">
+        <Button variant="outline" size="icon">
+          <PlusIcon />
+        </Button>
+      </slot>
     </PopoverTrigger>
     <PopoverContent class="w-80">
       <div class="grid gap-4">

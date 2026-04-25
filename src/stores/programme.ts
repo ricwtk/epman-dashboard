@@ -205,9 +205,10 @@ export const useProgrammeStore = defineStore('programme', () => {
   }
 
   async function addNewStructure(newLabel: string) {
+    loading_flags.value[addNewStructure.name] = true;
     const newStructure = createNewStructure({
       label: newLabel,
-      programme: draft.value.code,
+      programme: draft.value.code || saved.value.code,
       revision: formatRevision(),
       committed: {
         on: new Date(),
@@ -217,6 +218,7 @@ export const useProgrammeStore = defineStore('programme', () => {
     await dataService.saveStructure(newStructure)
     structureListStore.saveStructure(newStructure)
     structureStore.copyStructureFrom(newStructure)
+    loading_flags.value[addNewStructure.name] = false;
   }
 
   return {
