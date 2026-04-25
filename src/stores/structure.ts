@@ -56,6 +56,7 @@ export const useStructureStore = defineStore('structure', () => {
 
   function clear(): void { saved.value = createNewStructure(); draft.value = createNewStructure() }
   function resetDraft(): void { draft.value = structuredClone(toRaw(saved.value)) }
+  function createDraft(): void { draft.value = structuredClone(toRaw(saved.value)) }
   function commit(): void { saved.value = structuredClone(toRaw(draft.value)) }
 
   function resetDiff(): void { resetDraft() }
@@ -81,9 +82,15 @@ export const useStructureStore = defineStore('structure', () => {
       by: authStore.user?.email || 'unknown'
     }
     draft.value.id = formatStructureId(draft.value)
-    await dataService.saveStructure(draft.value)
-    commit()
-    structureListStore.saveStructure(draft.value)
+    try {
+      await dataService.saveStructure(draft.value)
+      commit()
+      structureListStore.saveStructure(draft.value)
+      structureRevisions.value[draft.value.revision] = structuredClone(toRaw(draft.value))
+      selectedRevision.value = draft.value.revision
+    } catch (error) {
+      console.error('Error saving structure:', error)
+    }
     loading_flags.value[save.name] = false
   }
 
@@ -118,7 +125,7 @@ export const useStructureStore = defineStore('structure', () => {
     selectedStructureLabel,
     structureRevisions,
     revisions, selectedRevision, deleteRevision,
-    resetDraft, clear,
+    createDraft, resetDraft, clear,
     resetDiff, checkDiff, getDiff,
     loadStructure, copyStructureFrom,
     save, commit

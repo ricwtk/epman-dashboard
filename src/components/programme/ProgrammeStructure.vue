@@ -27,7 +27,20 @@ import { PlusIcon, MinusIcon, SaveIcon, XIcon, ChevronUpIcon, ChevronDownIcon } 
 import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
 const { editing, programme, saveProgramme, setEditing, programmeStore } = useProgrammeEditor();
 
+const setEditingWithStructure = (value: boolean) => {
+  setEditing(value);
+  if (structureStore.draft.label !== structureStore.saved.label) {
+    structureStore.createDraft();
+  }
+}
 
+const structure = computed({
+  get: () => editing.value ? structureStore.draft : structureStore.saved,
+  set: (value) => {
+    if (editing.value) structureStore.draft = value;
+    else structureStore.saved = value;
+  },
+})
 // defineEmits(['update:editing']);
 
 const props = defineProps<{
@@ -85,7 +98,7 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
 
 <template>
   <!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
-  <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveProgramme">
+  <ContentCard editable :editing="editing" @update:editing="setEditingWithStructure" @save="saveProgramme">
     <template #title>
       Programme Structure
     </template>
@@ -116,8 +129,8 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
       </EmptyComponent>
       <StructureGrid v-else
         :editable="editing"
-        v-model:semesters="saved.semesters"
-        v-model:semesterOrder="saved.semesterOrder"
+        v-model:semesters="structure.semesters"
+        v-model:semesterOrder="structure.semesterOrder"
       >
         <template #header>
           <div class="flex flex-col gap-1 flex-1">
@@ -160,7 +173,7 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
                   <Button variant="destructive" @click="structureStore.deleteRevision()"><MinusIcon /></Button>
                 </PlainTooltip>
               </ButtonGroup>
-              <PlainTooltip content="Save structure">
+              <PlainTooltip v-if="editing" content="Save structure">
                 <Button variant="default" @click="structureStore.save()"><SaveIcon /></Button>
               </PlainTooltip>
             </div>
