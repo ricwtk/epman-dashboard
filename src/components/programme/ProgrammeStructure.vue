@@ -5,24 +5,13 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Label } from '@/components/ui/label';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import StructureGrid from '@/components/programme/StructureGrid.vue';
-import type { ProgrammeStructureInfo, ProgrammeStructure } from '@/types/programme';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import CreateLabelPopover from '@/components/CreateLabelPopover.vue';
 import PlainTooltip from '@/components/PlainTooltip.vue';
 
-import { formatRevision } from '@/utils/common';
-import { createNewStructure } from '@/utils/structureHelpers';
-
-import { dataService } from '@/services/dataService';
-import { useAuthStore } from '@/stores/auth';
-const authStore = useAuthStore();
-
-import ResetButton from '@/components/ResetButton.vue';
-import ListItemMenu from '@/components/ListItemMenu.vue';
-import { PlusIcon, MinusIcon, SaveIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
+import { PlusIcon, MinusIcon, SaveIcon } from 'lucide-vue-next';
 
 import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
 const { editing, programme, saveProgramme, setEditing, programmeStore } = useProgrammeEditor();
@@ -51,7 +40,6 @@ import { storeToRefs } from 'pinia';
 import { useStructureStore } from '@/stores/structure';
 const structureStore = useStructureStore();
 const {
-  saved,
   selectedStructureLabel,
   selectedRevision,
   revisions
@@ -60,40 +48,6 @@ const {
 import { useStructureListStore } from '@/stores/structurelist';
 const structureListStore = useStructureListStore();
 const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
-
-// const addNewStructure = async (newLabel: string) => {
-//   const newStructureParameters = {
-//     programme: programmeStore.draft.code,
-//     label: newLabel,
-//     revision: formatRevision(),
-//     committed: {
-//       on: new Date(),
-//       by: authStore.user?.email || 'unknown'
-//     }
-//   }
-//   const newStructure = createNewStructure(newStructureParameters);
-//   saveStructure(newStructure)
-//   structureStore.copyStructureFrom(newStructure)
-// };
-
-// const saveRevision = async () => {
-//   structureStore.save()
-//   saveStructure(structureStore.draft)
-// }
-
-// const saveStructure = async (struc: ProgrammeStructure) => {
-//   structureListStore.saveStructure(struc);
-//   await dataService.saveStructure(struc);
-// }
-
-// const deleteRevision = async () => {
-//   // const idToDelete = structure.value.id
-//   // await dataService.deleteItem("structures", idToDelete)
-//   structureStore.deleteRevision()
-//   if (structureStore.revisions.length == 0) {
-//     structureListStore.deleteStructure(structureStore.draft)
-//   }
-// };
 </script>
 
 <template>
