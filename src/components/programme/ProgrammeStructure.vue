@@ -11,7 +11,7 @@ import LoadingComponent from '@/components/LoadingComponent.vue';
 import CreateLabelPopover from '@/components/CreateLabelPopover.vue';
 import PlainTooltip from '@/components/PlainTooltip.vue';
 
-import { PlusIcon, MinusIcon, SaveIcon } from 'lucide-vue-next';
+import { PlusIcon, MinusIcon, SaveIcon, RotateCcwIcon } from 'lucide-vue-next';
 
 import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
 const { editing, programme, saveProgramme, setEditing, programmeStore } = useProgrammeEditor();
@@ -128,7 +128,10 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
                 </PlainTooltip>
               </ButtonGroup>
               <PlainTooltip v-if="editing" content="Save structure">
-                <Button variant="default" @click="structureStore.save()"><SaveIcon /></Button>
+                <Button variant="default" @click="structureStore.save()" :disabled="structureStore.loading || !structureStore.checkDiff()"><SaveIcon /></Button>
+              </PlainTooltip>
+              <PlainTooltip v-if="editing" content="Reset">
+                <Button variant="secondary" @click="structureStore.resetDiff()" :disabled="structureStore.loading || !structureStore.checkDiff()"><RotateCcwIcon /></Button>
               </PlainTooltip>
             </div>
           </div>
