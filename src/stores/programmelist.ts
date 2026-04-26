@@ -18,17 +18,17 @@ export const useProgrammeListStore = defineStore('programme-list', () => {
   const programmeCodeSelected = ref('')
   const selectedProgramme = computed(() => codeToProgrammeMap.value[programmeCodeSelected.value])
   const selectedSchool = computed(() => selectedProgramme.value?.school)
-  const polist = computed<Array<[string, string]>>(() => selectedProgramme.value?.poList.map(
-    (po, poIndex) => [`PO${poIndex + 1}`, po.attribute]
+  const polist = computed<Array<[string, string, string]>>(() => selectedProgramme.value?.poList.map(
+    (po: AttrDesc, poIndex: number) => [`PO${poIndex + 1}`, po.attribute, po.descriptor]
   ) || [])
-  const wklist = computed<Array<[string, string]>>(() => selectedSchool.value?.components?.wks?.map(
-    (wk: AttrDesc, wkIndex: number) => [`WK${wkIndex + 1}`, wk.descriptor]
+  const wklist = computed<Array<[string, string, string]>>(() => selectedSchool.value?.components?.wks?.map(
+    (wk: AttrDesc, wkIndex: number) => [`WK${wkIndex + 1}`, wk.attribute, wk.descriptor]
   ) || [])
-  const wplist = computed<Array<[string, string]>>(() => selectedSchool.value?.components?.wps?.map(
-    (wp: AttrDesc, wpIndex: number) => [`WP${wpIndex + 1}`, wp.descriptor]
+  const wplist = computed<Array<[string, string, string]>>(() => selectedSchool.value?.components?.wps?.map(
+    (wp: AttrDesc, wpIndex: number) => [`WP${wpIndex + 1}`, wp.attribute, wp.descriptor]
   ) || [])
-  const ealist = computed<Array<[string, string]>>(() => selectedSchool.value?.components?.eas?.map(
-    (ea: AttrDesc, eaIndex: number) => [`EA${eaIndex + 1}`, ea.descriptor]
+  const ealist = computed<Array<[string, string, string]>>(() => selectedSchool.value?.components?.eas?.map(
+    (ea: AttrDesc, eaIndex: number) => [`EA${eaIndex + 1}`, ea.attribute, ea.descriptor]
   ) || [])
 
   async function fetchProgrammes() {

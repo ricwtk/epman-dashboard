@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import { storeToRefs } from 'pinia';
-import type { Course, Assessment, Co } from '@/types/course';
-import type { AttrDesc } from '@/types/school';
+import { ref, computed } from 'vue';
+import type { Assessment, Co } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
-import {
-  Table,
-  TableHeader,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody
-} from '@/components/ui/table';
+import { Table, TableHeader, TableHead, TableRow, TableCell, TableBody } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BadgeList from '@/components/BadgeList.vue';
 import { CheckIcon, MinusIcon, XIcon } from 'lucide-vue-next';
@@ -49,17 +40,6 @@ const setEditing = (value: boolean) => {
     courseStore.createDraft();
   }
 };
-
-// watch(() => courseStore.programmes, () => {
-//   if (courseStore.programmes && Object.keys(courseStore.programmes).length > 0 && courseStore.selectedProgrammeCode === "") {
-//     courseStore.selectedProgrammeCode = Object.keys(courseStore.programmes)[0] || "";
-//     // selectedSchoolCode.value = courseStore.programmes[courseStore.selectedProgrammeCode]?.school || "";
-//   }
-// })
-// const selectProgramme = (progCode: string) => {
-//   courseStore.selectedProgrammeCode = progCode;
-//   // selectedSchoolCode.value = courseStore.programmes[progCode]?.school || "";
-// }
 
 import { getCEPCEA } from '@/utils/courseHelpers';
 
@@ -121,7 +101,6 @@ const resetAll = () => {
 </script>
 
 <template>
-<!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
   <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveCourse">
     <template #title>
       <div class="flex flex-row items-center gap-2">
@@ -192,6 +171,7 @@ const resetAll = () => {
                 </template>
                 <BadgeList
                   :items="co.pos.sort().map((po) => 'PO'+po)"
+                  :tooltips="co.pos.sort().map((po) => programmeListStore.polist[po - 1]?.[1] || '')"
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'po', Number(item.slice(2)))"
                 />
@@ -212,6 +192,7 @@ const resetAll = () => {
                 </template>
                 <BadgeList
                   :items="co.wks.sort().map((wk) => 'WK'+wk)"
+                  :tooltips="co.wks.sort().map((wk) => programmeListStore.wklist[wk - 1]?.[1] || '')"
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'wk', Number(item.slice(2)))"
                 />
@@ -232,6 +213,7 @@ const resetAll = () => {
                 </template>
                 <BadgeList
                   :items="co.wps.sort().map((wp) => 'WP'+wp)"
+                  :tooltips="co.wps.sort().map((wp) => programmeListStore.wplist[wp - 1]?.[1] || '')"
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'wp', Number(item.slice(2)))"
                 />
@@ -252,6 +234,7 @@ const resetAll = () => {
                 </template>
                 <BadgeList
                   :items="co.eas.sort().map((ea) => 'EA'+ea)"
+                  :tooltips="co.eas.sort().map((ea) => programmeListStore.ealist[ea - 1]?.[1] || '')"
                   :editing="editing"
                   @remove="(item: string) => courseStore.removeCoMapping(index, 'ea', Number(item.slice(2)))"
                 />
@@ -306,7 +289,10 @@ const resetAll = () => {
                       <template v-for="cepcea in getCEPCEA(assessment, index+1, component as 'wp' | 'ea', programmeListStore[`${component}list` as 'wplist' | 'ealist'])" :key="cepcea[0]">
                         <ButtonGroup class="gap-0! w-full flex">
                           <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
-                          <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>
+                          <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left flex flex-col items-start gap-0">
+                            <span class="line-clamp-1 font-medium" :title="cepcea[1]">{{ cepcea[1] }}</span>
+                            <span class="line-clamp-3 font-normal" :title="cepcea[2]">{{ cepcea[2] }}</span>
+                          </ButtonGroupText>
                           <ButtonGroupText class="flex justify-center text-sm text-destructive" v-if="editing"
                             @click="courseStore.setCEPCEA(assessmentIndex, index+1, cepcea[0]!.slice(0,2).toLowerCase() as 'wp' | 'ea', Number(cepcea[0]!.slice(2,3)))"
                           >

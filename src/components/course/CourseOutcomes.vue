@@ -3,16 +3,8 @@ import { ref, computed } from 'vue';
 import { type Co } from '@/types/course';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import BadgeList from '@/components/BadgeList.vue';
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell
-} from '@/components/ui/table';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckIcon, MinusIcon, CircleChevronDownIcon, PlusIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-vue-next";
@@ -74,18 +66,9 @@ const getMenuItems = (coIndex: number) => {
     callback: () => { courseStore.moveCoDown(coIndex)},
   }];
 };
-
-// defineProps<{
-//   cos: Co[] | [];
-//   editing: boolean;
-//   loading?: boolean;
-// }>();
-
-// defineEmits(['update:editing']);
 </script>
 
 <template>
-  <!-- <ContentCard editable :editing="editing" @update:editing="$emit('update:editing', $event)"> -->
   <ContentCard editable :editing="editing" @update:editing="setEditing" @save="saveCourse">
     <template #title>
       <div class="flex flex-row items-center gap-2">
@@ -194,6 +177,7 @@ const getMenuItems = (coIndex: number) => {
                   </template>
                   <BadgeList
                     :items="co.pos.sort().map((po) => 'PO'+po)"
+                    :tooltips="co.pos.sort().map((po) => programmeListStore.polist[po - 1]?.[1] || '')"
                     :editing="editing"
                     @remove="(item: string) => courseStore.removeCoMapping(index, 'po', Number(item.slice(2)))"
                   />
@@ -216,6 +200,7 @@ const getMenuItems = (coIndex: number) => {
                   </template>
                   <BadgeList
                     :items="co.wks.sort().map((wk) => 'WK'+wk)"
+                    :tooltips="co.wks.sort().map((wk) => programmeListStore.wklist[wk - 1]?.[1] || '')"
                     :editing="editing"
                     @remove="(item: string) => courseStore.removeCoMapping(index, 'wk', Number(item.slice(2)))"
                   />
@@ -238,6 +223,7 @@ const getMenuItems = (coIndex: number) => {
                   </template>
                   <BadgeList
                     :items="co.wps.sort().map((wp) => 'WP'+wp)"
+                    :tooltips="co.wps.sort().map((wp) => programmeListStore.wplist[wp - 1]?.[1] || '')"
                     :editing="editing"
                     @remove="(item: string) => courseStore.removeCoMapping(index, 'wp', Number(item.slice(2)))"
                   />
@@ -260,6 +246,7 @@ const getMenuItems = (coIndex: number) => {
                   </template>
                   <BadgeList
                     :items="co.eas.sort().map((ea) => 'EA'+ea)"
+                    :tooltips="co.eas.sort().map((ea) => programmeListStore.ealist[ea - 1]?.[1] || '')"
                     :editing="editing"
                     @remove="(item: string) => courseStore.removeCoMapping(index, 'ea', Number(item.slice(2)))"
                   />
