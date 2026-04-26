@@ -1,6 +1,8 @@
 import { ref, watch, toRaw, computed } from 'vue';
 import type { ProgrammeStructure } from "@/types/programme";
+import type { Course, CourseMappingInfo } from "@/types/course";
 import { createNewStructure } from "@/utils/structureHelpers";
+import { createCourseMappingInfo } from '@/utils/courseHelpers';
 import { defineStore } from "pinia";
 import diff from 'microdiff';
 import { dataService } from '@/services/dataService';
@@ -54,7 +56,7 @@ export const useStructureStore = defineStore('structure', () => {
     }
   }
 
-  function clear(): void { saved.value = createNewStructure(); draft.value = createNewStructure() }
+  function clear(): void { saved.value = createNewStructure(); draft.value = createNewStructure(); courseMappings.value = [] }
   function resetDraft(): void { draft.value = structuredClone(toRaw(saved.value)) }
   function createDraft(): void { draft.value = structuredClone(toRaw(saved.value)) }
   function commit(): void { saved.value = structuredClone(toRaw(draft.value)) }
@@ -118,6 +120,22 @@ export const useStructureStore = defineStore('structure', () => {
     loading_flags.value[deleteRevision.name] = false
   }
 
+  const courseMappings = ref<CourseMappingInfo[]>([])
+  async function getMappings() {
+    loading_flags.value[getMappings.name] = true;
+    const coursesFromDb: { [code: string]: Course } = await dataService.getCourses()
+
+    courseMappings.value = saved.value.semesterOrder.reduce((acc, semester, semesterIndex) => {
+      return [...acc, ...saved.value.semesters[semester]!.map(course => {
+        const mapping = createCourseMappingInfo(coursesFromDb[course]!)
+        mapping.semester = semesterIndex + 1
+        return mapping
+      })]
+    }, [] as CourseMappingInfo[])
+
+    loading_flags.value[getMappings.name] = false;
+  }
+
   return {
     loading, loading_flags,
     programmeCode,
@@ -128,6 +146,7 @@ export const useStructureStore = defineStore('structure', () => {
     createDraft, resetDraft, clear,
     resetDiff, checkDiff, getDiff,
     loadStructure, copyStructureFrom,
-    save, commit
+    save, commit,
+    courseMappings, getMappings
   }
 })

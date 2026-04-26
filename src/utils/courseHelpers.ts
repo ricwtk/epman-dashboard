@@ -1,5 +1,5 @@
 import { COURSE_TYPES } from "@/constants";
-import { formatId } from "./common";
+import { formatId, getNumbersOfObjectList } from "./common";
 // import { courses } from "./courseExamples";
 import type {
   Course,
@@ -9,7 +9,9 @@ import type {
   Assessment,
   Breakdown,
   CourseInfo,
+  CourseMappingInfo,
 } from "@/types/course";
+import { get } from "@vueuse/core";
 
 // currently using courseExamples.ts
 // export function getCourseByCode(code: string): Course {
@@ -160,6 +162,25 @@ export const createCourseInfo = (course?: Partial<Course>): CourseInfo => ({
   transferableSkills: course?.transferableSkills || [],
   deliveryMethods: course?.deliveryMethods || []
 });
+
+export const createCourseMappingInfo = (course?: Partial<Course>): CourseMappingInfo => {
+  const pos = getNumbersOfObjectList(course?.cos || {}, 'pos') || [];
+  const wks = getNumbersOfObjectList(course?.cos || {}, 'wks') || [];
+  const wps = getNumbersOfObjectList(course?.cos || {}, 'wps') || [];
+  const eas = getNumbersOfObjectList(course?.cos || {}, 'eas') || [];
+  const sdg = course?.cos?.some(c => c.sdg) || false;
+  return {
+    semester: course?.semester || 0,
+    name: course?.name || "",
+    code: course?.code || "",
+    credits: course?.credits || 0,
+    pos: pos,
+    wks: wks,
+    wps: wps,
+    eas: eas,
+    sdg: sdg,
+  };
+};
 
 export function getCEPCEA(assessment: Assessment, coIndex: number, componentType: 'wp' | 'ea', componentList: string[][]): string[][] {
   const descriptors: string[][] = []

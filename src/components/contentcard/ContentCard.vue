@@ -44,7 +44,7 @@ const saveChanges = () => {
         </slot>
       </div>
     </div>
-    <div class="card-structure-body">
+    <div class="card-structure-body" v-if="$slots.body">
       <slot name="body" :editing="editing"></slot>
     </div>
   </div>

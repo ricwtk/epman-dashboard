@@ -10,6 +10,7 @@ import StructureGrid from '@/components/programme/StructureGrid.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import CreateLabelPopover from '@/components/CreateLabelPopover.vue';
 import PlainTooltip from '@/components/PlainTooltip.vue';
+import ProgrammeMapping from '@/components/programme/ProgrammeMapping.vue';
 
 import { PlusIcon, MinusIcon, SaveIcon, RotateCcwIcon } from 'lucide-vue-next';
 
@@ -57,7 +58,7 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
       Programme Structure
     </template>
     <template #body>
-      <LoadingComponent :show="programmeStore.loading" />
+      <LoadingComponent :show="programmeStore.loading || structureStore.loading" />
       <EmptyComponent v-if="labels.length === 0">
         <template #title>
           No Programme Structure
@@ -81,78 +82,82 @@ const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
           </div>
         </template>
       </EmptyComponent>
-      <StructureGrid v-else
-        :editable="editing"
-        v-model:semesters="structure.semesters"
-        v-model:semesterOrder="structure.semesterOrder"
-      >
-        <template #header>
-          <div class="flex flex-col gap-1 flex-1">
-            <Label for="label">Label</Label>
-            <ButtonGroup class="w-full">
-              <Select id="label" v-model="selectedStructureLabel">
-                <SelectTrigger class="w-full">
-                  <SelectValue placeholder="Select a structure" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem v-for="label in labels" :value="label">{{ label }}</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <CreateLabelPopover v-if="editing" :currentList="labels" @create="programmeStore.addNewStructure">
-                <template #title>New Structure</template>
-                <template #description>Create new structure</template>
-              </CreateLabelPopover>
-            </ButtonGroup>
-          </div>
-          <div class="flex flex-col gap-1 flex-5">
-            <Label for="revision">Revision</Label>
-            <div class="flex gap-1">
+      <template v-else>
+        <StructureGrid
+          :editable="editing"
+          v-model:semesters="structure.semesters"
+          v-model:semesterOrder="structure.semesterOrder"
+        >
+          <template #header>
+            <div class="flex flex-col gap-1 flex-1">
+              <Label for="label">Label</Label>
               <ButtonGroup class="w-full">
-                <Select id="revision" v-model="selectedRevision">
+                <Select id="label" v-model="selectedStructureLabel">
                   <SelectTrigger class="w-full">
-                    <SelectValue placeholder="Select a revision" />
+                    <SelectValue placeholder="Select a structure" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem
-                        v-for="srev in revisions"
-                        :value="srev"
-                      >{{ srev }}</SelectItem>
+                      <SelectItem v-for="label in labels" :value="label">{{ label }}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <PlainTooltip v-if="editing" content="Delete revision">
-                  <Button variant="destructive" @click="structureStore.deleteRevision()"><MinusIcon /></Button>
-                </PlainTooltip>
+                <CreateLabelPopover v-if="editing" :currentList="labels" @create="programmeStore.addNewStructure">
+                  <template #title>New Structure</template>
+                  <template #description>Create new structure</template>
+                </CreateLabelPopover>
               </ButtonGroup>
-              <PlainTooltip v-if="editing" content="Save structure">
-                <Button variant="default" @click="structureStore.save()" :disabled="structureStore.loading || !structureStore.checkDiff()"><SaveIcon /></Button>
-              </PlainTooltip>
-              <PlainTooltip v-if="editing" content="Reset">
-                <Button variant="secondary" @click="structureStore.resetDiff()" :disabled="structureStore.loading || !structureStore.checkDiff()"><RotateCcwIcon /></Button>
-              </PlainTooltip>
             </div>
-          </div>
-        </template>
-      </StructureGrid>
-      <EmptyComponent v-if="labels.length !== 0 && selectedStructureLabel == ''">
-        <template #title>
-          Select Programme Structure
-        </template>
-        <template #description>
-          Select the label of a programme structure to view
-        </template>
-      </EmptyComponent>
-      <EmptyComponent v-else-if="labels.length !== 0 && selectedRevision == ''">
-        <template #title>
-          Select Revision
-        </template>
-        <template #description>
-          Select the revision of a programme structure to view
-        </template>
-      </EmptyComponent>
+            <div class="flex flex-col gap-1 flex-5">
+              <Label for="revision">Revision</Label>
+              <div class="flex gap-1">
+                <ButtonGroup class="w-full">
+                  <Select id="revision" v-model="selectedRevision">
+                    <SelectTrigger class="w-full">
+                      <SelectValue placeholder="Select a revision" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem
+                          v-for="srev in revisions"
+                          :value="srev"
+                        >{{ srev }}</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <PlainTooltip v-if="editing" content="Delete revision">
+                    <Button variant="destructive" @click="structureStore.deleteRevision()"><MinusIcon /></Button>
+                  </PlainTooltip>
+                </ButtonGroup>
+                <PlainTooltip v-if="editing" content="Save structure">
+                  <Button variant="default" @click="structureStore.save()" :disabled="structureStore.loading || !structureStore.checkDiff()"><SaveIcon /></Button>
+                </PlainTooltip>
+                <PlainTooltip v-if="editing" content="Reset">
+                  <Button variant="secondary" @click="structureStore.resetDiff()" :disabled="structureStore.loading || !structureStore.checkDiff()"><RotateCcwIcon /></Button>
+                </PlainTooltip>
+              </div>
+            </div>
+          </template>
+        </StructureGrid>
+        <EmptyComponent v-if="labels.length !== 0 && selectedStructureLabel == ''">
+          <template #title>
+            Select Programme Structure
+          </template>
+          <template #description>
+            Select the label of a programme structure to view
+          </template>
+        </EmptyComponent>
+        <EmptyComponent v-else-if="labels.length !== 0 && selectedRevision == ''">
+          <template #title>
+            Select Revision
+          </template>
+          <template #description>
+            Select the revision of a programme structure to view
+          </template>
+        </EmptyComponent>
+
+        <ProgrammeMapping v-if="labels.length !== 0 && selectedStructureLabel !== ''" />
+      </template>
     </template>
   </ContentCard>
 </template>

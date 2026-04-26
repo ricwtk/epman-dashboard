@@ -1,75 +1,67 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import EmptyComponent from '@/components/EmptyComponent.vue';
+import { Button } from '@/components/ui/button';
+import { CheckIcon } from 'lucide-vue-next';
 
-import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
-const { programme, programmeStore } = useProgrammeEditor();
+import { useProgrammeStore } from '@/stores/programme';
+const programmeStore = useProgrammeStore();
 
+onMounted(() => console.log(programmeStore.school))
 import { useStructureStore } from '@/stores/structure';
 const structureStore = useStructureStore();
 
-import { useStructureListStore } from '@/stores/structurelist';
-const structureListStore = useStructureListStore();
-const labels = computed(() => Object.keys(structureListStore.labelToInfoMap))
+const showBody = computed(() => structureStore.courseMappings.length > 0)
 </script>
 
 <template>
   <ContentCard :editable="false">
     <template #title>
-      Mappings
+      <Button @click="structureStore.getMappings" variant="secondary">Load Mappings</Button>
     </template>
-    <template #body>
-      <LoadingComponent :show="programmeStore.loading" />
-      <EmptyComponent v-if="labels.length === 0">
-        <template #title>No Programme Structure</template>
-        <template #description>Define at least one programme structure to view</template>
-      </EmptyComponent>
-      <div v-else>
-        <div class="flex flex-col gap-1 flex-1">
-          <Label for="label">Label</Label>
-          <Select id="label" v-model="structureStore.selectedStructureLabel">
-            <SelectTrigger class="w-full">
-              <SelectValue placeholder="Select a structure" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem v-for="label in labels" :value="label">{{ label }}</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-        <div class="flex flex-col gap-1 flex-5">
-          <Label for="revision">Revision</Label>
-          <div class="flex gap-1">
-            <ButtonGroup class="w-full">
-              <Select id="revision" v-model="selectedRevision">
-                <SelectTrigger class="w-full">
-                  <SelectValue placeholder="Select a revision" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem
-                      v-for="srev in revisions"
-                      :value="srev"
-                    >{{ srev }}</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <PlainTooltip v-if="editing" content="Delete revision">
-                <Button variant="destructive" @click="structureStore.deleteRevision()"><MinusIcon /></Button>
-              </PlainTooltip>
-            </ButtonGroup>
-            <PlainTooltip v-if="editing" content="Save structure">
-              <Button variant="default" @click="structureStore.save()" :disabled="structureStore.loading || !structureStore.checkDiff()"><SaveIcon /></Button>
-            </PlainTooltip>
-            <PlainTooltip v-if="editing" content="Reset">
-              <Button variant="secondary" @click="structureStore.resetDiff()" :disabled="structureStore.loading || !structureStore.checkDiff()"><RotateCcwIcon /></Button>
-            </PlainTooltip>
-          </div>
-        </div>
-      </div>
+    <template #body v-if="showBody">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="w-0 text-center px-3">Semester</TableHead>
+            <TableHead class="w-0 text-center px-3">Code</TableHead>
+            <TableHead class="w-0 px-3">Name</TableHead>
+            <TableHead v-for="(po, poIndex) in programmeStore.saved.poList" :key="poIndex">PO{{ poIndex+1 }}</TableHead>
+            <template v-if="programmeStore.school?.components?.wks">
+              <TableHead v-for="(wk, wkIndex) in programmeStore.school?.components?.wks" :key="wkIndex">WK{{ (wkIndex as number)+1 }}</TableHead>
+            </template>
+            <template v-if="programmeStore.school?.components?.wps">
+              <TableHead v-for="(wp, wpIndex) in programmeStore.school?.components?.wps" :key="wpIndex">WP{{ (wpIndex as number)+1 }}</TableHead>
+            </template>
+            <template v-if="programmeStore.school?.components?.eas">
+              <TableHead v-for="(ea, eaIndex) in programmeStore.school?.components?.eas" :key="eaIndex">EA{{ (eaIndex as number)+1 }}</TableHead>
+            </template>
+            <TableHead>SDG</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <template v-for="(mapping, index) in structureStore.courseMappings" :key="index">
+            <TableRow>
+              <TableCell colspan="7">{{ mapping }}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell class="w-0 text-center px-3">{{ mapping.semester }}</TableCell>
+              <TableCell class="w-0 text-center px-3">{{ mapping.code }}</TableCell>
+              <TableCell class="w-0 px-3">{{ mapping.name }}</TableCell>
+              <TableCell v-for="(po, poIndex) in programmeStore.saved.poList" :key="poIndex"><CheckIcon v-if="mapping.pos.includes(poIndex + 1)" /></TableCell>
+              <TableCell v-if="programmeStore.school?.components?.wks" v-for="(wk, wkIndex) in programmeStore.school?.components?.wks" :key="wkIndex"><CheckIcon v-if="mapping.wks.includes((wkIndex as number)+1)" /></TableCell>
+              <TableCell v-if="programmeStore.school?.components?.wps" v-for="(wp, wpIndex) in programmeStore.school?.components?.wps" :key="wpIndex"><CheckIcon v-if="mapping.wps.includes((wpIndex as number)+1)" /></TableCell>
+              <TableCell v-if="programmeStore.school?.components?.eas" v-for="(ea, eaIndex) in programmeStore.school?.components?.eas" :key="eaIndex"><CheckIcon v-if="mapping.eas.includes((eaIndex as number)+1)" /></TableCell>
+              <TableCell><CheckIcon v-if="mapping.sdg" /></TableCell>
+            </TableRow>
+          </template>
+        </TableBody>
+      </Table>
     </template>
   </ContentCard>
 </template>

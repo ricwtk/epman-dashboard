@@ -86,3 +86,15 @@ export interface CourseInfo {
   transferableSkills: string[];
   deliveryMethods: string[];
 }
+
+export interface CourseMappingInfo {
+  semester: number;
+  code: string;
+  name: string;
+  credits: number;
+  pos: number[];
+  wks: number[];
+  wps: number[];
+  eas: number[];
+  sdg: boolean;
+}

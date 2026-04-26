@@ -9,6 +9,7 @@ import ProgrammePo from '@/components/programme/ProgrammePo.vue';
 import PoMapping from '@/components/programme/PoMapping.vue';
 import ProgrammeUpdateDialog from '@/components/programme/ProgrammeUpdateDialog.vue';
 import ProgrammeStructure from '@/components/programme/ProgrammeStructure.vue';
+import ProgrammeMapping from '@/components/programme/ProgrammeMapping.vue';
 
 import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();

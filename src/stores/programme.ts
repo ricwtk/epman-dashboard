@@ -73,7 +73,7 @@ export const useProgrammeStore = defineStore('programme', () => {
   }
 
   const school = computedAsync(async () => {
-    return await dataService.getSchoolByProgrammeCode(draft.value.code);
+    return await dataService.getSchoolByProgrammeCode(saved.value.code);
   });
 
   function clear(): void { draft.value = createNewProgramme(); saved.value = createNewProgramme(); }
