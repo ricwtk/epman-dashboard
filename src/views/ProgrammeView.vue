@@ -91,13 +91,13 @@ const updateEditing = (ev: boolean, tab?: string) => {
       :editing="editing"
       @update:editing="(ev) => updateEditing(ev, 'po')"
     /> -->
-    <PoMapping
+    <!-- <PoMapping
       :loading="loading"
       :editable="authStore.canEditProgrammes"
       :poList="programmeStore.saved.poList"
       :editing="editing"
       @editMapping="(courseType) => updateEditing(true, courseType)"
-    />
+    /> -->
     <ProgrammeStructure
       :editable="authStore.canEditProgrammes"
     />

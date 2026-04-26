@@ -203,12 +203,14 @@ export function getSortedUniqueLatestPartial<
   return partial
 }
 
-export function getNumbersOfObjectList(list: Record<string, any>, key: string): number[] {
+export function getNumbersOfObjectList(list: Record<string, any>[], key: string): number[] {
   const values = new Set<number>();
-  const target = list[key];
-  if (Array.isArray(target)) {
-    for (const item of target as number[]) {
-      values.add(item);
+  for (const item of list) {
+    const target = item[key];
+    if (Array.isArray(target)) {
+      for (const value of target as number[]) {
+        values.add(value);
+      }
     }
   }
   return Array.from(values).sort((a, b) => a - b);

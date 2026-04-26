@@ -164,10 +164,10 @@ export const createCourseInfo = (course?: Partial<Course>): CourseInfo => ({
 });
 
 export const createCourseMappingInfo = (course?: Partial<Course>): CourseMappingInfo => {
-  const pos = getNumbersOfObjectList(course?.cos || {}, 'pos') || [];
-  const wks = getNumbersOfObjectList(course?.cos || {}, 'wks') || [];
-  const wps = getNumbersOfObjectList(course?.cos || {}, 'wps') || [];
-  const eas = getNumbersOfObjectList(course?.cos || {}, 'eas') || [];
+  const pos = getNumbersOfObjectList(course?.cos || [], 'pos') || [];
+  const wks = getNumbersOfObjectList(course?.cos || [], 'wks') || [];
+  const wps = getNumbersOfObjectList(course?.cos || [], 'wps') || [];
+  const eas = getNumbersOfObjectList(course?.cos || [], 'eas') || [];
   const sdg = course?.cos?.some(c => c.sdg) || false;
   return {
     semester: course?.semester || 0,
