@@ -9,25 +9,19 @@ import { navigateToSchoolExternal, navigateToProgrammeExternal } from '@/utils/n
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 
-defineProps<{
-  programmes: ProgrammesWithCourse;
-  schools: SchoolsByCode;
-  editing: boolean;
-  editable?: boolean;
-  loading?: boolean;
-}>();
-
-defineEmits(['update:editing']);
+const props = defineProps<{storeId?: string}>()
+import { useCourseStore } from '@/stores/course';
+const courseStore = useCourseStore(props.storeId || "");
 </script>
 
 <template>
-  <ContentCard :editable="false" :editing="editing" @update:editing="$emit('update:editing', $event)">
+  <ContentCard :editable="false">
     <template #title>
       Programme Allocation
     </template>
     <template #body="{ editing }">
-      <LoadingComponent :show="loading" />
-      <EmptyComponent v-if="Object.keys(programmes).length === 0">
+      <LoadingComponent :show="courseStore.loading" />
+      <EmptyComponent v-if="Object.keys(courseStore.programmes).length === 0">
         <template #title>
           No Programme Allocation
         </template>
@@ -44,11 +38,11 @@ defineEmits(['update:editing']);
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="(prog, progKey) in programmes" :key="progKey">
+          <TableRow v-for="(prog, progKey) in courseStore.programmes" :key="progKey">
             <TableCell>
               <ButtonGroup class="gap-0!">
                 <ButtonGroupText class="justify-center">
-                  <span class="truncate" :title="prog.school">{{ schools[prog.school]?.name }}</span>
+                  <span class="truncate" :title="prog.school">{{ courseStore.schools[prog.school]?.name }}</span>
                 </ButtonGroupText>
                 <Button variant="outline" size="icon" @click="navigateToSchoolExternal(prog.school)"><SquareArrowOutUpRightIcon /></Button>
               </ButtonGroup>

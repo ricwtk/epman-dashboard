@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { Course, Assessment, Co } from '@/types/course';
+import type { AttrDesc } from '@/types/school';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import {
   Table,
@@ -27,16 +28,29 @@ import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
 
+import { useProgrammeListStore } from '@/stores/programmelist';
+const programmeListStore = useProgrammeListStore();
+const programmeCodeSelected = ref("");
+watch(() => programmeListStore.programmeLoaded, (val) => {
+  if (val && programmeCodeSelected.value === "")
+    programmeCodeSelected.value = programmeListStore.programmeSelections[0]?.value || "";
+})
+const selectedProgramme = computed(() => programmeListStore.codeToProgrammeMap[programmeCodeSelected.value])
+
+const POLIST = computed<Array<[string, string]>>(() => selectedProgramme.value?.poList.map(
+  (po, poIndex) => [`PO${poIndex + 1}`, po.attribute]
+) || [])
+const WKLIST = computed<Array<[string, string]>>(() => selectedProgramme.value?.school?.components?.wks?.map(
+  (wk: AttrDesc, wkIndex: number) => [`WK${wkIndex + 1}`, wk.descriptor]
+) || [])
+const WPLIST = computed<Array<[string, string]>>(() => selectedProgramme.value?.school?.components?.wps?.map(
+  (wp: AttrDesc, wpIndex: number) => [`WP${wpIndex + 1}`, wp.descriptor]
+) || [])
+const EALIST = computed<Array<[string, string]>>(() => selectedProgramme.value?.school?.components?.eas?.map(
+  (ea: AttrDesc, eaIndex: number) => [`EA${eaIndex + 1}`, ea.descriptor]
+) || [])
+
 const editing = ref(false);
-
-// const props = defineProps<{
-//   course: Course;
-//   schools?: {[code: string]: School};
-//   loading?: boolean;
-//   editing: boolean
-// }>();
-
-// defineEmits(['update:editing']);
 
 const course = computed({
   get: () => editing.value ? courseStore.draft : courseStore.saved,
@@ -55,16 +69,16 @@ const setEditing = (value: boolean) => {
   }
 };
 
-watch(() => courseStore.programmes, () => {
-  if (courseStore.programmes && Object.keys(courseStore.programmes).length > 0 && courseStore.selectedProgrammeCode === "") {
-    courseStore.selectedProgrammeCode = Object.keys(courseStore.programmes)[0] || "";
-    // selectedSchoolCode.value = courseStore.programmes[courseStore.selectedProgrammeCode]?.school || "";
-  }
-})
-const selectProgramme = (progCode: string) => {
-  courseStore.selectedProgrammeCode = progCode;
-  // selectedSchoolCode.value = courseStore.programmes[progCode]?.school || "";
-}
+// watch(() => courseStore.programmes, () => {
+//   if (courseStore.programmes && Object.keys(courseStore.programmes).length > 0 && courseStore.selectedProgrammeCode === "") {
+//     courseStore.selectedProgrammeCode = Object.keys(courseStore.programmes)[0] || "";
+//     // selectedSchoolCode.value = courseStore.programmes[courseStore.selectedProgrammeCode]?.school || "";
+//   }
+// })
+// const selectProgramme = (progCode: string) => {
+//   courseStore.selectedProgrammeCode = progCode;
+//   // selectedSchoolCode.value = courseStore.programmes[progCode]?.school || "";
+// }
 
 import { getCEPCEA } from '@/utils/courseHelpers';
 
@@ -123,7 +137,6 @@ const resetAll = () => {
     });
   });
 }
-
 </script>
 
 <template>
@@ -146,7 +159,21 @@ const resetAll = () => {
         </template>
       </EmptyComponent>
       <template v-else>
-        <div class="flex flex-row items-center gap-2">
+        <div class="flex flex-row items-center gap-2 pb-2">
+
+          <Select v-model="programmeCodeSelected">
+            <SelectTrigger>
+              <SelectValue placeholder="Select programme"/>
+            </SelectTrigger>
+            <SelectContent>
+              <template v-for="(progItem, progIndex) in programmeListStore.programmeSelections || []" :key="progIndex">
+                <SelectItem :value="progItem.value">{{ progItem.label }}</SelectItem>
+              </template>
+            </SelectContent>
+          </Select>
+
+          <span v-if="programmeCodeSelected">under {{ programmeListStore.codeToProgrammeMap[programmeCodeSelected]?.school.name }}</span>
+<!--
 
           <Select :modelValue="courseStore.selectedProgrammeCode" @update:modelValue="(value) => selectProgramme(String(value))">
             <SelectTrigger>
@@ -159,7 +186,7 @@ const resetAll = () => {
             </SelectContent>
           </Select>
 
-          <span v-if="courseStore.selectedSchool">under {{ courseStore.selectedSchool.name }}</span>
+          <span v-if="courseStore.selectedSchool">under {{ courseStore.selectedSchool.name }}</span> -->
         </div>
 
         <Table>
@@ -189,7 +216,7 @@ const resetAll = () => {
                 <template v-if="editing">
                   <MappingSelectionMenu
                     class="mb-1 text-xs"
-                    :items="courseStore.selectedProgramme?.poList.map((po, poIndex) => [`PO${poIndex + 1}`, po.attribute]) || []"
+                    :items="POLIST"
                     :selectedItems="co.pos"
                     @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'po', itemIndex + 1)"
                     label="PO"
@@ -209,7 +236,7 @@ const resetAll = () => {
                 <template v-if="editing">
                   <MappingSelectionMenu
                     class="mb-1 text-xs"
-                    :items="courseStore.WKLIST"
+                    :items="WKLIST"
                     :selectedItems="co.wks"
                     @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wk', itemIndex + 1)"
                     label="WK"
@@ -229,7 +256,7 @@ const resetAll = () => {
                 <template v-if="editing">
                   <MappingSelectionMenu
                     class="mb-1 text-xs"
-                    :items="courseStore.WPLIST"
+                    :items="WPLIST"
                     :selectedItems="co.wps"
                     @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wp', itemIndex + 1)"
                     label="WP"
@@ -249,7 +276,7 @@ const resetAll = () => {
                 <template v-if="editing">
                   <MappingSelectionMenu
                     class="mb-1 text-xs"
-                    :items="courseStore.EALIST"
+                    :items="EALIST"
                     :selectedItems="co.eas"
                     @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'ea', itemIndex + 1)"
                     label="EA"
@@ -293,22 +320,22 @@ const resetAll = () => {
                   <div class="flex flex-col gap-1 items-center">
                     <div class="w-full flex flex-row gap-1" v-if="editing && assessment.cos.includes(index + 1)">
                       <MappingSelectionMenu
-                        :items="courseStore.WPLIST"
-                        :selectedItems="getCEPCEA(assessment, index+1, 'wp', courseStore.WPLIST).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        :items="WPLIST"
+                        :selectedItems="getCEPCEA(assessment, index+1, 'wp', WPLIST).map((cepcea) => Number(cepcea[0]!.slice(2)))"
                         @select="(itemIndex: number) => courseStore.setCEPCEA(assessmentIndex, index+1, 'wp', itemIndex+1)"
                         label="WP"
                       />
 
                       <MappingSelectionMenu
-                        :items="courseStore.EALIST"
-                        :selectedItems="getCEPCEA(assessment, index+1, 'ea', courseStore.EALIST).map((cepcea) => Number(cepcea[0]!.slice(2)))"
+                        :items="EALIST"
+                        :selectedItems="getCEPCEA(assessment, index+1, 'ea', EALIST).map((cepcea) => Number(cepcea[0]!.slice(2)))"
                         @select="(itemIndex: number) => courseStore.setCEPCEA(assessmentIndex, index+1, 'ea', itemIndex+1)"
                         label="EA"
                       />
                     </div>
 
                     <template v-for="component in ['wp', 'ea']">
-                      <template v-for="cepcea in getCEPCEA(assessment, index+1, component as 'wp' | 'ea', courseStore[(component.toUpperCase()+'LIST' as 'WPLIST' | 'EALIST')])" :key="cepcea[0]">
+                      <template v-for="cepcea in getCEPCEA(assessment, index+1, component as 'wp' | 'ea', component === 'wp' ? WPLIST : EALIST)" :key="cepcea[0]">
                         <ButtonGroup class="gap-0! w-full flex">
                           <ButtonGroupText class="w-15 flex justify-center text-sm">{{ cepcea[0] }}</ButtonGroupText>
                           <ButtonGroupText class="flex-1 min-w-40 text-wrap text-xs text-left line-clamp-3" :title="cepcea[1]">{{ cepcea[1] }}</ButtonGroupText>

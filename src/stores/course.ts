@@ -187,36 +187,6 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
   function removeDeliveryMethod(value: string): void { removeListItem('deliveryMethods', value) }
   function toggleDeliveryMethod(value: string): void { toggleListItem('deliveryMethods', value) }
 
-  const WKLIST = computed<Array<[string, string]>>(() => {
-    if (selectedSchool.value) {
-      const school = selectedSchool.value;
-      if (school && school.components && school.components.wks) {
-        return school.components.wks.map((wk: AttrDesc, index: number) => [`WK${index + 1}`, wk.descriptor]);
-      }
-    }
-    return [];
-  })
-
-  const WPLIST = computed<Array<[string, string]>>(() => {
-    if (selectedSchool.value) {
-      const school = selectedSchool.value;
-      if (school && school.components && school.components.wps) {
-        return school.components.wps.map((wp: AttrDesc, index: number) => [`WP${index + 1}`, wp.descriptor]);
-      }
-    }
-    return [];
-  })
-
-  const EALIST = computed<Array<[string, string]>>(() => {
-    if (selectedSchool.value) {
-      const school = selectedSchool.value;
-      if (school && school.components && school.components.eas) {
-        return school.components.eas.map((ea: AttrDesc, index: number) => [`EA${index + 1}`, ea.descriptor]);
-      }
-    }
-    return [];
-  })
-
   function addCoMapping(coIndex: number, type: 'po' | 'wk' | 'wp' | 'ea', componentNumber: number): void {
     const co = draft.value.cos[coIndex]
     const componentKey: keyof Co = `${type}s`
@@ -390,10 +360,10 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     return computed(() => {
       const original_assessment = saved.value.assessments[assessmentIndex] as Assessment
       const current_assessment = draft.value.assessments[assessmentIndex] as Assessment
-      const original_descriptors_wp = getCEPCEA(original_assessment, coIndex, 'wp', WPLIST.value)
-      const current_descriptors_wp = getCEPCEA(current_assessment, coIndex, 'wp', WPLIST.value)
-      const original_descriptors_ea = getCEPCEA(original_assessment, coIndex, 'ea', EALIST.value)
-      const current_descriptors_ea = getCEPCEA(current_assessment, coIndex, 'ea', EALIST.value)
+      const original_descriptors_wp = getCEPCEA(original_assessment, coIndex, 'wp', [])
+      const current_descriptors_wp = getCEPCEA(current_assessment, coIndex, 'wp', [])
+      const original_descriptors_ea = getCEPCEA(original_assessment, coIndex, 'ea', [])
+      const current_descriptors_ea = getCEPCEA(current_assessment, coIndex, 'ea', [])
       return checkDiffCommon(original_descriptors_wp, current_descriptors_wp, []) || checkDiffCommon(original_descriptors_ea, current_descriptors_ea, [])
     })
   }
@@ -401,10 +371,10 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
   const resetCEPCEA = (assessmentIndex: number, coIndex: number) => {
     const original_assessment = saved.value.assessments[assessmentIndex] as Assessment
     const current_assessment = draft.value.assessments[assessmentIndex] as Assessment
-    const original_wp = getCEPCEA(original_assessment, coIndex, 'wp', WPLIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
-    const current_wp = getCEPCEA(current_assessment, coIndex, 'wp', WPLIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
-    const original_ea = getCEPCEA(original_assessment, coIndex, 'ea', EALIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
-    const current_ea = getCEPCEA(current_assessment, coIndex, 'ea', EALIST.value).map((cepcea) => Number(cepcea[0]!.slice(2)))
+    const original_wp = getCEPCEA(original_assessment, coIndex, 'wp', []).map((cepcea) => Number(cepcea[0]!.slice(2)))
+    const current_wp = getCEPCEA(current_assessment, coIndex, 'wp', []).map((cepcea) => Number(cepcea[0]!.slice(2)))
+    const original_ea = getCEPCEA(original_assessment, coIndex, 'ea', []).map((cepcea) => Number(cepcea[0]!.slice(2)))
+    const current_ea = getCEPCEA(current_assessment, coIndex, 'ea', []).map((cepcea) => Number(cepcea[0]!.slice(2)))
 
     const wp_set = new Set([...original_wp, ...current_wp])
     const ea_set = new Set([...original_ea, ...current_ea])
@@ -571,8 +541,8 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     loadCourseByCode, loadRevision, deleteRevision,
     clear, createDraft, resetDraft, save,
     programmes, schools,
-    selectedProgrammeCode, selectedProgramme, selectedSchool,
-    notAssignedToProgramme, programmeNotSelected, programmeNotAssigned,
+    // selectedProgrammeCode, selectedProgramme, selectedSchool, programmeNotSelected,
+    notAssignedToProgramme, programmeNotAssigned,
     editingTab,
     checkDiff, resetDiff,
     checkArrayItemDiff, resetArrayItemDiff,
@@ -582,7 +552,6 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     addTransferableSkill, removeTransferableSkill, toggleTransferableSkill,
     addPrerequisite, removePrerequisite, togglePrerequisite,
     addDeliveryMethod, removeDeliveryMethod, toggleDeliveryMethod,
-    WKLIST, WPLIST, EALIST,
     addCo, removeCo, moveCoUp, moveCoDown,
     addCoMapping, removeCoMapping, toggleCoMapping,
     addTopic, removeTopic, moveTopicUp, moveTopicDown,
