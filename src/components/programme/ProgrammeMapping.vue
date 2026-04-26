@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { ref, computed } from 'vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
-import LoadingComponent from '@/components/LoadingComponent.vue';
-import EmptyComponent from '@/components/EmptyComponent.vue';
 import ProgrammeMappingControls from '@/components/programme/ProgrammeMappingControls.vue';
 import { Button } from '@/components/ui/button';
-import { CheckIcon, ArrowUpDownIcon, Columns3Icon } from 'lucide-vue-next';
+import { CheckIcon, SquareArrowOutUpRightIcon } from 'lucide-vue-next';
+
+import { navigateToCourseExternal } from '@/utils/navigationHelpers';
 
 import { useProgrammeStore } from '@/stores/programme';
 const programmeStore = useProgrammeStore();
@@ -41,6 +39,10 @@ const sortedMappings = computed(() => {
     return 0
   })
 })
+
+const viewCourse = (courseCode: string) => {
+  navigateToCourseExternal(courseCode)
+}
 </script>
 
 <template>
@@ -58,6 +60,7 @@ const sortedMappings = computed(() => {
             <TableHead class="w-0 text-center px-3">Semester</TableHead>
             <TableHead class="w-0 text-center px-3">Code</TableHead>
             <TableHead class="w-0 px-3">Name</TableHead>
+            <TableHead class="w-0"></TableHead>
             <template v-if="visibleColumns.po">
               <TableHead class="w-0.5 bg-accent"></TableHead>
               <TableHead v-for="(po, poIndex) in programmeStore.saved.poList" :key="poIndex">PO{{ poIndex+1 }}</TableHead>
@@ -86,6 +89,9 @@ const sortedMappings = computed(() => {
               <TableCell class="w-0 text-center px-3">{{ mapping.semester }}</TableCell>
               <TableCell class="w-0 text-center px-3">{{ mapping.code }}</TableCell>
               <TableCell class="w-0 px-3">{{ mapping.name }}</TableCell>
+              <TableCell>
+                <Button @click="viewCourse(mapping.code)" variant="ghost" class="text-secondary"><SquareArrowOutUpRightIcon /></Button>
+              </TableCell>
               <template v-if="visibleColumns.po">
                 <TableCell class="w-0.5 bg-accent"></TableCell>
                 <TableCell v-for="(po, poIndex) in programmeStore.saved.poList" :key="poIndex" class="text-center"><CheckIcon class="inline-block" v-if="mapping.pos.includes(poIndex + 1)" /></TableCell>
