@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, toRaw, watch } from 'vue';
-import { Badge } from '@/components/ui/badge';
+import { onMounted, ref } from 'vue';
 import NavIndicator from '@/components/NavIndicator.vue';
 import { RevisionDropdown, RevisionDeleteButton } from '@/components/revision';
 
@@ -10,9 +9,7 @@ import CourseOutcomes from '@/components/course/CourseOutcomes.vue';
 import CourseAssessments from '@/components/course/CourseAssessments.vue';
 import CEPCEAImplementation from '@/components/course/CEPCEAImplementation.vue';
 import CoursePlan from '@/components/course/CoursePlan.vue';
-import CourseReferences from '@/components/course/CourseReferences.vue';
 import ReferenceList from '@/components/course/ReferenceList.vue';
-import CourseUpdateDialog from '@/components/course/CourseUpdateDialog.vue';
 
 import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
@@ -52,66 +49,22 @@ const updateEditing = (ev: boolean, tab?: string) => {
       <div class="grow"></div>
       <RevisionDeleteButton @delete="courseStore.deleteRevision()" v-if="authStore.canEditCourses"/>
     </div>
-    <!-- <CourseSummary
-      :loading="courseStore.loading"
-      :editable="authStore.canEditCourses"
-      :course="courseStore.saved"
-      :editing="editing"
-      @update:editing="(ev) => updateEditing(ev, 'summary')"
-    /> -->
     <CourseSummary
       :editable="authStore.canEditCourses"
     />
     <ProgrammeAllocation />
-    <!-- <ProgrammeAllocation
-      :loading="courseStore.loading"
-      :editable="authStore.canEditCourses"
-      :programmes="courseStore.programmes"
-      :schools="courseStore.schools"
-      :editing="editing"
-      @update:editing="(ev: boolean) => updateEditing(ev, 'summary')"
-    /> -->
-    <!-- <CourseOutcomes
-      :loading="courseStore.loading"
-      :editable="authStore.canEditCourses"
-      :cos="courseStore.saved.cos || []"
-      :editing="editing"
-      @update:editing="(ev) => updateEditing(ev, 'outcomes')"
-    /> -->
     <CourseOutcomes
       :editable="authStore.canEditCourses"
     />
     <CourseAssessments
       :editable="authStore.canEditCourses"
     />
-    <!-- <CourseAssessments
-      :loading="courseStore.loading"
-      :editable="authStore.canEditCourses"
-      :assessments="courseStore.saved.assessments"
-      :coCount="courseStore.saved.cos?.length || 0"
-      :editing="editing"
-      @update:editing="(ev) => updateEditing(ev, 'assessments')"
-    /> -->
     <CEPCEAImplementation
-      :loading="courseStore.loading"
       :editable="authStore.canEditCourses"
-      :course="courseStore.saved"
-      :schools="courseStore.schools"
     />
-      <!-- :editing="editing"
-      @update:editing="(ev) => editing = ev" -->
-      <!-- @update:editing="(ev) => updateEditing(ev, 'assessments')" -->
     <CoursePlan
       :editable="authStore.canEditCourses"
     />
-    <!-- <CoursePlan
-      :loading="courseStore.loading"
-      :editable="authStore.canEditCourses"
-      :course="courseStore.saved"
-      :editing="editing"
-      @update:editing="(ev) => updateEditing(ev, 'teachingplan')"
-    /> -->
-
     <ReferenceList
       title="Main References"
       referenceLabel="main"
@@ -120,13 +73,5 @@ const updateEditing = (ev: boolean, tab?: string) => {
       title="Additional References"
       referenceLabel="additional"
     />
-    <!-- <CourseReferences
-      :loading="courseStore.loading"
-      :editable="authStore.canEditCourses"
-      :references="courseStore.saved.references || []"
-      :editing="editing"
-      @update:editing="(ev) => updateEditing(ev, 'references')"
-    /> -->
-    <CourseUpdateDialog v-model:isOpen="editing" />
   </template>
 </template>

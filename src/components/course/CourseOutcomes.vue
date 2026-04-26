@@ -14,6 +14,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckIcon, MinusIcon, CircleChevronDownIcon, PlusIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-vue-next";
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
@@ -28,6 +29,9 @@ const props = defineProps<{storeId?: string}>()
 import { useCourseStore } from '@/stores/course';
 const courseStore = useCourseStore(props.storeId || "");
 const saveCourse = () => { courseStore.save(); }
+
+import { useProgrammeListStore } from '@/stores/programmelist';
+const programmeListStore = useProgrammeListStore();
 
 const editing = ref(false);
 
@@ -99,172 +103,190 @@ const getMenuItems = (coIndex: number) => {
           Define course outcomes to display mapping
         </template>
       </EmptyComponent>
-      <Table v-else>
-        <TableHeader>
-          <TableRow>
-            <TableHead class="text-center w-0 px-10">#</TableHead>
-            <TableHead class="">CO</TableHead>
-            <TableHead class="text-center w-0 px-10">BT</TableHead>
-            <TableHead class="text-center w-0 px-10">PO</TableHead>
-            <TableHead class="text-center w-0 px-10">WK</TableHead>
-            <TableHead class="text-center w-0 px-10">WP</TableHead>
-            <TableHead class="text-center w-0 px-10">EA</TableHead>
-            <TableHead class="text-center w-0 px-10">SDG</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow v-for="(co, index) in course.cos" :key="index">
-            <TableCell class="text-center">
-              <div class="flex justify-center items-center">
-                <ListItemMenu :menu-items="getMenuItems(index)" v-if="editing"/>
-                <span class="px-1">{{ index + 1 }}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <InputGroup v-if="editing">
-                <InputGroupTextarea v-model="co.description"/>
-                <InputGroupAddon align="block-end">
-                  <div class="w-full flex justify-end">
-                    <ResetButton
-                      :show="courseStore.checkDiff(['cos', String(index), 'description'])"
-                      @reset="courseStore.resetDiff(['cos', String(index), 'description'])"
+      <template v-else>
+        <div class="flex flex-row items-center gap-2 pb-2">
+
+          <Select v-model="programmeListStore.programmeCodeSelected">
+            <SelectTrigger>
+              <SelectValue placeholder="Select programme"/>
+            </SelectTrigger>
+            <SelectContent>
+              <template v-for="(progItem, progIndex) in programmeListStore.programmeSelections || []" :key="progIndex">
+                <SelectItem :value="progItem.value">{{ progItem.label }}</SelectItem>
+              </template>
+            </SelectContent>
+          </Select>
+
+          <span class="text-xs" v-if="programmeListStore.programmeCodeSelected">under {{ programmeListStore.selectedSchool?.name }}</span>
+
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead class="text-center w-0 px-10">#</TableHead>
+              <TableHead class="">CO</TableHead>
+              <TableHead class="text-center w-0 px-10">BT</TableHead>
+              <TableHead class="text-center w-0 px-10">PO</TableHead>
+              <TableHead class="text-center w-0 px-10">WK</TableHead>
+              <TableHead class="text-center w-0 px-10">WP</TableHead>
+              <TableHead class="text-center w-0 px-10">EA</TableHead>
+              <TableHead class="text-center w-0 px-10">SDG</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-for="(co, index) in course.cos" :key="index">
+              <TableCell class="text-center">
+                <div class="flex justify-center items-center">
+                  <ListItemMenu :menu-items="getMenuItems(index)" v-if="editing"/>
+                  <span class="px-1">{{ index + 1 }}</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <InputGroup v-if="editing">
+                  <InputGroupTextarea v-model="co.description"/>
+                  <InputGroupAddon align="block-end">
+                    <div class="w-full flex justify-end">
+                      <ResetButton
+                        :show="courseStore.checkDiff(['cos', String(index), 'description'])"
+                        @reset="courseStore.resetDiff(['cos', String(index), 'description'])"
+                      />
+                    </div>
+                  </InputGroupAddon>
+                </InputGroup>
+                <span v-else>
+                  {{ co.description }}
+                </span>
+              </TableCell>
+              <TableCell class="text-center">
+                <div class="flex flex-col items-center gap-1">
+                  <BloomtaxSelection
+                    :selected="`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`"
+                    :editing="editing"
+                    @select="(domain, level) => selectBtLevel(co, domain, level)"
+                  >
+                    <template #trigger>
+                      <BadgeList
+                        :editing="editing"
+                        :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]"
+                      >
+                        <template #editIcon>
+                          <CircleChevronDownIcon :size="14" />
+                        </template>
+                      </BadgeList>
+                    </template>
+                  </BloomtaxSelection>
+                  <ResetButton v-if="editing"
+                    :show="courseStore.checkDiff(['cos', String(index), 'bloomtax'])"
+                    @reset="courseStore.resetDiff(['cos', String(index), 'bloomtax'])"
+                  />
+                </div>
+              </TableCell>
+              <TableCell class="text-center">
+                <div class="flex flex-col items-center gap-1">
+                  <template v-if="editing">
+                    <MappingSelectionMenu
+                      class="mb-1 text-xs"
+                      :items="programmeListStore.polist"
+                      :selectedItems="co.pos"
+                      @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'po', itemIndex + 1)"
+                      label="PO"
                     />
-                  </div>
-                </InputGroupAddon>
-              </InputGroup>
-              <span v-else>
-                {{ co.description }}
-              </span>
-            </TableCell>
-            <TableCell class="text-center">
-              <div class="flex flex-col items-center gap-1">
-                <BloomtaxSelection
-                  :selected="`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`"
-                  :editing="editing"
-                  @select="(domain, level) => selectBtLevel(co, domain, level)"
-                >
-                  <template #trigger>
-                    <BadgeList
-                      :editing="editing"
-                      :items="[`${co.bloomtax[0].toUpperCase()}${co.bloomtax[1]}`]"
-                    >
-                      <template #editIcon>
-                        <CircleChevronDownIcon :size="14" />
-                      </template>
-                    </BadgeList>
                   </template>
-                </BloomtaxSelection>
-                <ResetButton v-if="editing"
-                  :show="courseStore.checkDiff(['cos', String(index), 'bloomtax'])"
-                  @reset="courseStore.resetDiff(['cos', String(index), 'bloomtax'])"
-                />
-              </div>
-            </TableCell>
-            <TableCell class="text-center">
-              <div class="flex flex-col items-center gap-1">
-                <template v-if="editing">
-                  <MappingSelectionMenu
-                    class="mb-1 text-xs"
-                    :items="courseStore.selectedProgramme?.poList.map((po, poIndex) => [`PO${poIndex + 1}`, po.attribute]) || []"
-                    :selectedItems="co.pos"
-                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'po', itemIndex + 1)"
-                    label="PO"
+                  <BadgeList
+                    :items="co.pos.sort().map((po) => 'PO'+po)"
+                    :editing="editing"
+                    @remove="(item: string) => courseStore.removeCoMapping(index, 'po', Number(item.slice(2)))"
                   />
-                </template>
-                <BadgeList
-                  :items="co.pos.sort().map((po) => 'PO'+po)"
-                  :editing="editing"
-                  @remove="(item: string) => courseStore.removeCoMapping(index, 'po', Number(item.slice(2)))"
-                />
-                <ResetButton v-if="editing"
-                  :show="courseStore.checkDiff(['cos', String(index), 'pos'])"
-                  @reset="courseStore.resetDiff(['cos', String(index), 'pos'])"
-                />
-              </div>
-            </TableCell>
-            <TableCell class="text-center">
-              <div class="flex flex-col items-center gap-1">
-                <template v-if="editing">
-                  <MappingSelectionMenu
-                    class="mb-1 text-xs"
-                    :items="courseStore.WKLIST"
-                    :selectedItems="co.wks"
-                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wk', itemIndex + 1)"
-                    label="WK"
+                  <ResetButton v-if="editing"
+                    :show="courseStore.checkDiff(['cos', String(index), 'pos'])"
+                    @reset="courseStore.resetDiff(['cos', String(index), 'pos'])"
                   />
-                </template>
-                <BadgeList
-                  :items="co.wks.sort().map((wk) => 'WK'+wk)"
-                  :editing="editing"
-                  @remove="(item: string) => courseStore.removeCoMapping(index, 'wk', Number(item.slice(2)))"
-                />
-                <ResetButton v-if="editing"
-                  :show="courseStore.checkDiff(['cos', String(index), 'wks'])"
-                  @reset="courseStore.resetDiff(['cos', String(index), 'wks'])"
-                />
-              </div>
-            </TableCell>
-            <TableCell class="text-center">
-              <div class="flex flex-col items-center gap-1">
-                <template v-if="editing">
-                  <MappingSelectionMenu
-                    class="mb-1 text-xs"
-                    :items="courseStore.WPLIST"
-                    :selectedItems="co.wps"
-                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wp', itemIndex + 1)"
-                    label="WP"
+                </div>
+              </TableCell>
+              <TableCell class="text-center">
+                <div class="flex flex-col items-center gap-1">
+                  <template v-if="editing">
+                    <MappingSelectionMenu
+                      class="mb-1 text-xs"
+                      :items="programmeListStore.wklist"
+                      :selectedItems="co.wks"
+                      @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wk', itemIndex + 1)"
+                      label="WK"
+                    />
+                  </template>
+                  <BadgeList
+                    :items="co.wks.sort().map((wk) => 'WK'+wk)"
+                    :editing="editing"
+                    @remove="(item: string) => courseStore.removeCoMapping(index, 'wk', Number(item.slice(2)))"
                   />
-                </template>
-                <BadgeList
-                  :items="co.wps.sort().map((wp) => 'WP'+wp)"
-                  :editing="editing"
-                  @remove="(item: string) => courseStore.removeCoMapping(index, 'wp', Number(item.slice(2)))"
-                />
-                <ResetButton v-if="editing"
-                  :show="courseStore.checkDiff(['cos', String(index), 'wps'])"
-                  @reset="courseStore.resetDiff(['cos', String(index), 'wps'])"
-                />
-              </div>
-            </TableCell>
-            <TableCell class="text-center">
-              <div class="flex flex-col items-center gap-1">
-                <template v-if="editing">
-                  <MappingSelectionMenu
-                    class="mb-1 text-xs"
-                    :items="courseStore.EALIST"
-                    :selectedItems="co.eas"
-                    @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'ea', itemIndex + 1)"
-                    label="EA"
+                  <ResetButton v-if="editing"
+                    :show="courseStore.checkDiff(['cos', String(index), 'wks'])"
+                    @reset="courseStore.resetDiff(['cos', String(index), 'wks'])"
                   />
-                </template>
-                <BadgeList
-                  :items="co.eas.sort().map((ea) => 'EA'+ea)"
-                  :editing="editing"
-                  @remove="(item: string) => courseStore.removeCoMapping(index, 'ea', Number(item.slice(2)))"
-                />
-                <ResetButton v-if="editing"
-                  :show="courseStore.checkDiff(['cos', String(index), 'eas'])"
-                  @reset="courseStore.resetDiff(['cos', String(index), 'eas'])"
-                />
-              </div>
-            </TableCell>
-            <TableCell class="text-center p-2!">
-              <div class="flex flex-col items-center gap-1">
-                <Checkbox v-if="editing" v-model="co.sdg" />
-                <template v-else>
-                  <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
-                  <MinusIcon class="inline-block" :size="16" v-else />
-                </template>
-                <ResetButton v-if="editing"
-                  :show="courseStore.checkDiff(['cos', String(index), 'sdg'])"
-                  @reset="courseStore.resetDiff(['cos', String(index), 'sdg'])"
-                />
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-      <Button v-if="editing" variant="secondary" class="w-full" @click="courseStore.addCo()"><PlusIcon /></Button>
+                </div>
+              </TableCell>
+              <TableCell class="text-center">
+                <div class="flex flex-col items-center gap-1">
+                  <template v-if="editing">
+                    <MappingSelectionMenu
+                      class="mb-1 text-xs"
+                      :items="programmeListStore.wplist"
+                      :selectedItems="co.wps"
+                      @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'wp', itemIndex + 1)"
+                      label="WP"
+                    />
+                  </template>
+                  <BadgeList
+                    :items="co.wps.sort().map((wp) => 'WP'+wp)"
+                    :editing="editing"
+                    @remove="(item: string) => courseStore.removeCoMapping(index, 'wp', Number(item.slice(2)))"
+                  />
+                  <ResetButton v-if="editing"
+                    :show="courseStore.checkDiff(['cos', String(index), 'wps'])"
+                    @reset="courseStore.resetDiff(['cos', String(index), 'wps'])"
+                  />
+                </div>
+              </TableCell>
+              <TableCell class="text-center">
+                <div class="flex flex-col items-center gap-1">
+                  <template v-if="editing">
+                    <MappingSelectionMenu
+                      class="mb-1 text-xs"
+                      :items="programmeListStore.ealist"
+                      :selectedItems="co.eas"
+                      @select="(itemIndex: number) => courseStore.toggleCoMapping(index, 'ea', itemIndex + 1)"
+                      label="EA"
+                    />
+                  </template>
+                  <BadgeList
+                    :items="co.eas.sort().map((ea) => 'EA'+ea)"
+                    :editing="editing"
+                    @remove="(item: string) => courseStore.removeCoMapping(index, 'ea', Number(item.slice(2)))"
+                  />
+                  <ResetButton v-if="editing"
+                    :show="courseStore.checkDiff(['cos', String(index), 'eas'])"
+                    @reset="courseStore.resetDiff(['cos', String(index), 'eas'])"
+                  />
+                </div>
+              </TableCell>
+              <TableCell class="text-center p-2!">
+                <div class="flex flex-col items-center gap-1">
+                  <Checkbox v-if="editing" v-model="co.sdg" />
+                  <template v-else>
+                    <CheckIcon class="inline-block" :size="16" v-if="co.sdg" />
+                    <MinusIcon class="inline-block" :size="16" v-else />
+                  </template>
+                  <ResetButton v-if="editing"
+                    :show="courseStore.checkDiff(['cos', String(index), 'sdg'])"
+                    @reset="courseStore.resetDiff(['cos', String(index), 'sdg'])"
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        <Button v-if="editing" variant="secondary" class="w-full" @click="courseStore.addCo()"><PlusIcon /></Button>
+      </template>
     </template>
   </ContentCard>
 </template>
