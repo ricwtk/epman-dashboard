@@ -102,6 +102,15 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
         if (!Object.keys(assessment).includes('format')) {
           assessment.format = ''
         }
+        for (const key of ['wps', 'eas'] as const) {
+          if (Object.keys(assessment).includes(key) && Array.isArray(assessment[key])) {
+            const originalArray = [...assessment[key]]
+            assessment[key] = course.cos.reduce((acc, _, index) => ({
+              ...acc,
+              [`CO${index + 1}`]: [...originalArray]
+            }), {})
+          }
+        }
       })
       return course
     })
@@ -280,14 +289,23 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     }
   }
 
-  function addAssessmentMapping(assessmentIndex: number, breakdownIndex: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
+  function addAssessmentMapping(assessmentIndex: number, breakdownIndex: number, coNumber: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
     const assessment = draft.value.assessments[assessmentIndex]
     if (assessment) {
       if (breakdownIndex == -1) {
         const componentKey: keyof Assessment = `${type}s`
-        if (!assessment[componentKey]) assessment[componentKey] = []
-        if (!assessment[componentKey].includes(componentNumber)) {
-          assessment[componentKey].push(componentNumber)
+        if (componentKey == "cos") {
+          if (!assessment[componentKey]) assessment[componentKey] = []
+          if (!assessment[componentKey].includes(componentNumber)) {
+            assessment[componentKey].push(componentNumber)
+          }
+        } else {
+          const coKey = `CO${coNumber}`
+          if (!assessment[componentKey]) assessment[componentKey] = ({} as Record<string, number[]>)
+          if (!assessment[componentKey][coKey]) assessment[componentKey][coKey] = ([] as number[])
+          if (!assessment[componentKey][coKey].includes(componentNumber)) {
+            assessment[componentKey][coKey].push(componentNumber)
+          }
         }
       } else {
         const breakdown = assessment.breakdown[breakdownIndex]
@@ -306,13 +324,20 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     }
   }
 
-  function removeAssessmentMapping(assessmentIndex: number, breakdownIndex: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
+  function removeAssessmentMapping(assessmentIndex: number, breakdownIndex: number, coNumber: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
     const assessment = draft.value.assessments[assessmentIndex]
     if (assessment) {
       if (breakdownIndex == -1) {
         const componentKey: keyof Assessment = `${type}s`
         if (assessment[componentKey]) {
-          assessment[componentKey] = assessment[componentKey].filter((n) => n !== componentNumber)
+          if (componentKey == "cos") {
+            assessment[componentKey] = assessment[componentKey].filter((n) => n !== componentNumber)
+          } else {
+            const coKey = `CO${coNumber}`
+            if (assessment[componentKey][coKey]) {
+              assessment[componentKey][coKey] = assessment[componentKey][coKey].filter((n) => n !== componentNumber)
+            }
+          }
         }
       } else {
         const breakdown = assessment.breakdown[breakdownIndex]
@@ -326,16 +351,27 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     }
   }
 
-  function toggleAssessmentMapping(assessmentIndex: number, breakdownIndex: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
+  function toggleAssessmentMapping(assessmentIndex: number, breakdownIndex: number, coNumber: number, type: 'wp' | 'ea' | 'co', componentNumber: number): void {
     const assessment = draft.value.assessments[assessmentIndex]
     if (assessment) {
       if (breakdownIndex == -1) {
-        const componentKey: keyof Assessment = `${type}s`
-        if (!assessment[componentKey]) assessment[componentKey] = []
-        if (!assessment[componentKey].includes(componentNumber)) {
-          assessment[componentKey].push(componentNumber)
+        const componentKey: keyof Assessment = `${type}s` as 'wps' | 'eas' | 'cos'
+        if (componentKey == "cos") {
+          if (!assessment[componentKey]) assessment[componentKey] = ([] as number[])
+          if (!assessment[componentKey].includes(componentNumber)) {
+            assessment[componentKey].push(componentNumber)
+          } else {
+            assessment[componentKey] = assessment[componentKey].filter((n) => n !== componentNumber)
+          }
         } else {
-          assessment[componentKey] = assessment[componentKey].filter((n) => n !== componentNumber)
+          const coKey = `CO${coNumber}`
+          if (!assessment[componentKey]) assessment[componentKey] = ({} as Record<string, number[]>)
+          if (!assessment[componentKey][coKey]) assessment[componentKey][coKey] = ([] as number[])
+          if (!assessment[componentKey][coKey].includes(componentNumber)) {
+            assessment[componentKey][coKey].push(componentNumber)
+          } else {
+            assessment[componentKey][coKey] = assessment[componentKey][coKey].filter((n) => n !== componentNumber)
+          }
         }
       } else {
         const breakdown = assessment.breakdown[breakdownIndex]
@@ -397,12 +433,12 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
       if (assessment.breakdown.length > 0) {
         for (const [breakdownIndex, item] of assessment.breakdown.entries()) {
           if (item.co === coIndex) {
-            toggleAssessmentMapping(assessmentIndex, breakdownIndex, wpOea, selected)
+            toggleAssessmentMapping(assessmentIndex, breakdownIndex, coIndex, wpOea, selected)
           }
         }
       } else {
         if (assessment.cos.includes(coIndex)) {
-          toggleAssessmentMapping(assessmentIndex, -1, wpOea, selected)
+          toggleAssessmentMapping(assessmentIndex, -1, coIndex, wpOea, selected)
         }
       }
     }

@@ -27,8 +27,12 @@ export interface Assessment {
   weightage: number;
   cos: number[];
   breakdown: Breakdown[];
-  wps?: number[];
-  eas?: number[];
+  wps?: {
+    [key: string]: number[];
+  };
+  eas?: {
+    [key: string]: number[];
+  };
 }
 
 export interface Allocation {

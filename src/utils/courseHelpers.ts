@@ -137,8 +137,8 @@ export const createAssessment = (overrides?: Partial<Assessment>): Assessment =>
   weightage: 0,
   cos: [],
   breakdown: [],
-  wps: [],
-  eas: [],
+  wps: {},
+  eas: {},
   ...overrides
 });
 
@@ -199,8 +199,9 @@ export function getCEPCEA(assessment: Assessment, coIndex: number, componentType
       }
     } else {
       if (assessment.cos.includes(coIndex)) {
-        if (assessment[componentKey] && assessment[componentKey].length > 0) {
-          descriptors.push(...assessment[componentKey].sort().map(
+        const coKey = `CO${coIndex}`
+        if (assessment[componentKey] && assessment[componentKey][coKey] && assessment[componentKey][coKey].length > 0) {
+          descriptors.push(...assessment[componentKey][coKey].sort().map(
             (componentNumber: number) => componentList[componentNumber-1] || [`${componentLabel}${componentNumber}`, ]
           ))
         }
