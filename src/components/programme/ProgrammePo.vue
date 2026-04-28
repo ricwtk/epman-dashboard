@@ -3,11 +3,12 @@ import type { Po } from '@/types/programme';
 import ContentCard from '@/components/contentcard/ContentCard.vue';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { InputGroup, InputGroupTextarea, InputGroupAddon } from '@/components/ui/input-group';
+import { Button } from '@/components/ui/button';
 import EmptyComponent from '@/components/EmptyComponent.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 import ResetButton from '@/components/ResetButton.vue';
 import ListItemMenu from '@/components/ListItemMenu.vue';
-import { XIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
+import { XIcon, ChevronUpIcon, ChevronDownIcon, PlusIcon } from 'lucide-vue-next';
 
 import { useProgrammeEditor } from '@/composables/useProgrammeEditor';
 const { editing, programme, saveProgramme, setEditing, programmeStore } = useProgrammeEditor();
