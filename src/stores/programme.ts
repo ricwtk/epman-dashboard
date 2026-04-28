@@ -1,7 +1,7 @@
 import { ref, toRaw, computed } from 'vue';
 import { computedAsync } from '@vueuse/core';
 import type { Programme } from "@/types/programme";
-import { createNewProgramme } from "@/utils/programmeHelpers";
+import { createNewProgramme, createNewPo } from "@/utils/programmeHelpers";
 import { defineStore } from "pinia";
 import { get, set, has } from 'lodash-es';
 import diff from 'microdiff';
@@ -17,6 +17,7 @@ import { useStructureListStore } from '@/stores/structurelist';
 const structureListStore = useStructureListStore();
 
 import { useStructureStore } from '@/stores/structure';
+import { add } from 'firebase/firestore/lite/pipelines';
 const structureStore = useStructureStore();
 
 export const useProgrammeStore = defineStore('programme', () => {
@@ -198,6 +199,14 @@ export const useProgrammeStore = defineStore('programme', () => {
     }
   }
 
+  function addPeo(): void {
+    draft.value.peoList.push('');
+  }
+
+  function addPo(): void {
+    draft.value.poList.push(createNewPo());
+  }
+
   function removeFromList(keyOfList: keyof Programme, index: number): void {
     if (Array.isArray(draft.value[keyOfList])) {
       draft.value[keyOfList].splice(index, 1);
@@ -227,6 +236,7 @@ export const useProgrammeStore = defineStore('programme', () => {
     loadProgrammeByCode, loadRevision, deleteRevision,
     draft, saved,
     editingTab,
+    addPeo, addPo,
     clear, resetDraft, createDraft, commit, save,
     // allDiff,
     checkDiff,

@@ -90,6 +90,7 @@ const getMenuItems = (peoIndex: number) => {
             </TableRow>
           </TableBody>
         </Table>
+        <Button v-if="editing" variant="secondary" class="w-full" @click="programmeStore.addPeo()"><PlusIcon /></Button>
       </template>
     </template>
   </ContentCard>

@@ -104,6 +104,7 @@ const getMenuItems = (poIndex: number) => {
             </TableRow>
           </TableBody>
         </Table>
+        <Button v-if="editing" variant="secondary" class="w-full" @click="programmeStore.addPo()"><PlusIcon /></Button>
       </template>
     </template>
   </ContentCard>
