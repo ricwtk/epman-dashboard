@@ -159,7 +159,7 @@ const menuItems = ref([{
           :message="coMappingMissingError[coNumber - 1]?.message || ''"
         >
           <Checkbox v-if="editing" :modelValue="assessment.cos.includes(coNumber)"
-            @update:modelValue="courseStore.toggleAssessmentMapping(assessmentIndex, -1, 'co', coNumber)"
+            @update:modelValue="courseStore.toggleAssessmentMapping(assessmentIndex, -1, coNumber, 'co', coNumber)"
             :class="coMappingMissingError[coNumber - 1]?.isError ? 'bg-destructive! border-destructive!' : ''"
           />
           <CheckIcon v-else class="inline-block" :size="16" v-if="assessment.cos.includes(coNumber)" />
