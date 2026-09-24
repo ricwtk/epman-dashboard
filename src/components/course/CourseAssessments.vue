@@ -8,6 +8,8 @@ import LoadingComponent from '@/components/LoadingComponent.vue';
 import AssessmentRow from '@/components/course/AssessmentRow.vue';
 import ErrorTooltip from '@/components/course/ErrorTooltip.vue';
 import ResetButton from '@/components/ResetButton.vue';
+import { Button } from '@/components/ui/button';
+import { PlusIcon } from 'lucide-vue-next';
 
 const props = defineProps<{storeId?: string}>()
 
@@ -105,6 +107,7 @@ const weightageError = computed(() => {
             </template>
           </TableBody>
         </Table>
+        <Button v-if="editing" variant="secondary" class="w-full" @click="courseStore.addAssessment()"><PlusIcon /></Button>
       </div>
     </template>
   </ContentCard>
