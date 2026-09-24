@@ -107,7 +107,12 @@ const weightageError = computed(() => {
             </template>
           </TableBody>
         </Table>
-        <Button v-if="editing" variant="secondary" class="w-full" @click="courseStore.addAssessment()"><PlusIcon /></Button>
+        <Button
+          v-if="editing"
+          variant="secondary"
+          class="w-full mt-2"
+          @click="courseStore.addAssessment()"
+        ><PlusIcon /></Button>
       </div>
     </template>
   </ContentCard>
