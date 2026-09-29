@@ -3,18 +3,7 @@
  *
  * Converts a course outline .docx file (Sunway University format)
  * into a Course object that matches the Course interface in course.ts.
- *
- * Usage (Node.js):
- *   import { parseCourseOutline } from './parseCourseOutline';
- *   const course = await parseCourseOutline('./202301_ETC2073_Artificial_Intelligence.docx');
- *
- * Browser usage:
- *   Pass an ArrayBuffer instead of a file path.
- *   const course = await parseCourseOutline(arrayBuffer, { isBrowser: true });
- *
- * Dependencies:
- *   npm install mammoth
- *   npm install --save-dev @types/mammoth
+ * Handles missing tables gracefully using isolated section parsers.
  */
 
 import mammoth from 'mammoth';
@@ -45,14 +34,29 @@ interface CourseSummary {
 
 type Table = string[][];
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Utility Helpers ────────────────────────────────────────────────────────
 
 /**
- * Parse a Bloom's Taxonomy string like "C3" or "A2" into ['c', 3].
+ * Safely execute a section parser, falling back to a default value if missing or invalid.
+ */
+function safeParse<T>(parserFn: () => T, fallback: T, sectionName: string): T {
+  try {
+    return parserFn();
+  } catch (error) {
+    console.warn(
+      `[CourseOutlineParser] Warning: Failed to parse ${sectionName}. Using fallback value.`,
+      error
+    );
+    return fallback;
+  }
+}
+
+/**
+ * Parse a Bloom's Taxonomy string like "C3", "C 3", or "A2" into ['c', 3].
  * Domain letters: C = Cognitive, A = Affective, P = Psychomotor
  */
 function parseBloomTax(raw: string): [string, number] {
-  const match = raw.trim().match(/^([A-Za-z])(\d+)$/);
+  const match = raw.trim().match(/([C|A|P|c|a|p])\s*(\d+)/i);
   if (!match) return ['c', 1];
   return [match[1]!.toLowerCase(), parseInt(match[2]!, 10)];
 }
@@ -62,7 +66,7 @@ function parseBloomTax(raw: string): [string, number] {
  */
 function parseIndexList(raw: string, prefix = ''): number[] {
   if (!raw) return [];
-  const regex = prefix ? new RegExp(`${prefix}(\\d+)`, 'gi') : /(\d+)/g;
+  const regex = prefix ? new RegExp(`${prefix}\\s*(\\d+)`, 'gi') : /(\d+)/g;
   const matches: number[] = [];
   let m: RegExpExecArray | null;
   while ((m = regex.exec(raw)) !== null) {
@@ -85,24 +89,26 @@ function parseSemesterYear(raw: string): { semester: number; year: number } {
 }
 
 /**
- * Parse a string like "Analytical Skills, Problem-Solving and Scientific Skills" into ["Analytical Skills", "Problem-Solving", "Scientific Skills"]
+ * Parse comma, 'and', or newline-separated lists into sanitized string arrays.
  */
 function parseItemList(raw: string): string[] {
-  return raw.replace(" and ", " , ").split(",").map(s => s.trim()).filter(Boolean)
+  return raw
+    .replace(/\band\b/gi, ',')
+    .split(/,|\n/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /**
- * Parse a string like "X", "-", "" into a boolean value.
- * "X" is treated as true, everything else is treated as false.
+ * Parse checkmarks ('X', 'x', '✓', 'YES') into boolean values.
  */
-
 function parseBoolean(raw: string): boolean {
-  return raw.trim().toUpperCase() === 'X';
+  const clean = raw.trim().toUpperCase();
+  return clean === 'X' || clean === 'YES' || clean === '✓' || clean === '✔';
 }
 
 /**
  * Extract all tables from the raw HTML output of mammoth.
- * Returns an array of tables, each table being an array of rows of cell strings.
  */
 function extractTables(html: string): Table[] {
   const tables: Table[] = [];
@@ -143,50 +149,24 @@ function extractTables(html: string): Table[] {
   return tables;
 }
 
-// ─── Section parsers ────────────────────────────────────────────────────────
+// ─── Section Parsers ─────────────────────────────────────────────────────────
 
-/**
- * Parse Section 1 (Course Summary) from plain text.
- * Looks for label:value pairs in the text.
- */
-// function parseSection1(text: string): CourseSummary {
 function parseSection1(tables: Table[]): CourseSummary {
+  const summaryTable = tables.find((rows) =>
+    rows.some((r) => r.some((c) => /^Course Name$/i.test(c.trim())))
+  );
+
   const get = (label: string): string => {
-    if (!summaryTable) return ''
-    const regex = new RegExp(`${label}`);
-    const idx = summaryTable.findIndex(r => r.some(c => regex.test(c.trim())))
-    if (idx == -1) return ''
-    const m = summaryTable[idx]![1];
-    return m ? m.replace(/\s+/g, ' ').trim() : '';
+    if (!summaryTable) return '';
+    const regex = new RegExp(label, 'i');
+    const row = summaryTable.find((r) => r.some((c) => regex.test(c.trim())));
+    if (!row) return '';
+    const labelIdx = row.findIndex((c) => regex.test(c.trim()));
+    const val = row[labelIdx + 1] ?? '';
+    return val.replace(/\s+/g, ' ').trim();
   };
 
-  const summaryTable = tables.find((rows) =>
-    rows.some(r => r.some((c) => /^Course Name$/.test(c.trim())))
-  )
-
   const semYear = parseSemesterYear(get('Semester/Year Offered'));
-
-  const transferableRaw = get('Transferable Skills').replace(/^and\s+/i, ',');
-  const transferableSkills = parseItemList(transferableRaw)
-  // const transferableSkills = transferableRaw
-  //   ? transferableRaw[1]!.trim().split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
-  //   : [];
-
-  const deliveryRaw = get('Delivery Method').replace(/^and\s+/i, ',');
-  const deliveryMethods = parseItemList(deliveryRaw)
-  // const deliveryMethods = deliveryRaw
-  //   ? deliveryRaw[1]!.trim().split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
-  //   : [];
-
-  const lecturersRaw = get('Lecturer');
-  const lecturers = parseItemList(lecturersRaw)
-  // const lecturers = lecturersRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
-
-  const prereqRaw = get('Pre-requisite');
-  const prerequisites = parseItemList(prereqRaw)
-  // const prerequisites = prereqRaw
-  //   ? prereqRaw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean)
-  //   : [];
 
   return {
     name: get('Course Name'),
@@ -196,24 +176,19 @@ function parseSection1(tables: Table[]): CourseSummary {
     year: semYear.year,
     credits: parseInt(get('SLT Credit Hours') || get('Credit Hours') || '3', 10),
     synopsis: get('Synopsis'),
-    transferableSkills,
-    deliveryMethods,
-    lecturers,
-    prerequisites,
+    transferableSkills: parseItemList(get('Transferable Skills')),
+    deliveryMethods: parseItemList(get('Delivery Method')),
+    lecturers: parseItemList(get('Lecturer')),
+    prerequisites: parseItemList(get('Pre-requisite')),
   };
 }
 
-/**
- * Parse Section 2 (Course Outcomes) from the CO table.
- *
- * Expected columns: CO | Description | LD/BT | PO | WK | WP | EA
- */
 function parseSection2(tables: Table[]): Co[] {
   const coTable = tables.find((rows) => {
     const dataRows = rows.filter(
-      (r) => /^CO\s*\d+$/i.test(r[0]!) || /^\d+$/.test(r[0]!)
+      (r) => /^CO\s*\d+$/i.test(r[0] ?? '') \vert{}\vert{} /^\d+$/.test(r[0] ?? '')
     );
-    return dataRows.length >= 1 && rows[0]!.length >= 5;
+    return dataRows.length >= 1 && (rows[0]?.length ?? 0) >= 5;
   });
 
   if (!coTable) return [];
@@ -221,14 +196,11 @@ function parseSection2(tables: Table[]): Co[] {
   const cos: Co[] = [];
 
   for (const row of coTable) {
-    if (!/^CO\s*\d+$/i.test(row[0]!) && !/^\d+$/.test(row[0]!)) continue;
-
-    const description = (row[1] ?? '').replace(/\s+/g, ' ').trim();
-    const bloomRaw = (row[2] ?? '').trim();
+    if (!/^CO\s*\d+$/i.test(row[0] ?? '') && !/^\d+$/.test(row[0] ?? '')) continue;
 
     cos.push({
-      description,
-      bloomtax: parseBloomTax(bloomRaw),
+      description: (row[1] ?? '').replace(/\s+/g, ' ').trim(),
+      bloomtax: parseBloomTax(row[2] ?? ''),
       pos: parseIndexList(row[3] ?? '', 'PO'),
       wks: parseIndexList(row[4] ?? '', 'WK'),
       wps: parseIndexList(row[5] ?? '', 'WP'),
@@ -240,11 +212,6 @@ function parseSection2(tables: Table[]): Co[] {
   return cos;
 }
 
-/**
- * Parse Section 3 (Assessment Strategy) from the assessment table.
- *
- * Expected columns: Component | Method | Weightage | CO1 | CO2 | CO3 | CO4 ...
- */
 function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   const assessTable = tables.find((rows) =>
     rows.some(
@@ -266,6 +233,7 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
     const m = cell.match(/^CO\s*(\d+)$/i);
     if (m) coColIndices[parseInt(m[1]!, 10)] = idx;
   });
+
   const weightCellIdx = header.length - Object.keys(coColIndices).length - 1;
   const hasFormat = header.length - Object.keys(coColIndices).length > 3;
 
@@ -274,23 +242,26 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   for (let i = headerIdx + 1; i < assessTable.length; i++) {
     const row = assessTable[i]!;
     if (row.length < 3) continue;
-    const idxAdj = row.length == header.length ? 0 : -1;
-    const compCell = idxAdj == -1 ? assessments[assessments.length-1]!.component : row[0]!.trim()
-    const descCell = row[1 + idxAdj]!.trim()
-    const formatCell = hasFormat ? row[2 + idxAdj]!.trim() : '';
-    const weightStr = row[weightCellIdx + idxAdj]!.replace(/[^0-9]/g, '').trim();
+
+    const idxAdj = row.length === header.length ? 0 : -1;
+    const lastAssessment = assessments[assessments.length - 1];
+    const compCell =
+      idxAdj === -1 ? (lastAssessment?.component ?? '') : (row[0] ?? '').trim();
+    const descCell = (row[1 + idxAdj] ?? '').trim();
+    const formatCell = hasFormat ? (row[2 + idxAdj] ?? '').trim() : '';
+    const weightStr = (row[weightCellIdx + idxAdj] ?? '').replace(/[^0-9]/g, '').trim();
     const weightage = weightStr ? parseInt(weightStr, 10) : 0;
 
     const rowCos: number[] = [];
     if (Object.keys(coColIndices).length > 0) {
       for (const [co, idx] of Object.entries(coColIndices)) {
-        if ((row[idx + idxAdj] ?? '').trim().toUpperCase() === 'X') {
+        if (parseBoolean(row[idx + idxAdj] ?? '')) {
           rowCos.push(parseInt(co, 10));
         }
       }
     } else {
       for (let c = 3; c < row.length; c++) {
-        if (row[c + idxAdj]!.trim().toUpperCase() === 'X') rowCos.push(c - 2);
+        if (parseBoolean(row[c + idxAdj] ?? '')) rowCos.push(c - 2);
       }
     }
 
@@ -298,7 +269,7 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
       description: descCell.replace(/\s+/g, ' ').trim(),
       component: compCell.replace(/\s+/g, ' ').trim(),
       format: formatCell,
-      weightage: weightage,
+      weightage,
       cos: rowCos,
       breakdown: [],
     });
@@ -307,56 +278,48 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   return assessments;
 }
 
-/**
- * Parse Section 4 (Teaching Plan) from the topic SLT table.
- *
- * Expected columns: Topic | L | T | P | A | O | IL | Total
- */
 function parseSection4(tables: Table[]): Plan[] {
-  const planTable = tables.find((rows) =>
-    rows.some((r) => r.some((c) => /^L$/.test(c)) && r.some((c) => /^T$/.test(c)))
-    && rows.some((r) => r.some((c) => /^Topic\s+SLT$/.test(c)))
+  const planTable = tables.find(
+    (rows) =>
+      rows.some((r) => r.some((c) => /^L$/i.test(c.trim())) && r.some((c) => /^T$/i.test(c.trim()))) &&
+      rows.some((r) => r.some((c) => /Topic\s+SLT/i.test(c)))
   );
 
   if (!planTable) return [];
 
   const headerIdx = planTable.findIndex(
-    (r) => r.some((c) => /^L$/.test(c)) && r.some((c) => /^T$/.test(c))
+    (r) => r.some((c) => /^L$/i.test(c.trim())) && r.some((c) => /^T$/i.test(c.trim()))
   );
   if (headerIdx < 0) return [];
 
-  const header = planTable[headerIdx]!;
-  const colL  = header.indexOf('L')+1;
-  const colT  = header.indexOf('T')+1;
-  const colP  = header.indexOf('P')+1;
-  const colA = header.indexOf('A') + 1;
-  const colO  = header.indexOf('O')+1;
-  const colIL = header.indexOf('IL')+1;
+  const header = planTable[headerIdx]!.map((c) => c.trim().toUpperCase());
+  const colL = header.indexOf('L');
+  const colT = header.indexOf('T');
+  const colP = header.indexOf('P');
+  const colA = header.indexOf('A');
+  const colO = header.indexOf('O');
+  const colIL = header.indexOf('IL');
 
   const plans: Plan[] = [];
 
   for (let i = headerIdx + 1; i < planTable.length; i++) {
     const row = planTable[i]!;
-    // const description = (row[0] ?? '').replace(/\s+/g, ' ').trim();
-    const description = (row[0] ?? '')
-      // .split(/\r?\n/)
-      // .map(l => l.trim())
-      // .filter(l => l !== '')
+    const description = (row[0] ?? '').replace(/\s+/g, ' ').trim();
     if (!description) continue;
     if (/^(Sub-total|Total SLT|SLT Credit)/i.test(description)) continue;
 
     const n = (idx: number): number =>
-      idx >= 0 && row[idx] ? parseInt(row[idx], 10) || 0 : 0;
+      idx >= 0 && row[idx] ? parseInt(row[idx]!, 10) || 0 : 0;
 
     plans.push({
       description,
       hours: {
-        lecture:    { online: 0, f2f: n(colL) },
-        tutorial:   { online: 0, f2f: n(colT) },
-        practical:  { online: 0, f2f: n(colP) },
+        lecture: { online: 0, f2f: n(colL) },
+        tutorial: { online: 0, f2f: n(colT) },
+        practical: { online: 0, f2f: n(colP) },
         assessment: { online: 0, f2f: n(colA) },
-        others:     { online: 0, f2f: n(colO) },
-        self:       { online: 0, f2f: n(colIL) },
+        others: { online: 0, f2f: n(colO) },
+        self: { online: 0, f2f: n(colIL) },
       },
     });
   }
@@ -364,11 +327,7 @@ function parseSection4(tables: Table[]): Plan[] {
   return plans;
 }
 
-/**
- * Parse references from the references table.
- * Expected: two-column table with "Main Reference" / "Additional References".
- */
-function parseReferences(tables: Table[]): { main: string[], additional: string[] } {
+function parseReferences(tables: Table[]): { main: string[]; additional: string[] } {
   const refTable = tables.find((rows) =>
     rows.some((r) => /main\s+reference/i.test(r[0] ?? ''))
   );
@@ -380,75 +339,69 @@ function parseReferences(tables: Table[]): { main: string[], additional: string[
 
   for (const row of refTable) {
     const labelCell = (row[0] ?? '').toLowerCase();
-    // const descCell  = (row[1] ?? '').replace(/\s+/g, ' ').trim();
     const descCells = (row[1] ?? '')
       .split(/\n/g)
-      .map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      .map((s) => s.replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
 
     if (descCells.length < 1) continue;
 
-    descCells.forEach(descStr => {
+    descCells.forEach((descStr) => {
       if (/main/.test(labelCell)) {
         mainReferences.push(descStr);
       } else if (/additional/.test(labelCell)) {
         additionalReferences.push(descStr);
       }
-    })
+    });
   }
 
   return { main: mainReferences, additional: additionalReferences };
 }
 
-// ─── Main export ─────────────────────────────────────────────────────────────
+// ─── Main Export ─────────────────────────────────────────────────────────────
 
-/**
- * Parse a course outline .docx file and return a fully-typed Course object.
- *
- * @param source   File path string (Node.js) or ArrayBuffer (browser).
- * @param options  Parsing options.
- */
 export async function parseCourseOutline(
   source: string | ArrayBuffer,
   options: ParseOptions = {}
 ): Promise<Course> {
-  const { isBrowser = false, filename = '' } = options;
+  const { isBrowser = false } = options;
 
-  // ── 1. Extract HTML (preserves table structure) and raw text ──────────────
-  const [htmlResult, textResult] = await (isBrowser
-    ? Promise.all([
-        mammoth.convertToHtml({ arrayBuffer: source as ArrayBuffer }),
-        mammoth.extractRawText({ arrayBuffer: source as ArrayBuffer }),
-      ])
-    : Promise.all([
-        mammoth.convertToHtml({ path: source as string }),
-        mammoth.extractRawText({ path: source as string }),
-      ]));
+  const [htmlResult] = await (isBrowser
+    ? Promise.all([mammoth.convertToHtml({ arrayBuffer: source as ArrayBuffer })])
+    : Promise.all([mammoth.convertToHtml({ path: source as string })]));
 
-  const html = htmlResult.value;
-  const text = textResult.value;
+  const tables = extractTables(htmlResult.value);
 
-  // ── 2. Extract all tables from HTML ───────────────────────────────────────
-  const tables = extractTables(html);
+  // Default fallback object for Section 1 if the summary table is missing
+  const defaultSummary: CourseSummary = {
+    name: '',
+    code: '',
+    category: 'core',
+    semester: 1,
+    year: 1,
+    credits: 3,
+    synopsis: '',
+    transferableSkills: [],
+    deliveryMethods: [],
+    lecturers: [],
+    prerequisites: [],
+  };
 
-  // ── 3. Parse each section ─────────────────────────────────────────────────
-  // const summary  = parseSection1(text);
-  const summary  = parseSection1(tables);
-  const code     = summary.code;
+  // Safe parsing execution per section
+  const summary = safeParse(() => parseSection1(tables), defaultSummary, 'Course Summary');
+  const cos = safeParse(() => parseSection2(tables), [], 'Course Outcomes');
+  const assessments = safeParse(() => parseSection3(tables, cos.length), [], 'Assessments');
+  const teachingPlan = safeParse(() => parseSection4(tables), [], 'Teaching Plan');
+  const references = safeParse(() => parseReferences(tables), { main: [], additional: [] }, 'References');
 
-  const cos          = parseSection2(tables);
-  const assessments  = parseSection3(tables, cos.length);
-  const teachingPlan = parseSection4(tables);
-  const references   = parseReferences(tables);
-
-  // ── 4. Assemble the Course object ─────────────────────────────────────────
-  const course: Course = {
-    id: "",
-    code,
+  return {
+    id: '',
+    code: summary.code,
     name: summary.name,
     prerequisites: summary.prerequisites,
     lecturers: summary.lecturers,
     category: summary.category,
-    courseType: "examBased",
+    courseType: 'examBased',
     semester: summary.semester,
     year: summary.year,
     credits: summary.credits,
@@ -456,15 +409,13 @@ export async function parseCourseOutline(
     transferableSkills: summary.transferableSkills,
     deliveryMethods: summary.deliveryMethods,
     cos,
-    startFrom: ["", ""],
+    startFrom: ['', ''],
     assessments,
     teachingPlan,
     references,
     gradingScheme: 'default',
     committed: { on: null, by: '' },
-    revision: "",
+    revision: '',
     parentRevision: '',
   };
-
-  return course;
 }
