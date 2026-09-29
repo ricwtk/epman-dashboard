@@ -186,7 +186,7 @@ function parseSection1(tables: Table[]): CourseSummary {
 function parseSection2(tables: Table[]): Co[] {
   const coTable = tables.find((rows) => {
     const dataRows = rows.filter(
-      (r) => /^CO\s*\d+$/i.test(r[0] ?? '') \vert{}\vert{} /^\d+$/.test(r[0] ?? '')
+      (r) => /^CO\s*\d+$/i.test(r[0] ?? '') || /^\d+$/.test(r[0] ?? '')
     );
     return dataRows.length >= 1 && (rows[0]?.length ?? 0) >= 5;
   });
