@@ -355,7 +355,7 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
 }
 
 export async function exportRubricsHelper(courseName: string, assessmentName: string, assessment: Assessment, cos: Co[], wpList?: string[][], eaList?: string[][]): Promise<void> {
-  console.log(assessment, cos)
+  // console.log(assessment, cos)
   let rows: string[][]
   // get COs
   if (assessment.breakdown.length > 0) {
@@ -389,7 +389,7 @@ export async function exportRubricsHelper(courseName: string, assessmentName: st
     return [coIndex!, pos!, wks!, sdg!, [wpsStr, easStr].filter(x => x !== "").join("\n")]
   })
 
-  console.log(rows)
+  // console.log(rows)
   const doc = generateRubricTemplate(courseName, assessmentName, rows)
 
   const blob = await Packer.toBlob(doc);
