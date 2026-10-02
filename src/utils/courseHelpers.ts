@@ -11,6 +11,8 @@ import type {
   CourseInfo,
   CourseMappingInfo,
 } from "@/types/course";
+import { Document, Packer, PageOrientation, TextRun, Paragraph, Table, WidthType, AlignmentType, TableRow, TableCell } from "docx";
+import { saveAs } from 'file-saver';
 import { get } from "@vueuse/core";
 
 // currently using courseExamples.ts
@@ -209,4 +211,187 @@ export function getCEPCEA(assessment: Assessment, coIndex: number, componentType
     }
   }
   return [...new Map(descriptors.map(descriptor => [descriptor[0], descriptor])).values()]
+}
+
+function numberlistToString(numbers: number[]): string {
+  return numbers.join(",") || ""
+}
+
+function generateRubricTemplate(courseName: string, assessmentName: string, body: string[][]): Document {
+  // header
+  const rubricTitle = new Paragraph({
+    children: [
+      new TextRun({
+        text: `Rubric Template for ${courseName} (${assessmentName})`,
+        bold: true,
+        underline: {
+          type: "single",
+        }
+      }),
+    ]
+  })
+  // table
+  // // header row 1
+  let rows: TableRow[] = []
+  let thisRow: TableCell[] = []
+  const headerCellText = ["CO", "PO", "WK", "SDG", "CEP/CEA Descriptors", "Criteria"]
+  const totalHeaderCellChars = headerCellText.reduce((acc, text) => acc + text.length, 0)
+  for (let i = 0; i < headerCellText.length; i++) {
+    thisRow.push(new TableCell({
+      children: [
+        new Paragraph({
+          children: [new TextRun({ text: headerCellText[i], bold: true })],
+          alignment: AlignmentType.CENTER
+        })
+      ],
+      rowSpan: 2,
+      width: {
+        type: WidthType.PERCENTAGE,
+        size: 50 / totalHeaderCellChars * (headerCellText[i]?.length ?? 0),
+      }
+    }))
+  }
+  const scoreLevels = ["0-1", "2-3", "4-5", "6-7", "8-10"]
+  thisRow.push(new TableCell({
+    children: [
+      new Paragraph({
+        children: [new TextRun({ text: "Scores", bold: true })],
+        alignment: AlignmentType.CENTER
+      })
+    ],
+    columnSpan: scoreLevels.length
+  }))
+  rows.push(new TableRow({ children: thisRow }))
+
+  // // header row 2
+  thisRow = []
+  for (let i = 0; i < scoreLevels.length; i++) {
+    thisRow.push(new TableCell({
+      children: [
+        new Paragraph({
+          children: [new TextRun({ text: scoreLevels[i] })],
+          alignment: AlignmentType.CENTER
+        })
+      ]
+    }))
+  }
+  rows.push(new TableRow({ children: thisRow }))
+
+  // // body
+  let thisCell: Paragraph[]
+  if (body.length > 0) {
+    for (let i = 0; i < body.length; i++) {
+      thisRow = []
+      for (let j = 0; j < body[i]!.length; j++) {
+        if (j == 4) {
+          thisCell = body[i]![j]!.split("\n").map((line: string, idx: number, arr: string[]) => {
+            let paras = [
+              new Paragraph({
+                children: [new TextRun({ text: line })],
+                alignment: AlignmentType.LEFT
+              })
+            ]
+            if (idx < arr.length - 1) {
+              paras.push(new Paragraph({ text: "" }))
+            }
+            return paras
+          }).flat()
+        } else {
+          thisCell = [new Paragraph({
+            children: [new TextRun({ text: body[i]![j] })],
+            alignment: j < 4 ? AlignmentType.CENTER : AlignmentType.LEFT
+          })]
+        }
+        thisRow.push(new TableCell({ children: thisCell }))
+      }
+      for (let j = 0; j < scoreLevels.length+1; j++) {
+        thisRow.push(new TableCell({ children: [new Paragraph({ text: "" })] }))
+      }
+      rows.push(new TableRow({ children: thisRow }))
+    }
+  }
+
+  const rubricTable = new Table({
+    // width: {
+    //   type: WidthType.PERCENTAGE,
+    //   size: 100*50,
+    // },
+    margins: {
+      top: 120,    // 120 dxa = ~6pt (~0.08 inch)
+      bottom: 120,
+      left: 180,   // 180 dxa = ~9pt (~0.125 inch)
+      right: 180
+    },
+    rows,
+  })
+
+  return new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: "Arial",
+            size: 20 // 10pt (half-points)
+          }
+        }
+      },
+    },
+    sections: [
+      {
+        properties: {
+          page: {
+            size: {
+              orientation: PageOrientation.LANDSCAPE,
+            }
+          }
+        },
+        children: [
+          rubricTitle,
+          rubricTable,
+        ],
+      },
+    ],
+  })
+}
+
+export async function exportRubricsHelper(courseName: string, assessmentName: string, assessment: Assessment, cos: Co[], wpList?: string[][], eaList?: string[][]): Promise<void> {
+  console.log(assessment, cos)
+  let rows: string[][]
+  // get COs
+  if (assessment.breakdown.length > 0) {
+    rows = [...new Set(assessment.breakdown.map(breakdown => breakdown.co))].map(coIndex => [coIndex.toString()])
+  } else {
+    rows = cos.map((_,coIndex) => [(coIndex+1).toString()])
+  }
+  // get POs, WKs, SDG
+  rows = rows.map(([coIndex]) => {
+    const co = cos[parseInt(coIndex!)-1]
+    return [coIndex!, numberlistToString(co?.pos ?? []), numberlistToString(co?.wks ?? []), co?.sdg ? "✓" : "-"]
+  })
+  // get WP and EA
+  rows = rows.map(([coIndex, pos, wks, sdg]) => {
+    let wps: number[] = []
+    let eas: number[] = []
+    if (assessment.breakdown.length > 0) {
+      const coI = parseInt(coIndex!)
+      for (const breakdown of assessment.breakdown) {
+        if (breakdown.co === coI) {
+          wps.push(...(breakdown.wps ?? []))
+          eas.push(...(breakdown.eas ?? []))
+        }
+      }
+    } else {
+      wps = assessment.wps?.[`CO${coIndex}`] ?? []
+      eas = assessment.eas?.[`CO${coIndex}`] ?? []
+    }
+    let wpsStr = [...new Set(wps)].map(wp => wpList?.[wp-1]?.join(" ") ?? `WP${wp}`).join("\n")
+    let easStr = [...new Set(eas)].map(ea => eaList?.[ea-1]?.join(" ") ?? `EA${ea}`).join("\n")
+    return [coIndex!, pos!, wks!, sdg!, [wpsStr, easStr].filter(x => x !== "").join("\n")]
+  })
+
+  console.log(rows)
+  const doc = generateRubricTemplate(courseName, assessmentName, rows)
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, `${courseName} ${assessmentName}.docx`);
 }

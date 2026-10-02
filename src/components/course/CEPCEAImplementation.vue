@@ -12,6 +12,8 @@ import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import MappingSelectionMenu from '@/components/course/MappingSelectionMenu.vue';
 import ResetButton from '@/components/ResetButton.vue';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 const props = defineProps<{storeId?: string}>()
 
@@ -314,6 +316,20 @@ const resetAll = () => {
           </TableBody>
         </Table>
       </template>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button variant="secondary" class="mt-2">
+            Download Rubrics Template
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem v-for="(item, index) in course.assessments"
+            :key="index"
+            @select="courseStore.exportRubrics(index, programmeListStore.wplist, programmeListStore.ealist)">
+            {{ item.description }}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </template>
   </ContentCard>
 </template>

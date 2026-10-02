@@ -22,7 +22,7 @@ import { dataService } from '@/services/dataService';
 import type { SchoolsByCode, ProgrammesWithCourse, ProgrammeWithCourse } from '@/services/dataService';
 import type { AttrDesc } from '@/types/school';
 import { navigateToParent } from '@/utils/navigationHelpers'
-import { getCEPCEA } from '@/utils/courseHelpers';
+import { getCEPCEA, exportRubricsHelper } from '@/utils/courseHelpers';
 
 import { useCourseListStore } from './courselist';
 const courseListStore = useCourseListStore()
@@ -161,7 +161,7 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
   }
   function resetArrayItemDiff(pathArray: string[], item: any): void { resetArrayItemDiffCommon(draft.value, saved.value, pathArray, item) }
 
-  type ListItemKey = 'lecturers' |'transferableSkills' | 'prerequisites' | 'deliveryMethods'
+  type ListItemKey = 'lecturers' | 'transferableSkills' | 'prerequisites' | 'deliveryMethods'
   function checkListItem(key: ListItemKey, value: string): boolean {
     return draft.value[key].includes(value)
   }
@@ -416,14 +416,14 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     const ea_set = new Set([...original_ea, ...current_ea])
 
     for (const wp of wp_set) {
-     if (original_wp.includes(wp) !== current_wp.includes(wp)) {
-       setCEPCEA(assessmentIndex, coIndex, 'wp', wp)
-     }
+      if (original_wp.includes(wp) !== current_wp.includes(wp)) {
+        setCEPCEA(assessmentIndex, coIndex, 'wp', wp)
+      }
     }
     for (const ea of ea_set) {
-     if (original_ea.includes(ea) !== current_ea.includes(ea)) {
-       setCEPCEA(assessmentIndex, coIndex, 'ea', ea)
-     }
+      if (original_ea.includes(ea) !== current_ea.includes(ea)) {
+        setCEPCEA(assessmentIndex, coIndex, 'ea', ea)
+      }
     }
   }
 
@@ -444,6 +444,12 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     }
   };
 
+  const exportRubrics = (assessmentIndex: number, wpList?: string[][], eaList?: string[][]) => {
+    const assessment = saved.value.assessments[assessmentIndex]
+    if (assessment) {
+      exportRubricsHelper(`${saved.value.code} ${saved.value.name}`, assessment.description, assessment, saved.value.cos, wpList, eaList)
+    }
+  }
 
   function addTopic(): void { draft.value.teachingPlan.push(createPlan()) }
   function removeTopic(index: number): void { draft.value.teachingPlan.splice(index, 1) }
@@ -583,6 +589,7 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     checkDiff, resetDiff,
     checkArrayItemDiff, resetArrayItemDiff,
     checkCEPCEADiff,
+    exportRubrics,
     // updateMapping,
     addLecturer, removeLecturer, toggleLecturer,
     addTransferableSkill, removeTransferableSkill, toggleTransferableSkill,
