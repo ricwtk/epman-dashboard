@@ -11,7 +11,7 @@ import type {
   CourseInfo,
   CourseMappingInfo,
 } from "@/types/course";
-import { Document, Packer, PageOrientation, TextRun, Paragraph, Table, WidthType, AlignmentType, TableRow, TableCell } from "docx";
+import { Document, Packer, PageOrientation, TextRun, Paragraph, Table, WidthType, AlignmentType, UnderlineType, VerticalAlignTable, TableRow, TableCell } from "docx";
 import { saveAs } from 'file-saver';
 import { get } from "@vueuse/core";
 
@@ -217,7 +217,7 @@ function numberlistToString(numbers: number[]): string {
   return numbers.join(",") || ""
 }
 
-function generateRubricTemplate(courseName: string, assessmentName: string, body: string[][]): Document {
+function generateRubricTemplate(courseName: string, assessmentName: string, body: Row[]): Document {
   // header
   const rubricTitle = new Paragraph({
     children: [
@@ -225,7 +225,7 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
         text: `Rubric Template for ${courseName} (${assessmentName})`,
         bold: true,
         underline: {
-          type: "single",
+          type: UnderlineType.SINGLE
         }
       }),
     ]
@@ -244,6 +244,7 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
           alignment: AlignmentType.CENTER
         })
       ],
+      verticalAlign: VerticalAlignTable.CENTER,
       rowSpan: 2,
       width: {
         type: WidthType.PERCENTAGE,
@@ -259,6 +260,7 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
         alignment: AlignmentType.CENTER
       })
     ],
+    verticalAlign: VerticalAlignTable.CENTER,
     columnSpan: scoreLevels.length
   }))
   rows.push(new TableRow({ children: thisRow }))
@@ -272,22 +274,45 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
           children: [new TextRun({ text: scoreLevels[i] })],
           alignment: AlignmentType.CENTER
         })
-      ]
+      ],
+      verticalAlign: VerticalAlignTable.CENTER,
+
     }))
   }
   rows.push(new TableRow({ children: thisRow }))
 
   // // body
-  let thisCell: Paragraph[]
   if (body.length > 0) {
     for (let i = 0; i < body.length; i++) {
       thisRow = []
       for (let j = 0; j < body[i]!.length; j++) {
-        if (j == 4) {
-          thisCell = body[i]![j]!.split("\n").map((line: string, idx: number, arr: string[]) => {
+        let thisContent = body[i]![j]
+        let thisCell: Paragraph[] = []
+        if (typeof thisContent === "string") {
+          thisCell = [new Paragraph({
+            children: [new TextRun({ text: body[i]![j]!.toString() })],
+            alignment: j < 4 ? AlignmentType.CENTER : AlignmentType.LEFT
+          })]
+        }
+        if (Array.isArray(thisContent)) {
+          thisCell = thisContent.map((line: string[], idx: number, arr: string[][]) => {
+            let texts = []
+            let headline = ""
+            if (line.length > 1) {
+              headline = line.slice(0, 2).join(" ")
+            } else {
+              headline = line[0]!
+            }
+            texts.push(new TextRun({
+              text: headline,
+              underline: { type: UnderlineType.SINGLE }
+            }))
+            if (line.length > 2) {
+              texts.push(new TextRun({ text: line.slice(2).join(" "), break: 1 }))
+            }
             let paras = [
               new Paragraph({
-                children: [new TextRun({ text: line })],
+                children: texts,
                 alignment: AlignmentType.LEFT
               })
             ]
@@ -296,11 +321,6 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
             }
             return paras
           }).flat()
-        } else {
-          thisCell = [new Paragraph({
-            children: [new TextRun({ text: body[i]![j] })],
-            alignment: j < 4 ? AlignmentType.CENTER : AlignmentType.LEFT
-          })]
         }
         thisRow.push(new TableCell({ children: thisCell }))
       }
@@ -354,9 +374,16 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
   })
 }
 
+type Row = [
+  co?: string,
+  pos?: string,
+  wks?: string,
+  sdg?: string,
+  wpsNeas?: string[][]
+]
 export async function exportRubricsHelper(courseName: string, assessmentName: string, assessment: Assessment, cos: Co[], wpList?: string[][], eaList?: string[][]): Promise<void> {
   // console.log(assessment, cos)
-  let rows: string[][]
+  let rows: Row[]
   // get COs
   if (assessment.breakdown.length > 0) {
     rows = [...new Set(assessment.breakdown.map(breakdown => breakdown.co))].map(coIndex => [coIndex.toString()])
@@ -384,9 +411,9 @@ export async function exportRubricsHelper(courseName: string, assessmentName: st
       wps = assessment.wps?.[`CO${coIndex}`] ?? []
       eas = assessment.eas?.[`CO${coIndex}`] ?? []
     }
-    let wpsStr = [...new Set(wps)].map(wp => wpList?.[wp-1]?.join(" ") ?? `WP${wp}`).join("\n")
-    let easStr = [...new Set(eas)].map(ea => eaList?.[ea-1]?.join(" ") ?? `EA${ea}`).join("\n")
-    return [coIndex!, pos!, wks!, sdg!, [wpsStr, easStr].filter(x => x !== "").join("\n")]
+    let wpsStr = [...new Set(wps)].map(wp => wpList?.[wp-1] ?? [`WP${wp}`])
+    let easStr = [...new Set(eas)].map(ea => eaList?.[ea-1] ?? [`EA${ea}`])
+    return [coIndex!, pos!, wks!, sdg!, [wpsStr, easStr].flat()]
   })
 
   // console.log(rows)
