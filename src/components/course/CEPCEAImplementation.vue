@@ -316,20 +316,25 @@ const resetAll = () => {
           </TableBody>
         </Table>
       </template>
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="secondary" class="mt-2">
-            Download Rubrics Template
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem v-for="(item, index) in course.assessments"
-            :key="index"
-            @select="courseStore.exportRubrics(index, programmeListStore.wplist, programmeListStore.ealist)">
-            {{ item.description }}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div class="mt-2 flex flex-row gap-2 flex-wrap">
+        <Button variant="secondary"
+          @click="courseStore.downloadCEPCEAImplementation(programmeListStore.wplist, programmeListStore.ealist)"
+        >Download Implementation Table</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button variant="secondary">
+              Download Rubrics Template
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem v-for="(item, index) in course.assessments"
+              :key="index"
+              @select="courseStore.exportRubrics(index, programmeListStore.wplist, programmeListStore.ealist)">
+              {{ item.description }}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </template>
   </ContentCard>
 </template>

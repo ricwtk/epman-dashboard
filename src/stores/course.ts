@@ -22,7 +22,7 @@ import { dataService } from '@/services/dataService';
 import type { SchoolsByCode, ProgrammesWithCourse, ProgrammeWithCourse } from '@/services/dataService';
 import type { AttrDesc } from '@/types/school';
 import { navigateToParent } from '@/utils/navigationHelpers'
-import { getCEPCEA, exportRubricsHelper } from '@/utils/courseHelpers';
+import { getCEPCEA, exportRubricsHelper, downloadCEPCEAImplementationHelper } from '@/utils/courseHelpers';
 
 import { useCourseListStore } from './courselist';
 const courseListStore = useCourseListStore()
@@ -444,6 +444,16 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     }
   };
 
+  const downloadCEPCEAImplementation = (wpList?: string[][], eaList?: string[][]) => {
+    downloadCEPCEAImplementationHelper(
+      `${saved.value.code} ${saved.value.name}`,
+      saved.value.cos,
+      saved.value.assessments,
+      wpList,
+      eaList,
+    )
+  }
+
   const exportRubrics = (assessmentIndex: number, wpList?: string[][], eaList?: string[][]) => {
     const assessment = saved.value.assessments[assessmentIndex]
     if (assessment) {
@@ -589,6 +599,7 @@ export const useCourseStore = (id: string = "") => defineStore(`course${id}`, ()
     checkDiff, resetDiff,
     checkArrayItemDiff, resetArrayItemDiff,
     checkCEPCEADiff,
+    downloadCEPCEAImplementation,
     exportRubrics,
     // updateMapping,
     addLecturer, removeLecturer, toggleLecturer,
