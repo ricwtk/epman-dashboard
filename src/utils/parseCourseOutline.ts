@@ -216,8 +216,8 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   const assessTable = tables.find((rows) =>
     rows.some(
       (r) =>
-        r.some((c) => /^\d+$/.test(c.trim())) &&
-        r.some((c) => /CO\d+|Assessment/i.test(c))
+        r.some((c) => /Assessment/.test(c)) &&
+        r.some((c) => /CO/i.test(c)) //r.some((c) => /CO\d+/i.test(c))
     )
   );
 
