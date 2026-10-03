@@ -11,7 +11,21 @@ import type {
   CourseInfo,
   CourseMappingInfo,
 } from "@/types/course";
-import { Document, Packer, PageOrientation, TextRun, Paragraph, Table, WidthType, AlignmentType, UnderlineType, VerticalAlignTable, TableRow, TableCell } from "docx";
+import {
+  Document,
+  Packer,
+  PageOrientation,
+  TextRun,
+  Paragraph,
+  Table,
+  WidthType,
+  AlignmentType,
+  UnderlineType,
+  TableLayoutType,
+  VerticalAlignTable,
+  TableRow,
+  TableCell,
+} from "docx";
 import { saveAs } from 'file-saver';
 
 // currently using courseExamples.ts
@@ -448,10 +462,10 @@ export async function exportRubricsHelper(courseName: string, assessmentName: st
 
 type CEPCEACoRow = [
   co: string,
-  pos: string,
-  wks: string,
-  wps: string,
-  eas: string,
+  pos: string[],
+  wks: string[],
+  wps: string[],
+  eas: string[],
   sdg: string,
 ]
 type AssessmentCell = [
@@ -476,10 +490,10 @@ export async function downloadCEPCEAImplementationHelper(
     const coNumber = index + 1;
     return [
       `CO${coNumber}`,
-      numberlistToString(co?.pos ?? []),
-      numberlistToString(co?.wks ?? []),
-      numberlistToString(co?.wps ?? []),
-      numberlistToString(co?.eas ?? []),
+      co?.pos.map(x => `PO${x}`),
+      co?.wks.map(x => `WK${x}`),
+      co?.wps.map(x => `WP${x}`),
+      co?.eas.map(x => `EA${x}`),
       co?.sdg ? "✓" : "-",
     ];
   });
@@ -509,7 +523,7 @@ export async function downloadCEPCEAImplementationHelper(
   const doc = generateCEPCEATable(courseName, coRows, assessmentHeaders, assessmentMatrix)
 
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, `${courseName} CEPCEA Implementation.docx`);
+  saveAs(blob, `${courseName} CEP and CEA Implementation.docx`);
 }
 
 const getWeightage = (assessment: Assessment, coIndex: number): number => {
@@ -539,7 +553,7 @@ const generateCEPCEATable = (
   const tableTitle = new Paragraph({
     children: [
       new TextRun({
-        text: `${courseName} CEPCEA Implementation`,
+        text: `CEP and CEA Implementation for ${courseName}`,
         bold: true,
         underline: { type: UnderlineType.SINGLE }
       }),
@@ -563,7 +577,7 @@ const generateCEPCEATable = (
     new TableCell({
       children: [
         new Paragraph({
-          children: [ new TextRun({ text: "Assessment (Weightage %)" }) ],
+          children: [ new TextRun({ text: "Assessment (Weightage %)", bold: true }) ],
           alignment: AlignmentType.CENTER
         }),
       ],
@@ -609,7 +623,7 @@ const generateCEPCEATable = (
     let rowCells: TableCell[] = coRow?.map((cellText) => new TableCell({
       children: [
         new Paragraph({
-          children: [ new TextRun({ text: cellText }) ],
+          children: !Array.isArray(cellText) ? [ new TextRun({ text: cellText }) ] : cellText.map((text, idx) => new TextRun({ text, break: idx > 0 ? 1 : 0 })),
           alignment: AlignmentType.CENTER
         }),
       ],
@@ -620,24 +634,32 @@ const generateCEPCEATable = (
       rowCells.push(new TableCell({
         children: [
           new Paragraph({
-            children: [ new TextRun({ text: weightage > 0 ? weightage.toString() : "-" }) ],
+            children: (weightage > 0 ? ["✓", `${weightage}%`] : ["-"]).map((text, idx) => new TextRun({ text, break: idx > 0 ? 1 : 0 })),
             alignment: AlignmentType.CENTER
           }),
         ],
         verticalAlign: VerticalAlignTable.CENTER,
       }));
       let descriptorCellChildren: Paragraph[] = [];
-      descriptors.forEach((descriptor: string[], idx: number) => {
-        descriptorCellChildren.push(new Paragraph({
-          children: formatWPEA(descriptor),
-          alignment: AlignmentType.LEFT
-        }));
-        if (idx < descriptors.length - 1) {
-          descriptorCellChildren.push(new Paragraph({ text: "" }));
-        }
-      });
+      if (descriptors.length == 0) {
+        descriptorCellChildren.push(new Paragraph({ text: "Assessment not mapped to CEP/CEA" }));
+      } else {
+        descriptorCellChildren.push(new Paragraph({ text: "Assessment is mapped to CEP/CEA as follows" }));
+        descriptorCellChildren.push(new Paragraph({ text: "" }));
+
+        descriptors.forEach((descriptor: string[], idx: number) => {
+          descriptorCellChildren.push(new Paragraph({
+            children: formatWPEA(descriptor),
+            alignment: AlignmentType.LEFT
+          }));
+          if (idx < descriptors.length - 1) {
+            descriptorCellChildren.push(new Paragraph({ text: "" }));
+          }
+        });
+      }
       rowCells.push(new TableCell({
-        children: descriptorCellChildren
+        children: descriptorCellChildren,
+        verticalAlign: VerticalAlignTable.CENTER
       }))
     });
 
@@ -646,6 +668,7 @@ const generateCEPCEATable = (
 
 
   const table = new Table({
+    layout: TableLayoutType.FIXED,
     margins: {
       top: 120,    // 120 dxa = ~6pt (~0.08 inch)
       bottom: 120,
@@ -672,6 +695,12 @@ const generateCEPCEATable = (
           page: {
             size: {
               orientation: PageOrientation.LANDSCAPE,
+            },
+            margin: {
+              top: 720,
+              bottom: 720,
+              left: 720,
+              right: 720
             }
           }
         },
