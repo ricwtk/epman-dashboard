@@ -214,7 +214,54 @@ export function getCEPCEA(assessment: Assessment, coIndex: number, componentType
 }
 
 function numberlistToString(numbers: number[]): string {
-  return numbers.join(",") || ""
+  return numbers.join(",");
+}
+
+function createBodyCell(content: unknown, isCenteredColumn: boolean): TableCell {
+  if (typeof content === "string") {
+    return new TableCell({
+      children: [
+        new Paragraph({
+          children: [new TextRun({ text: content })],
+          alignment: isCenteredColumn ? AlignmentType.CENTER : AlignmentType.LEFT,
+        }),
+      ],
+    });
+  }
+
+  if (Array.isArray(content)) {
+    const paragraphs: Paragraph[] = [];
+
+    content.forEach((line: string[], idx: number) => {
+      const headline = line.length > 1 ? line.slice(0, 2).join(" ") : line[0] ?? "";
+      const textRuns: TextRun[] = [
+        new TextRun({
+          text: headline,
+          underline: { type: UnderlineType.SINGLE },
+        }),
+      ];
+
+      if (line.length > 2) {
+        textRuns.push(new TextRun({ text: line.slice(2).join(" "), break: 1 }));
+      }
+
+      paragraphs.push(
+        new Paragraph({
+          children: textRuns,
+          alignment: AlignmentType.LEFT,
+        })
+      );
+
+      // Add a blank paragraph spacing between items
+      if (idx < content.length - 1) {
+        paragraphs.push(new Paragraph({ text: "" }));
+      }
+    });
+
+    return new TableCell({ children: paragraphs });
+  }
+
+  return new TableCell({ children: [new Paragraph({ text: "" })] });
 }
 
 function generateRubricTemplate(courseName: string, assessmentName: string, body: Row[]): Document {
@@ -224,118 +271,189 @@ function generateRubricTemplate(courseName: string, assessmentName: string, body
       new TextRun({
         text: `Rubric Template for ${courseName} (${assessmentName})`,
         bold: true,
-        underline: {
-          type: UnderlineType.SINGLE
-        }
+        underline: { type: UnderlineType.SINGLE }
       }),
     ]
   })
-  // table
-  // // header row 1
-  let rows: TableRow[] = []
-  let thisRow: TableCell[] = []
+
   const headerCellText = ["CO", "PO", "WK", "SDG", "CEP/CEA Descriptors", "Criteria"]
+  const scoreLevels = ["0-1", "2-3", "4-5", "6-7", "8-10"]
   const totalHeaderCellChars = headerCellText.reduce((acc, text) => acc + text.length, 0)
-  for (let i = 0; i < headerCellText.length; i++) {
-    thisRow.push(new TableCell({
+
+  // Table Row 1: Main Headers
+  const headerRow1Cells: TableCell[] = headerCellText.map((text) => {
+    const relativeWidth = (50 / totalHeaderCellChars) * text.length;
+    return new TableCell({
       children: [
         new Paragraph({
-          children: [new TextRun({ text: headerCellText[i], bold: true })],
-          alignment: AlignmentType.CENTER
-        })
+          children: [new TextRun({ text, bold: true })],
+          alignment: AlignmentType.CENTER,
+        }),
       ],
       verticalAlign: VerticalAlignTable.CENTER,
       rowSpan: 2,
       width: {
         type: WidthType.PERCENTAGE,
-        size: 50 / totalHeaderCellChars * (headerCellText[i]?.length ?? 0),
-      }
-    }))
-  }
-  const scoreLevels = ["0-1", "2-3", "4-5", "6-7", "8-10"]
-  thisRow.push(new TableCell({
-    children: [
-      new Paragraph({
-        children: [new TextRun({ text: "Scores", bold: true })],
-        alignment: AlignmentType.CENTER
-      })
-    ],
-    verticalAlign: VerticalAlignTable.CENTER,
-    columnSpan: scoreLevels.length
-  }))
-  rows.push(new TableRow({ children: thisRow }))
+        size: relativeWidth,
+      },
+    });
+  });
 
-  // // header row 2
-  thisRow = []
-  for (let i = 0; i < scoreLevels.length; i++) {
-    thisRow.push(new TableCell({
+  headerRow1Cells.push(
+    new TableCell({
       children: [
         new Paragraph({
-          children: [new TextRun({ text: scoreLevels[i] })],
-          alignment: AlignmentType.CENTER
-        })
+          children: [new TextRun({ text: "Scores", bold: true })],
+          alignment: AlignmentType.CENTER,
+        }),
       ],
       verticalAlign: VerticalAlignTable.CENTER,
+      columnSpan: scoreLevels.length,
+    })
+  );
 
-    }))
-  }
-  rows.push(new TableRow({ children: thisRow }))
+  // Table Row 2: Score Level Subheaders
+  const headerRow2Cells: TableCell[] = scoreLevels.map((score) => (
+    new TableCell({
+      children: [
+        new Paragraph({
+          children: [new TextRun({ text: score })],
+          alignment: AlignmentType.CENTER,
+        }),
+      ],
+      verticalAlign: VerticalAlignTable.CENTER,
+    })
+  ));
 
-  // // body
-  if (body.length > 0) {
-    for (let i = 0; i < body.length; i++) {
-      thisRow = []
-      for (let j = 0; j < body[i]!.length; j++) {
-        let thisContent = body[i]![j]
-        let thisCell: Paragraph[] = []
-        if (typeof thisContent === "string") {
-          thisCell = [new Paragraph({
-            children: [new TextRun({ text: body[i]![j]!.toString() })],
-            alignment: j < 4 ? AlignmentType.CENTER : AlignmentType.LEFT
-          })]
-        }
-        if (Array.isArray(thisContent)) {
-          thisCell = thisContent.map((line: string[], idx: number, arr: string[][]) => {
-            let texts = []
-            let headline = ""
-            if (line.length > 1) {
-              headline = line.slice(0, 2).join(" ")
-            } else {
-              headline = line[0]!
-            }
-            texts.push(new TextRun({
-              text: headline,
-              underline: { type: UnderlineType.SINGLE }
-            }))
-            if (line.length > 2) {
-              texts.push(new TextRun({ text: line.slice(2).join(" "), break: 1 }))
-            }
-            let paras = [
-              new Paragraph({
-                children: texts,
-                alignment: AlignmentType.LEFT
-              })
-            ]
-            if (idx < arr.length - 1) {
-              paras.push(new Paragraph({ text: "" }))
-            }
-            return paras
-          }).flat()
-        }
-        thisRow.push(new TableCell({ children: thisCell }))
-      }
-      for (let j = 0; j < scoreLevels.length+1; j++) {
-        thisRow.push(new TableCell({ children: [new Paragraph({ text: "" })] }))
-      }
-      rows.push(new TableRow({ children: thisRow }))
+  const rows: TableRow[] = [
+    new TableRow({ children: headerRow1Cells }),
+    new TableRow({ children: headerRow2Cells }),
+  ];
+
+  // Table Body Rows
+  for (const rowContent of body) {
+    const rowCells: TableCell[] = [];
+
+    // Render defined metadata/descriptor columns
+    for (let colIdx = 0; colIdx < rowContent.length; colIdx++) {
+      const isCenteredColumn = colIdx < 4;
+      rowCells.push(createBodyCell(rowContent[colIdx], isCenteredColumn));
     }
+
+    // 1. Explicitly add the empty 'Criteria' cell
+    rowCells.push(new TableCell({ children: [new Paragraph({ text: "" })] }));
+
+    // Render score level input cells (Fixed bug: matching scoreLevels.length exactly)
+    for (let s = 0; s < scoreLevels.length; s++) {
+      rowCells.push(
+        new TableCell({
+          children: [new Paragraph({ text: "" })],
+        })
+      );
+    }
+
+    rows.push(new TableRow({ children: rowCells }));
   }
+
+  // // table
+  // // // header row 1
+  // let rows: TableRow[] = []
+  // let thisRow: TableCell[] = []
+  // for (let i = 0; i < headerCellText.length; i++) {
+  //   thisRow.push(new TableCell({
+  //     children: [
+  //       new Paragraph({
+  //         children: [new TextRun({ text: headerCellText[i], bold: true })],
+  //         alignment: AlignmentType.CENTER
+  //       })
+  //     ],
+  //     verticalAlign: VerticalAlignTable.CENTER,
+  //     rowSpan: 2,
+  //     width: {
+  //       type: WidthType.PERCENTAGE,
+  //       size: 50 / totalHeaderCellChars * (headerCellText[i]?.length ?? 0),
+  //     }
+  //   }))
+  // }
+  // thisRow.push(new TableCell({
+  //   children: [
+  //     new Paragraph({
+  //       children: [new TextRun({ text: "Scores", bold: true })],
+  //       alignment: AlignmentType.CENTER
+  //     })
+  //   ],
+  //   verticalAlign: VerticalAlignTable.CENTER,
+  //   columnSpan: scoreLevels.length
+  // }))
+  // rows.push(new TableRow({ children: thisRow }))
+
+  // // // header row 2
+  // thisRow = []
+  // for (let i = 0; i < scoreLevels.length; i++) {
+  //   thisRow.push(new TableCell({
+  //     children: [
+  //       new Paragraph({
+  //         children: [new TextRun({ text: scoreLevels[i] })],
+  //         alignment: AlignmentType.CENTER
+  //       })
+  //     ],
+  //     verticalAlign: VerticalAlignTable.CENTER,
+
+  //   }))
+  // }
+  // rows.push(new TableRow({ children: thisRow }))
+
+  // // // body
+  // if (body.length > 0) {
+  //   for (let i = 0; i < body.length; i++) {
+  //     thisRow = []
+  //     for (let j = 0; j < body[i]!.length; j++) {
+  //       let thisContent = body[i]![j]
+  //       let thisCell: Paragraph[] = []
+  //       if (typeof thisContent === "string") {
+  //         thisCell = [new Paragraph({
+  //           children: [new TextRun({ text: body[i]![j]!.toString() })],
+  //           alignment: j < 4 ? AlignmentType.CENTER : AlignmentType.LEFT
+  //         })]
+  //       }
+  //       if (Array.isArray(thisContent)) {
+  //         thisCell = thisContent.map((line: string[], idx: number, arr: string[][]) => {
+  //           let texts = []
+  //           let headline = ""
+  //           if (line.length > 1) {
+  //             headline = line.slice(0, 2).join(" ")
+  //           } else {
+  //             headline = line[0]!
+  //           }
+  //           texts.push(new TextRun({
+  //             text: headline,
+  //             underline: { type: UnderlineType.SINGLE }
+  //           }))
+  //           if (line.length > 2) {
+  //             texts.push(new TextRun({ text: line.slice(2).join(" "), break: 1 }))
+  //           }
+  //           let paras = [
+  //             new Paragraph({
+  //               children: texts,
+  //               alignment: AlignmentType.LEFT
+  //             })
+  //           ]
+  //           if (idx < arr.length - 1) {
+  //             paras.push(new Paragraph({ text: "" }))
+  //           }
+  //           return paras
+  //         }).flat()
+  //       }
+  //       thisRow.push(new TableCell({ children: thisCell }))
+  //     }
+  //     for (let j = 0; j < scoreLevels.length+1; j++) {
+  //       thisRow.push(new TableCell({ children: [new Paragraph({ text: "" })] }))
+  //     }
+  //     rows.push(new TableRow({ children: thisRow }))
+  //   }
+  // }
 
   const rubricTable = new Table({
-    // width: {
-    //   type: WidthType.PERCENTAGE,
-    //   size: 100*50,
-    // },
     margins: {
       top: 120,    // 120 dxa = ~6pt (~0.08 inch)
       bottom: 120,
