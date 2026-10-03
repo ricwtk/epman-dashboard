@@ -242,6 +242,7 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   for (let i = headerIdx + 1; i < assessTable.length; i++) {
     const row = assessTable[i]!;
     if (row.length < 3) continue;
+    if (/^\d+$/i.test(row[0]!)) continue;
 
     const idxAdj = row.length === header.length ? 0 : -1;
     const lastAssessment = assessments[assessments.length - 1];
