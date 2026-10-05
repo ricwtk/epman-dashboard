@@ -395,6 +395,19 @@ export async function parseCourseOutline(
   const teachingPlan = safeParse(() => parseSection4(tables), [], 'Teaching Plan');
   const references = safeParse(() => parseReferences(tables), { main: [], additional: [] }, 'References');
 
+  for (const assessment of assessments) {
+    assessment.cos.forEach((coI) => {
+      if (cos.length < coI) return
+      const co = cos[coI - 1]
+      if (co) {
+        if (!assessment.wps) assessment.wps = {}
+        if (!assessment.eas) assessment.eas = {}
+        assessment.wps[`CO${coI}`] = co.wps;
+        assessment.eas[`CO${coI}`] = co.eas;
+      }
+    })
+  }
+
   return {
     id: '',
     code: summary.code,
