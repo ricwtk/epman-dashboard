@@ -233,7 +233,7 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
   const formatColIdx = firstRow.findIndex((c) => /Format/i.test(c));
   const coStartColIdx = firstRow.findIndex((c) => !/Assessment/.test(c) && /CO/i.test(c));
 
-  const coNumber = singleRowHeader ? firstRow.length - coStartColIdx : assessTable[1]?.length;
+  // const coNumber = singleRowHeader ? firstRow.length - coStartColIdx : assessTable[1]?.length;
   const fullRowLength = singleRowHeader ? firstRow.length : firstRow.length - 1 + (assessTable[1]?.length ?? 0);
 
   // const headerIdx = assessTable.findIndex((r) =>
