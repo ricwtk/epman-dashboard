@@ -37,7 +37,7 @@ export const useProgrammeListStore = defineStore('programme-list', () => {
     const programmes = await dataService.getProgrammes();
     for (const programmeCode in programmes) {
       const programme = programmes[programmeCode]!;
-      const school = schools.find(s => s.programmes.includes(programme.code));
+      const school = Object.values(schools).find(s => s.programmes.includes(programme.code));
       codeToProgrammeMap.value[programme.code] = {
         ...programme,
         school: school ?? createNewSchool(),

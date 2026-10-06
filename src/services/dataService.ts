@@ -69,12 +69,14 @@ async function fetchLatestCollection<
   for (const doc of querySnapshot.docs) {
     const data = doc.data() as T;
     const key = data[uniqueKey] as string;
+    console.log(data)
 
     if (!processedValues.has(key)) {
       result[key] = { ...data };
       processedValues.add(key);
     }
   }
+  console.log(result)
 
   return result;
 }
@@ -177,8 +179,8 @@ export const dataService = {
   },
 
   // --- Schools ---
-  async getSchools(): Promise<School[]> {
-    return fetchCollection<School>("schools");
+  async getSchools(): Promise<{ [code: string]: School }> {
+    return fetchLatestCollection<School>("schools", "code");
   },
 
   async getSchool(code: string): Promise<School[]> {
