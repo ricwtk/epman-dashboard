@@ -69,14 +69,12 @@ async function fetchLatestCollection<
   for (const doc of querySnapshot.docs) {
     const data = doc.data() as T;
     const key = data[uniqueKey] as string;
-    console.log(data)
 
     if (!processedValues.has(key)) {
       result[key] = { ...data };
       processedValues.add(key);
     }
   }
-  console.log(result)
 
   return result;
 }

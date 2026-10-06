@@ -223,47 +223,50 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
 
   if (!assessTable) return [];
 
-  const headerIdx = assessTable.findIndex((r) =>
-    r.some((c) => /^CO\s*\d+$/i.test(c) || /^Weightage/i.test(c))
-  );
+  const singleRowHeader = assessTable.some((row) => row.some((c) => /CO\d+/i.test(c)));
+  console.log("singleRowHeader", singleRowHeader);
 
-  const header = assessTable[headerIdx] ?? [];
-  const coColIndices: Record<number, number> = {};
-  header.forEach((cell, idx) => {
-    const m = cell.match(/^CO\s*(\d+)$/i);
-    if (m) coColIndices[parseInt(m[1]!, 10)] = idx;
-  });
+  const firstRow = assessTable[0] ?? [];
+  const componentColIdx = firstRow.findIndex((c) => /Component/i.test(c));
+  const descColIdx = firstRow.findIndex((c) => /Method/i.test(c));
+  const weightColIdx = firstRow.findIndex((c) => /Weightage/i.test(c));
+  const formatColIdx = firstRow.findIndex((c) => /Format/i.test(c));
+  const coStartColIdx = firstRow.findIndex((c) => !/Assessment/.test(c) && /CO/i.test(c));
 
-  const weightCellIdx = header.length - Object.keys(coColIndices).length - 1;
-  const hasFormat = header.length - Object.keys(coColIndices).length > 3;
+  const coNumber = singleRowHeader ? firstRow.length - coStartColIdx : assessTable[1]?.length;
+  const fullRowLength = singleRowHeader ? firstRow.length : firstRow.length - 1 + (assessTable[1]?.length ?? 0);
+
+  // const headerIdx = assessTable.findIndex((r) =>
+  //   r.some((c) => /^CO\s*\d+$/i.test(c) || /^Weightage/i.test(c))
+  // );
+
+  // const header = assessTable[headerIdx] ?? [];
+  // const coColIndices: Record<number, number> = {};
+  // header.forEach((cell, idx) => {
+  //   const m = cell.match(/^CO\s*(\d+)$/i);
+  //   if (m) coColIndices[parseInt(m[1]!, 10)] = idx;
+  // });
+
+  // const weightCellIdx = header.length - Object.keys(coColIndices).length - 1;
+  // const hasFormat = header.length - Object.keys(coColIndices).length > 3;
 
   const assessments: Assessment[] = [];
 
-  for (let i = headerIdx + 1; i < assessTable.length; i++) {
+  for (let i = singleRowHeader ? 1 : 2; i < assessTable.length; i++) {
     const row = assessTable[i]!;
-    if (row.length < 3) continue;
-    if (/^\d+$/i.test(row[0]!)) continue;
-
-    const idxAdj = row.length === header.length ? 0 : -1;
+    console.log(row)
+    const idxAdj = row.length === fullRowLength ? 0 : -1;
     const lastAssessment = assessments[assessments.length - 1];
-    const compCell =
-      idxAdj === -1 ? (lastAssessment?.component ?? '') : (row[0] ?? '').trim();
-    const descCell = (row[1 + idxAdj] ?? '').trim();
-    const formatCell = hasFormat ? (row[2 + idxAdj] ?? '').trim() : '';
-    const weightStr = (row[weightCellIdx + idxAdj] ?? '').replace(/[^0-9]/g, '').trim();
+    const compCell = (row[componentColIdx + idxAdj] ?? lastAssessment?.component ?? '').trim();
+    const descCell = (row[descColIdx + idxAdj] ?? '').trim();
+    const formatCell = (row[formatColIdx + idxAdj] ?? '').trim();
+    const weightStr = (row[weightColIdx + idxAdj] ?? '').replace(/[^0-9]/g, '').trim();
+    console.log(weightColIdx, weightStr)
     const weightage = weightStr ? parseInt(weightStr, 10) : 0;
 
     const rowCos: number[] = [];
-    if (Object.keys(coColIndices).length > 0) {
-      for (const [co, idx] of Object.entries(coColIndices)) {
-        if (parseBoolean(row[idx + idxAdj] ?? '')) {
-          rowCos.push(parseInt(co, 10));
-        }
-      }
-    } else {
-      for (let c = 3; c < row.length; c++) {
-        if (parseBoolean(row[c + idxAdj] ?? '')) rowCos.push(c - 2);
-      }
+    for (let c = coStartColIdx; c < row.length; c++) {
+      if (parseBoolean(row[c] ?? '')) rowCos.push(c - coStartColIdx + 1);
     }
 
     assessments.push({
