@@ -634,7 +634,8 @@ const generateCEPCEATable = (
       rowCells.push(new TableCell({
         children: [
           new Paragraph({
-            children: (weightage > 0 ? ["✓", `${weightage}%`] : ["-"]).map((text, idx) => new TextRun({ text, break: idx > 0 ? 1 : 0 })),
+            children: (weightage > 0 ? ["✓"] : ["-"]).map((text, idx) => new TextRun({ text, break: idx > 0 ? 1 : 0 })),
+            // children: (weightage > 0 ? ["✓", `${weightage}%`] : ["-"]).map((text, idx) => new TextRun({ text, break: idx > 0 ? 1 : 0 })),
             alignment: AlignmentType.CENTER
           }),
         ],

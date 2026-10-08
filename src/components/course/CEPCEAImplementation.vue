@@ -262,8 +262,8 @@ const resetAll = () => {
                 <TableCell class="text-center">
                   <template v-if="assessment.cos.includes(index + 1)">
                     <CheckIcon class="inline-block" :size="16" />
-                    <br/>
-                    {{ getWeightage(assessment, index+1) }}%
+                    <!-- <br/>
+                    {{ getWeightage(assessment, index+1) }}% -->
                   </template>
                   <template v-else>
                     <MinusIcon class="inline-block" :size="16" />
