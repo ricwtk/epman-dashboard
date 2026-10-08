@@ -265,8 +265,8 @@ function parseSection3(tables: Table[], _coCount: number): Assessment[] {
     const weightage = weightStr ? parseInt(weightStr, 10) : 0;
 
     const rowCos: number[] = [];
-    for (let c = coStartColIdx; c < row.length; c++) {
-      if (parseBoolean(row[c] ?? '')) rowCos.push(c - coStartColIdx + 1);
+    for (let c = coStartColIdx + idxAdj; c < row.length; c++) {
+      if (parseBoolean(row[c] ?? '')) rowCos.push(c - (coStartColIdx + idxAdj) + 1);
     }
 
     assessments.push({
