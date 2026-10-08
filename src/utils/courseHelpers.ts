@@ -643,11 +643,8 @@ const generateCEPCEATable = (
       }));
       let descriptorCellChildren: Paragraph[] = [];
       if (descriptors.length == 0) {
-        descriptorCellChildren.push(new Paragraph({ text: "Assessment not mapped to CEP/CEA" }));
+        descriptorCellChildren.push(new Paragraph({ text: "-" }));
       } else {
-        descriptorCellChildren.push(new Paragraph({ text: "Assessment is mapped to CEP/CEA as follows" }));
-        descriptorCellChildren.push(new Paragraph({ text: "" }));
-
         descriptors.forEach((descriptor: string[], idx: number) => {
           descriptorCellChildren.push(new Paragraph({
             children: formatWPEA(descriptor),

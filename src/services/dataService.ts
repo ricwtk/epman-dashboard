@@ -177,8 +177,8 @@ export const dataService = {
   },
 
   // --- Schools ---
-  async getSchools(): Promise<School[]> {
-    return fetchCollection<School>("schools");
+  async getSchools(): Promise<{ [code: string]: School }> {
+    return fetchLatestCollection<School>("schools", "code");
   },
 
   async getSchool(code: string): Promise<School[]> {

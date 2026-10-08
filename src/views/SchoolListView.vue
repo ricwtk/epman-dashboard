@@ -8,7 +8,7 @@ import CreateNewPopover from '@/components/CreateNewPopover.vue';
 import LoadingComponent from '@/components/LoadingComponent.vue';
 
 import { navigateToSchool } from '@/utils/navigationHelpers';
-import { formatRevision, getSortedUniqueLatestPartial } from '@/utils/common';
+import { formatRevision } from '@/utils/common';
 import { dataService } from '@/services/dataService';
 
 import { useAuthStore } from '@/stores/auth';
@@ -19,7 +19,10 @@ const loading = ref(false);
 
 async function updateSchoolList() {
   loading.value = true;
-  schools.value = getSortedUniqueLatestPartial(await dataService.getSchools(), ["code", "name"]);
+  let schoolsData = await dataService.getSchools();
+  schools.value = Object.values(schoolsData)
+    .sort((a, b) => a.code.localeCompare(b.code))
+    .map(school => ({ code: school.code, name: school.name }));
   loading.value = false;
 }
 onMounted(async () => {
